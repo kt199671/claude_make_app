@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2048 パズル</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: #faf8ef;
+            color: #776e65;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #776e65;
+        }
+        
+        .score-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+        
+        .score-box {
+            background: #bbada0;
+            padding: 1rem 2rem;
+            border-radius: 5px;
+            color: white;
+        }
+        
+        .score-label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+        
+        .score-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .game-container {
+            position: relative;
+            background: #bbada0;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 0 auto;
+            width: 340px;
+            height: 340px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 10px;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .tile {
+            background: #cdc1b4;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .tile-2 { background: #eee4da; color: #776e65; }
+        .tile-4 { background: #ede0c8; color: #776e65; }
+        .tile-8 { background: #f2b179; color: #fff; }
+        .tile-16 { background: #f59563; color: #fff; }
+        .tile-32 { background: #f67c5f; color: #fff; }
+        .tile-64 { background: #f65e3b; color: #fff; }
+        .tile-128 { background: #edcf72; color: #fff; font-size: 1.8rem; }
+        .tile-256 { background: #edcc61; color: #fff; font-size: 1.8rem; }
+        .tile-512 { background: #edc850; color: #fff; font-size: 1.8rem; }
+        .tile-1024 { background: #edc53f; color: #fff; font-size: 1.5rem; }
+        .tile-2048 { background: #edc22e; color: #fff; font-size: 1.5rem; }
+        
+        .btn {
+            margin-top: 2rem;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            background: #8f7a66;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #7d6b5a;
+        }
+        
+        .game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+        
+        .game-over.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .game-over h2 {
+            font-size: 3rem;
+            color: #776e65;
+            margin-bottom: 1rem;
+        }
+        
+        .game-over p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>2048</h1>
+        
+        <div class="score-container">
+            <div class="score-box">
+                <div class="score-label">スコア</div>
+                <div class="score-value" id="score">0</div>
+            </div>
+            <div class="score-box">
+                <div class="score-label">ベスト</div>
+                <div class="score-value" id="best">0</div>
+            </div>
+        </div>
+        
+        <div class="game-container">
+            <div class="grid" id="grid"></div>
+        </div>
+        
+        <button class="btn" id="new-game">新しいゲーム</button>
+    </div>
+    
+    <div class="game-over" id="game-over">
+        <h2>ゲームオーバー</h2>
+        <p>最終スコア: <span id="final-score">0</span></p>
+        <button class="btn" id="play-again">もう一度プレイ</button>
+    </div>
+    
+    <script src="game.js"></script>
+</body>
+</html>
