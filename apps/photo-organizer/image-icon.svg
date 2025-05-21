@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="80px" height="80px" viewBox="0 0 80 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Image Upload Icon</title>
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect stroke="#CCCCCC" stroke-width="3" x="5" y="5" width="70" height="70" rx="6"></rect>
+        <path d="M30,50 L50,50 L40,35 L30,50 Z" fill="#CCCCCC"></path>
+        <path d="M15,60 L65,60 L55,40 L40,55 L30,45 L15,60 Z" fill="#CCCCCC"></path>
+        <circle fill="#CCCCCC" cx="60" cy="20" r="5"></circle>
+        <path d="M40,25 L40,15 M35,20 L45,20" stroke="#3498DB" stroke-width="3" stroke-linecap="round"></path>
+    </g>
+</svg>

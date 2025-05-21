@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>チェスゲーム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .game-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            text-align: center;
+            width: 95%;
+            max-width: 600px;
+            position: relative;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+        
+        h1 span {
+            margin-left: 10px;
+        }
+        
+        .chess-board {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            border: 4px solid #603813;
+            border-radius: 5px;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            aspect-ratio: 1 / 1;
+            touch-action: none; /* タッチスクロールを無効化 */
+        }
+        
+        .board-row {
+            display: flex;
+            width: 100%;
+            height: 12.5%;
+        }
+        
+        .board-cell {
+            width: 12.5%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            position: relative;
+            user-select: none;
+        }
+        
+        .white-cell {
+            background-color: #f0d9b5;
+        }
+        
+        .black-cell {
+            background-color: #b58863;
+        }
+        
+        .row-label {
+            position: absolute;
+            left: 3px;
+            top: 3px;
+            font-size: 0.8rem;
+            color: rgba(0, 0, 0, 0.6);
+            z-index: 1;
+        }
+        
+        .col-label {
+            position: absolute;
+            right: 3px;
+            bottom: 3px;
+            font-size: 0.8rem;
+            color: rgba(0, 0, 0, 0.6);
+            z-index: 1;
+        }
+        
+        .highlight {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 0, 0.4);
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .move-highlight {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30%;
+            height: 30%;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .capture-highlight {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 3px solid rgba(255, 0, 0, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .check-highlight {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 0, 0, 0.4);
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            font-weight: bold;
+            align-items: center;
+        }
+        
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .player-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .white {
+            background-color: #fff;
+            border: 1px solid #ddd;
+        }
+        
+        .black {
+            background-color: #333;
+        }
+        
+        .current-turn {
+            border: 2px solid #4CAF50;
+            padding: 3px;
+        }
+        
+        .captured-pieces {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 5px;
+            font-size: 1.2rem;
+        }
+        
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #3e8e41;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            border-radius: 15px;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        
+        .game-over.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .game-over p {
+            margin: 10px 0;
+        }
+        
+        .promotion-modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 20;
+            display: none;
+        }
+        
+        .promotion-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .promotion-pieces {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .promotion-piece {
+            font-size: 3rem;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .promotion-piece:hover {
+            background: #f0f0f0;
+            transform: translateY(-5px);
+        }
+        
+        .move-history {
+            margin-top: 20px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .move-history-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .move-list {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        .move-item {
+            padding: 5px 10px;
+            background: white;
+            margin: 3px;
+            border-radius: 3px;
+            font-size: 0.9rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .move-item span {
+            color: #777;
+            margin-right: 5px;
+        }
+        
+        footer {
+            margin-top: 40px;
+            color: #777;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .board-cell {
+                font-size: 1.8rem;
+            }
+            
+            .row-label, .col-label {
+                font-size: 0.7rem;
+            }
+            
+            .game-controls {
+                flex-wrap: wrap;
+            }
+            
+            .btn {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>♞ <span>チェスゲーム</span></h1>
+        
+        <div class="game-info">
+            <div class="player-info">
+                <div class="player-color white" id="white-indicator"></div>
+                白: <span id="white-player">プレイヤー1</span>
+                <div class="captured-pieces" id="white-captured"></div>
+            </div>
+            <div id="game-status">白の番</div>
+            <div class="player-info">
+                <div class="player-color black" id="black-indicator"></div>
+                黒: <span id="black-player">プレイヤー2</span>
+                <div class="captured-pieces" id="black-captured"></div>
+            </div>
+        </div>
+        
+        <div class="chess-board" id="chess-board"></div>
+        
+        <div class="game-controls">
+            <button class="btn btn-primary" id="new-game-btn">新規ゲーム</button>
+            <button class="btn btn-secondary" id="undo-btn">一手戻る</button>
+            <button class="btn btn-danger" id="resign-btn">投了</button>
+        </div>
+        
+        <div class="move-history">
+            <div class="move-history-title">棋譜</div>
+            <div class="move-list" id="move-list"></div>
+        </div>
+        
+        <div class="game-over" id="game-over">
+            <p id="game-result">チェックメイト！</p>
+            <p id="winner">白の勝利</p>
+            <button class="btn btn-primary" id="play-again-btn">もう一度プレイ</button>
+        </div>
+        
+        <div class="promotion-modal" id="promotion-modal">
+            <div class="promotion-title">ポーンの昇格</div>
+            <div class="promotion-pieces" id="promotion-pieces"></div>
+        </div>
+    </div>
+    
+    <footer>
+        Created with Claude AI
+    </footer>
+    
+    <script src="chess.js"></script>
+</body>
+</html>

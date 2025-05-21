@@ -79,6 +79,7 @@
             background-color: rgba(0,0,0,0.5);
             padding: 10px;
             border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.7);
         }
         
         .inventory-slot {
@@ -92,11 +93,22 @@
             color: white;
             font-weight: bold;
             cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
         }
         
         .inventory-slot.selected {
             border-color: white;
             background-color: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+            z-index: 1;
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+        
+        .inventory-slot:hover:not(.selected) {
+            border-color: #999;
+            background-color: rgba(180,180,180,0.5);
         }
     </style>
 </head>
@@ -106,7 +118,8 @@
         <div id="ui">
             <div>位置: <span id="position">0, 0, 0</span></div>
             <div>選択: <span id="selectedBlock">草ブロック</span></div>
-            <div>操作: WASD=移動, Space=ジャンプ, Shift=しゃがむ, マウス=視点, クリック=破壊/設置</div>
+            <div>操作: WASD=移動, Space=ジャンプ, Shift=しゃがむ, マウス=視点, クリック=破壊/設置, スクロール=ブロック選択</div>
+            <div>FPS: <span id="fps">0</span></div>
         </div>
         <div id="crosshair"></div>
         <div id="inventory">
@@ -115,6 +128,9 @@
             <div class="inventory-slot" data-block="stone">石</div>
             <div class="inventory-slot" data-block="wood">木</div>
             <div class="inventory-slot" data-block="sand">砂</div>
+            <div class="inventory-slot" data-block="water">水</div>
+            <div class="inventory-slot" data-block="leaves">葉</div>
+            <div class="inventory-slot" data-block="glass">ガラス</div>
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>

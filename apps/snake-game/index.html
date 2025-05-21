@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>スネークゲーム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(45deg, #43cea2, #185a9d);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .game-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            text-align: center;
+            width: 95%;
+            max-width: 500px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+        
+        h1 span {
+            margin-left: 10px;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 10px 15px;
+            background: #f5f5f5;
+            border-radius: 50px;
+            font-weight: bold;
+        }
+        
+        #score {
+            color: #43cea2;
+        }
+        
+        #high-score {
+            color: #185a9d;
+        }
+        
+        #game-board {
+            position: relative;
+            margin: 0 auto;
+            background: #f0f0f0;
+            border: 3px solid #333;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .snake-part {
+            position: absolute;
+            background: #43cea2;
+            border-radius: 50%;
+            z-index: 2;
+        }
+        
+        .snake-head {
+            background: #2eaf8a;
+            z-index: 3;
+        }
+        
+        .food {
+            position: absolute;
+            background: #e74c3c;
+            border-radius: 50%;
+            z-index: 1;
+        }
+        
+        .grid-cell {
+            position: absolute;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .control-btn {
+            background: #f5f5f5;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 5px;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            color: #333;
+        }
+        
+        .control-btn:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .control-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .control-row {
+            display: flex;
+            margin: 5px 0;
+        }
+        
+        .spacer {
+            width: 60px;
+            height: 60px;
+            margin: 5px;
+        }
+        
+        .game-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary {
+            background: #43cea2;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2eaf8a;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(67, 206, 162, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #185a9d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #124e88;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(24, 90, 157, 0.3);
+        }
+        
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+        
+        label {
+            font-weight: bold;
+            color: #555;
+        }
+        
+        select {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+            font-size: 0.9rem;
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            border-radius: 5px;
+        }
+        
+        .game-over.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .restart-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #43cea2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .restart-btn:hover {
+            background: #2eaf8a;
+            transform: scale(1.05);
+        }
+        
+        .level-tag {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 5px 15px;
+            background: #f8f9fa;
+            color: #555;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        footer {
+            margin-top: 40px;
+            color: white;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .control-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+            
+            .spacer {
+                width: 50px;
+                height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🐍 <span>スネークゲーム</span></h1>
+        
+        <div class="game-info">
+            <div>スコア: <span id="score">0</span></div>
+            <div>ハイスコア: <span id="high-score">0</span></div>
+        </div>
+        
+        <div class="setting-row">
+            <label for="difficulty">難易度:</label>
+            <select id="difficulty">
+                <option value="easy">簡単</option>
+                <option value="medium" selected>普通</option>
+                <option value="hard">難しい</option>
+            </select>
+        </div>
+        
+        <div id="game-board-container">
+            <div id="game-board"></div>
+            <div class="game-over" id="game-over">
+                <div>ゲームオーバー！</div>
+                <div>スコア: <span id="final-score">0</span></div>
+                <button class="restart-btn" id="restart-btn">もう一度プレイ</button>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-row">
+                <div class="spacer"></div>
+                <button class="control-btn" id="up-btn">↑</button>
+                <div class="spacer"></div>
+            </div>
+            <div class="control-row">
+                <button class="control-btn" id="left-btn">←</button>
+                <div class="spacer"></div>
+                <button class="control-btn" id="right-btn">→</button>
+            </div>
+            <div class="control-row">
+                <div class="spacer"></div>
+                <button class="control-btn" id="down-btn">↓</button>
+                <div class="spacer"></div>
+            </div>
+        </div>
+        
+        <div class="game-buttons">
+            <button class="btn btn-primary" id="start-btn">スタート</button>
+            <button class="btn btn-secondary" id="pause-btn" disabled>一時停止</button>
+        </div>
+    </div>
+    
+    <footer>
+        Created with Claude AI
+    </footer>
+    
+    <script src="game.js"></script>
+</body>
+</html>

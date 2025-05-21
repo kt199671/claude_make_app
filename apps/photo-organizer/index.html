@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI写真整理アプリ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>AI写真整理アプリ</h1>
+        <p class="subtitle">AIが写真を自動で分類・整理します</p>
+    </header>
+
+    <main>
+        <section class="upload-container">
+            <div class="drop-area" id="dropArea">
+                <div class="drop-message">
+                    <img src="image-icon.svg" alt="画像アイコン" class="image-icon" id="imagePreview">
+                    <p>写真をドラッグ&ドロップ</p>
+                    <p>または</p>
+                    <button id="selectFilesBtn" class="btn">写真を選択</button>
+                    <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
+                </div>
+            </div>
+            <div class="upload-status">
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <p id="statusText">0 枚選択中</p>
+            </div>
+            <button id="analyzeBtn" class="btn btn-primary" disabled>分析開始</button>
+        </section>
+
+        <section class="results-container">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="categories">カテゴリ</button>
+                <button class="tab-btn" data-tab="people">人物</button>
+                <button class="tab-btn" data-tab="places">場所</button>
+                <button class="tab-btn" data-tab="dates">日付</button>
+                <button class="tab-btn" data-tab="quality">品質</button>
+            </div>
+
+            <div class="tab-content" id="categoriesTab">
+                <div class="category-grid" id="categoryGrid">
+                    <!-- カテゴリはJavaScriptで動的に生成 -->
+                </div>
+            </div>
+
+            <div class="tab-content" id="peopleTab" style="display: none;">
+                <div class="people-list" id="peopleList">
+                    <!-- 人物はJavaScriptで動的に生成 -->
+                </div>
+            </div>
+
+            <div class="tab-content" id="placesTab" style="display: none;">
+                <div id="placesMap" class="places-map">
+                    <!-- マップ表示エリア -->
+                </div>
+                <div class="places-list" id="placesList">
+                    <!-- 場所はJavaScriptで動的に生成 -->
+                </div>
+            </div>
+
+            <div class="tab-content" id="datesTab" style="display: none;">
+                <div class="calendar-view" id="calendarView">
+                    <!-- カレンダーはJavaScriptで動的に生成 -->
+                </div>
+                <div class="timeline-view" id="timelineView">
+                    <!-- タイムラインはJavaScriptで動的に生成 -->
+                </div>
+            </div>
+
+            <div class="tab-content" id="qualityTab" style="display: none;">
+                <div class="quality-filters">
+                    <button class="filter-btn" data-filter="best">ベストショット</button>
+                    <button class="filter-btn" data-filter="duplicates">重複写真</button>
+                    <button class="filter-btn" data-filter="blurry">ブレた写真</button>
+                    <button class="filter-btn" data-filter="dark">暗い写真</button>
+                </div>
+                <div class="quality-grid" id="qualityGrid">
+                    <!-- 写真品質分析結果はJavaScriptで動的に生成 -->
+                </div>
+            </div>
+        </section>
+
+        <section class="batch-actions">
+            <h2>一括操作</h2>
+            <div class="action-buttons">
+                <button class="action-btn" id="downloadBtn" disabled>
+                    <span class="icon">📥</span>
+                    ダウンロード
+                </button>
+                <button class="action-btn" id="shareBtn" disabled>
+                    <span class="icon">🔗</span>
+                    共有
+                </button>
+                <button class="action-btn" id="exportBtn" disabled>
+                    <span class="icon">📤</span>
+                    エクスポート
+                </button>
+                <button class="action-btn" id="createAlbumBtn" disabled>
+                    <span class="icon">📚</span>
+                    アルバム作成
+                </button>
+            </div>
+        </section>
+
+        <section class="recommendations">
+            <h2>AIレコメンデーション</h2>
+            <div class="recommendation-cards" id="recommendationCards">
+                <!-- レコメンデーションはJavaScriptで動的に生成 -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2025 AI写真整理アプリ. Created with Claude AI.</p>
+        <p><small>プライバシー保護のため、すべての処理はローカルで実行されます。写真がサーバーに送信されることはありません。</small></p>
+    </footer>
+
+    <div class="modal" id="photoModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="photo-details">
+                <div class="photo-preview">
+                    <img id="modalImage" src="" alt="写真プレビュー">
+                </div>
+                <div class="photo-info">
+                    <h3 id="photoTitle">写真タイトル</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">撮影日時</span>
+                            <span id="photoDate" class="info-value">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">カメラ</span>
+                            <span id="photoCamera" class="info-value">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">解像度</span>
+                            <span id="photoResolution" class="info-value">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">サイズ</span>
+                            <span id="photoSize" class="info-value">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">位置情報</span>
+                            <span id="photoLocation" class="info-value">-</span>
+                        </div>
+                    </div>
+                    <div class="photo-tags">
+                        <h4>タグ</h4>
+                        <div id="tagsList" class="tags-list">
+                            <!-- タグはJavaScriptで動的に生成 -->
+                        </div>
+                    </div>
+                    <div class="photo-actions">
+                        <button class="btn" id="addToAlbumBtn">アルバムに追加</button>
+                        <button class="btn" id="editMetadataBtn">メタデータ編集</button>
+                        <button class="btn" id="enhancePhotoBtn">写真を補正</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="image-icon.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>キャンディクラッシュ風パズル</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>キャンディクラッシュ風パズル</h1>
+        
+        <div class="stats">
+            <div class="score-container">
+                <span>スコア:</span>
+                <span id="score">0</span>
+            </div>
+            <div class="moves-container">
+                <span>残り移動回数:</span>
+                <span id="moves">50</span>
+            </div>
+            <div class="time-container">
+                <span>残り時間:</span>
+                <span id="time">02:00</span>
+            </div>
+        </div>
+        
+        <div class="game-container">
+            <div id="board"></div>
+        </div>
+        
+        <div class="controls">
+            <button id="new-game-btn">新しいゲーム</button>
+            <button id="hint-btn">ヒント</button>
+        </div>
+        
+        <div id="level-complete" class="modal">
+            <div class="modal-content">
+                <h2>レベルクリア！</h2>
+                <p>スコア: <span id="final-score">0</span></p>
+                <p>次のレベルへ進みますか？</p>
+                <div class="modal-buttons">
+                    <button id="next-level-btn">次のレベル</button>
+                    <button id="replay-btn">もう一度プレイ</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="game-over" class="modal">
+            <div class="modal-content">
+                <h2>ゲームオーバー</h2>
+                <p>最終スコア: <span id="game-over-score">0</span></p>
+                <div class="modal-buttons">
+                    <button id="restart-btn">最初からやり直す</button>
+                    <button id="share-btn">結果をシェア</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tutorial">
+        <div class="tutorial-content">
+            <h3>遊び方</h3>
+            <p>同じ色のキャンディを3つ以上揃えて消しましょう！</p>
+            <p>キャンディをスワイプして隣のキャンディと入れ替えます。</p>
+            <p>特殊なパターンで特別なキャンディを作れます:</p>
+            <ul>
+                <li><span class="candy special">L</span> L字型 - 周囲のキャンディを爆発</li>
+                <li><span class="candy special">4</span> 4つ揃え - 1列を消去</li>
+                <li><span class="candy special">5</span> 5つ揃え - 同じ色をすべて消去</li>
+            </ul>
+            <button id="close-tutorial">閉じる</button>
+        </div>
+    </div>
+    
+    <script src="game.js"></script>
+</body>
+</html>

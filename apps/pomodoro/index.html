@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ポモドーロタイマー</title>
+    <style>
+        :root {
+            --primary-color: #e74c3c;
+            --secondary-color: #4CAF50;
+            --neutral-color: #3498db;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f5f5f5;
+            color: var(--dark-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.5s ease;
+        }
+        
+        body.work-mode {
+            background: linear-gradient(45deg, #ffebee, #ffcdd2);
+        }
+        
+        body.break-mode {
+            background: linear-gradient(45deg, #e0f7fa, #b2ebf2);
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 500px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            text-align: center;
+            margin: 20px;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            color: var(--dark-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        h1 span {
+            margin-left: 10px;
+        }
+        
+        .timer-container {
+            margin: 30px 0;
+            position: relative;
+        }
+        
+        .timer-circle {
+            width: 250px;
+            height: 250px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+            transform-origin: center;
+        }
+        
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 15;
+            stroke-linecap: round;
+            transform: translate(50%, 50%);
+        }
+        
+        .progress-ring .bg {
+            stroke: #f0f0f0;
+        }
+        
+        .progress-ring .progress {
+            stroke: var(--primary-color);
+            transition: stroke-dashoffset 0.5s ease;
+        }
+        
+        .time-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: var(--dark-color);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #c0392b;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+        
+        .btn-secondary {
+            background: var(--neutral-color);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        .btn-reset {
+            background: var(--light-color);
+            color: var(--dark-color);
+        }
+        
+        .btn-reset:hover {
+            background: #bdc3c7;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(189, 195, 199, 0.3);
+        }
+        
+        .mode-selector {
+            margin: 30px 0;
+        }
+        
+        .mode-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--dark-color);
+        }
+        
+        .mode-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .mode-btn {
+            padding: 10px 20px;
+            border: 2px solid #ddd;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            background: white;
+            transition: all 0.3s ease;
+        }
+        
+        .mode-btn.active {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        
+        .mode-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .session-counter {
+            margin: 20px 0;
+        }
+        
+        .counter-label {
+            font-size: 0.9rem;
+            color: #777;
+            margin-bottom: 5px;
+        }
+        
+        .counter-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--dark-color);
+        }
+        
+        .tomato-icons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .tomato-icon {
+            font-size: 1.5rem;
+            color: #ddd;
+        }
+        
+        .tomato-icon.active {
+            color: var(--primary-color);
+        }
+        
+        .settings {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .settings-title {
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #555;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .settings-title::after {
+            content: "▼";
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+        
+        .settings-content {
+            display: none;
+            margin-top: 15px;
+        }
+        
+        .settings-content.show {
+            display: block;
+        }
+        
+        .setting-item {
+            margin-bottom: 15px;
+        }
+        
+        .setting-label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        
+        .setting-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .notification-icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+        
+        .notification.work {
+            border-left: 5px solid var(--primary-color);
+        }
+        
+        .notification.break {
+            border-left: 5px solid var(--secondary-color);
+        }
+        
+        .task-container {
+            margin-top: 30px;
+            text-align: left;
+        }
+        
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .task-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--dark-color);
+        }
+        
+        .task-input-container {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        .task-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px 0 0 5px;
+            font-size: 1rem;
+        }
+        
+        .add-task-btn {
+            padding: 10px 15px;
+            border: none;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+        }
+        
+        .tasks-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .task-checkbox {
+            margin-right: 10px;
+        }
+        
+        .task-text {
+            flex: 1;
+        }
+        
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: #999;
+        }
+        
+        .task-delete {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        
+        footer {
+            margin-top: 40px;
+            color: #888;
+            font-size: 0.8rem;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                width: 95%;
+                padding: 20px;
+            }
+            
+            .timer-circle {
+                width: 200px;
+                height: 200px;
+            }
+            
+            .time-display {
+                font-size: 3rem;
+            }
+            
+            .controls {
+                flex-wrap: wrap;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍅 <span>ポモドーロタイマー</span></h1>
+        
+        <div class="mode-selector">
+            <div class="mode-title">モード</div>
+            <div class="mode-buttons">
+                <button class="mode-btn active" data-mode="pomodoro">ポモドーロ</button>
+                <button class="mode-btn" data-mode="short-break">短い休憩</button>
+                <button class="mode-btn" data-mode="long-break">長い休憩</button>
+            </div>
+        </div>
+        
+        <div class="timer-container">
+            <div class="timer-circle">
+                <svg class="progress-ring" width="250" height="250">
+                    <circle class="bg" r="110" cx="125" cy="125" stroke-width="15" />
+                    <circle class="progress" r="110" cx="125" cy="125" stroke-width="15" />
+                </svg>
+                <div class="time-display" id="time-display">25:00</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="start-btn" class="btn btn-primary">スタート</button>
+            <button id="pause-btn" class="btn btn-secondary" disabled>一時停止</button>
+            <button id="reset-btn" class="btn btn-reset">リセット</button>
+        </div>
+        
+        <div class="session-counter">
+            <div class="counter-label">セッション</div>
+            <div class="counter-value" id="session-count">0/4</div>
+            <div class="tomato-icons">
+                <div class="tomato-icon">🍅</div>
+                <div class="tomato-icon">🍅</div>
+                <div class="tomato-icon">🍅</div>
+                <div class="tomato-icon">🍅</div>
+            </div>
+        </div>
+        
+        <div class="task-container">
+            <div class="task-header">
+                <div class="task-title">今日のタスク</div>
+            </div>
+            
+            <div class="task-input-container">
+                <input type="text" class="task-input" id="task-input" placeholder="新しいタスクを入力...">
+                <button class="add-task-btn" id="add-task-btn">+</button>
+            </div>
+            
+            <ul class="tasks-list" id="tasks-list"></ul>
+        </div>
+        
+        <div class="settings">
+            <div class="settings-title" id="settings-toggle">設定</div>
+            <div class="settings-content" id="settings-content">
+                <div class="setting-item">
+                    <label class="setting-label">ポモドーロ（分）</label>
+                    <input type="number" class="setting-input" id="pomodoro-input" value="25" min="1" max="60">
+                </div>
+                <div class="setting-item">
+                    <label class="setting-label">短い休憩（分）</label>
+                    <input type="number" class="setting-input" id="short-break-input" value="5" min="1" max="60">
+                </div>
+                <div class="setting-item">
+                    <label class="setting-label">長い休憩（分）</label>
+                    <input type="number" class="setting-input" id="long-break-input" value="15" min="1" max="60">
+                </div>
+                <div class="setting-item">
+                    <label class="setting-label">セッション毎の長い休憩</label>
+                    <input type="number" class="setting-input" id="sessions-input" value="4" min="1" max="10">
+                </div>
+                <button class="btn btn-primary" id="save-settings">保存</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">
+        <div class="notification-icon">🔔</div>
+        <div class="notification-text">Time's up!</div>
+    </div>
+    
+    <footer>
+        Created with Claude AI
+    </footer>
+    
+    <script src="script.js"></script>
+</body>
+</html>
