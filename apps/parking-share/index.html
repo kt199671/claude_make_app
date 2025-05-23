@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ParkShare - 駐車場シェアリングアプリ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 36px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .search-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .search-title {
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .search-input, .search-select {
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus, .search-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .search-btn {
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #7f8c8d;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            min-height: 600px;
+        }
+
+        .parking-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .parking-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #27ae60;
+            transition: all 0.3s ease;
+        }
+
+        .parking-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .parking-card.unavailable {
+            border-left-color: #e74c3c;
+            opacity: 0.7;
+        }
+
+        .parking-card.reserved {
+            border-left-color: #f39c12;
+        }
+
+        .parking-header {
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+
+        .parking-status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .status-available {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-unavailable {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-reserved {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .parking-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .parking-address {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .parking-features {
+            display: flex;
+            gap: 15px;
+            color: #7f8c8d;
+            font-size: 14px;
+            flex-wrap: wrap;
+        }
+
+        .parking-body {
+            padding: 20px;
+        }
+
+        .parking-description {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .parking-amenities {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .amenity-tag {
+            background: #f8f9fa;
+            color: #666;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+
+        .parking-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .parking-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        .parking-rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #f39c12;
+            font-size: 14px;
+        }
+
+        .book-btn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .book-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .book-btn:disabled {
+            background: #e9ecef;
+            color: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .list-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .amenity-checkboxes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.4);
+        }
+
+        .booking-history {
+            display: grid;
+            gap: 20px;
+        }
+
+        .booking-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 5px solid #3498db;
+        }
+
+        .booking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .booking-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .booking-status {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-confirmed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-active {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-completed {
+            background: #e2e3e5;
+            color: #495057;
+        }
+
+        .booking-details {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .booking-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .map-placeholder {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            border: 2px dashed #e9ecef;
+        }
+
+        .filter-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-title {
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+            
+            .parking-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .owner-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .owner-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .owner-name {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🅿️ ParkShare</h1>
+            <p>空いている駐車スペースをシェアして、都市の駐車問題を解決</p>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalSpaces">2,847</div>
+                    <div class="stat-label">登録駐車場</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="activeUsers">15,234</div>
+                    <div class="stat-label">アクティブユーザー</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalBookings">89,567</div>
+                    <div class="stat-label">総利用回数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="carbonSaved">4.2t</div>
+                    <div class="stat-label">CO2削減量</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-section">
+            <h2 class="search-title">🔍 駐車場を探す</h2>
+            <div class="search-form">
+                <input type="text" class="search-input" id="locationInput" placeholder="住所・駅名・ランドマークで検索">
+                <input type="datetime-local" class="search-input" id="startTime">
+                <input type="datetime-local" class="search-input" id="endTime">
+                <select class="search-select" id="vehicleType">
+                    <option value="">車種を選択</option>
+                    <option value="compact">軽自動車</option>
+                    <option value="sedan">普通車</option>
+                    <option value="suv">SUV</option>
+                    <option value="van">バン</option>
+                </select>
+                <button class="search-btn" onclick="app.searchParkingSpaces()">検索</button>
+            </div>
+            
+            <div class="map-placeholder">
+                🗺️ インタラクティブマップ（実際のアプリでは地図が表示されます）<br>
+                <small>近くの駐車場をマップで確認できます</small>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('browse')">🔍 駐車場を探す</button>
+            <button class="tab" onclick="showTab('bookings')">📋 予約履歴</button>
+            <button class="tab" onclick="showTab('list')">🏠 駐車場を登録</button>
+        </div>
+
+        <div class="content">
+            <div id="browse-tab" class="tab-content">
+                <div class="filter-section">
+                    <h3 class="filter-title">絞り込み検索</h3>
+                    <div class="filter-grid">
+                        <div>
+                            <label>料金（1時間あたり）</label>
+                            <select class="search-select" id="priceFilter">
+                                <option value="">すべて</option>
+                                <option value="0-200">200円以下</option>
+                                <option value="200-500">200-500円</option>
+                                <option value="500-1000">500-1000円</option>
+                                <option value="1000+">1000円以上</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>距離</label>
+                            <select class="search-select" id="distanceFilter">
+                                <option value="">制限なし</option>
+                                <option value="500">500m以内</option>
+                                <option value="1000">1km以内</option>
+                                <option value="2000">2km以内</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>設備</label>
+                            <select class="search-select" id="amenityFilter">
+                                <option value="">すべて</option>
+                                <option value="covered">屋根付き</option>
+                                <option value="security">セキュリティ</option>
+                                <option value="ev">EV充電</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>評価</label>
+                            <select class="search-select" id="ratingFilter">
+                                <option value="">すべて</option>
+                                <option value="4">4.0以上</option>
+                                <option value="4.5">4.5以上</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="parking-grid" id="parkingGrid">
+                    <!-- 駐車場カードがここに動的に表示されます -->
+                </div>
+            </div>
+
+            <div id="bookings-tab" class="tab-content" style="display: none;">
+                <h2 style="margin-bottom: 20px; color: #2c3e50;">📋 予約履歴</h2>
+                <div class="booking-history" id="bookingHistory">
+                    <!-- 予約履歴がここに表示されます -->
+                </div>
+            </div>
+
+            <div id="list-tab" class="tab-content" style="display: none;">
+                <h2 style="margin-bottom: 30px; color: #2c3e50; text-align: center;">🏠 駐車場を登録して収益を得る</h2>
+                <form class="list-form" id="listingForm">
+                    <div class="form-group">
+                        <label class="form-label">駐車場名</label>
+                        <input type="text" class="form-input" name="name" required placeholder="例：田中邸駐車場">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">住所</label>
+                        <input type="text" class="form-input" name="address" required placeholder="例：東京都渋谷区1-1-1">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">1時間あたりの料金（円）</label>
+                            <input type="number" class="form-input" name="hourlyRate" required placeholder="例：300" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">最大駐車時間</label>
+                            <select class="form-select" name="maxDuration" required>
+                                <option value="">選択してください</option>
+                                <option value="2">2時間</option>
+                                <option value="4">4時間</option>
+                                <option value="8">8時間</option>
+                                <option value="24">24時間</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">駐車可能な車種</label>
+                            <select class="form-select" name="vehicleType" required>
+                                <option value="">選択してください</option>
+                                <option value="compact">軽自動車まで</option>
+                                <option value="sedan">普通車まで</option>
+                                <option value="suv">SUVまで</option>
+                                <option value="van">バンまで</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">駐車場のタイプ</label>
+                            <select class="form-select" name="parkingType" required>
+                                <option value="">選択してください</option>
+                                <option value="driveway">自宅駐車場</option>
+                                <option value="garage">ガレージ</option>
+                                <option value="lot">平面駐車場</option>
+                                <option value="commercial">商業駐車場</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">利用可能時間</label>
+                        <div class="form-row">
+                            <input type="time" class="form-input" name="availableFrom" required>
+                            <input type="time" class="form-input" name="availableTo" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">設備・特徴</label>
+                        <div class="amenity-checkboxes">
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="amenities" value="covered" id="covered">
+                                <label for="covered">屋根付き</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="amenities" value="security" id="security">
+                                <label for="security">防犯カメラ</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="amenities" value="lighting" id="lighting">
+                                <label for="lighting">夜間照明</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="amenities" value="ev" id="ev">
+                                <label for="ev">EV充電器</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="amenities" value="wide" id="wide">
+                                <label for="wide">大型車対応</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="amenities" value="easy" id="easy">
+                                <label for="easy">出入りしやすい</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">説明・注意事項</label>
+                        <textarea class="form-textarea" name="description" placeholder="駐車場の詳細や利用上の注意点があれば記載してください..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">駐車場を登録する</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ParkShareApp {
+            constructor() {
+                this.parkingSpaces = [
+                    {
+                        id: 1,
+                        name: "田中邸駐車場",
+                        address: "東京都渋谷区神宮前1-1-1",
+                        hourlyRate: 300,
+                        distance: 0.2,
+                        rating: 4.8,
+                        reviews: 24,
+                        owner: "田中太郎",
+                        vehicleType: "sedan",
+                        amenities: ["covered", "security"],
+                        description: "住宅街の静かな環境です。24時間利用可能。",
+                        status: "available",
+                        maxDuration: 8
+                    },
+                    {
+                        id: 2,
+                        name: "渋谷駅前パーキング",
+                        address: "東京都渋谷区道玄坂2-2-2",
+                        hourlyRate: 800,
+                        distance: 0.1,
+                        rating: 4.5,
+                        reviews: 156,
+                        owner: "山田花子",
+                        vehicleType: "suv",
+                        amenities: ["security", "lighting", "ev"],
+                        description: "駅から徒歩1分の好立地。EV充電器完備。",
+                        status: "available",
+                        maxDuration: 4
+                    },
+                    {
+                        id: 3,
+                        name: "青山ガレージ",
+                        address: "東京都港区青山3-3-3",
+                        hourlyRate: 600,
+                        distance: 0.8,
+                        rating: 4.9,
+                        reviews: 67,
+                        owner: "佐藤一郎",
+                        vehicleType: "compact",
+                        amenities: ["covered", "wide"],
+                        description: "屋内ガレージで安心。高級車も安全に駐車できます。",
+                        status: "reserved",
+                        maxDuration: 24
+                    },
+                    {
+                        id: 4,
+                        name: "新宿パーキングロット",
+                        address: "東京都新宿区歌舞伎町1-4-4",
+                        hourlyRate: 500,
+                        distance: 1.2,
+                        rating: 4.2,
+                        reviews: 89,
+                        owner: "鈴木美咲",
+                        vehicleType: "van",
+                        amenities: ["security", "easy"],
+                        description: "大型車も駐車可能。24時間営業。",
+                        status: "available",
+                        maxDuration: 12
+                    },
+                    {
+                        id: 5,
+                        name: "表参道プライベート駐車場",
+                        address: "東京都渋谷区神宮前4-5-5",
+                        hourlyRate: 400,
+                        distance: 0.5,
+                        rating: 4.7,
+                        reviews: 34,
+                        owner: "高橋雄二",
+                        vehicleType: "sedan",
+                        amenities: ["lighting", "easy"],
+                        description: "住宅の駐車場をシェア。平日のみ利用可能。",
+                        status: "unavailable",
+                        maxDuration: 6
+                    },
+                    {
+                        id: 6,
+                        name: "恵比寿セキュアパーキング",
+                        address: "東京都渋谷区恵比寿1-6-6",
+                        hourlyRate: 700,
+                        distance: 0.9,
+                        rating: 4.6,
+                        reviews: 112,
+                        owner: "小林奈々",
+                        vehicleType: "suv",
+                        amenities: ["covered", "security", "ev"],
+                        description: "最新のセキュリティシステム。EV充電対応。",
+                        status: "available",
+                        maxDuration: 24
+                    }
+                ];
+
+                this.bookings = [
+                    {
+                        id: 1,
+                        parkingName: "田中邸駐車場",
+                        address: "東京都渋谷区神宮前1-1-1",
+                        startTime: "2024-01-15 14:00",
+                        endTime: "2024-01-15 18:00",
+                        totalCost: 1200,
+                        status: "completed"
+                    },
+                    {
+                        id: 2,
+                        parkingName: "渋谷駅前パーキング",
+                        address: "東京都渋谷区道玄坂2-2-2",
+                        startTime: "2024-01-20 09:00",
+                        endTime: "2024-01-20 12:00",
+                        totalCost: 2400,
+                        status: "confirmed"
+                    }
+                ];
+
+                this.init();
+            }
+
+            init() {
+                this.renderParkingSpaces();
+                this.renderBookings();
+                this.setupEventListeners();
+                this.updateStats();
+                this.setDefaultDateTime();
+            }
+
+            setupEventListeners() {
+                document.getElementById('listingForm').addEventListener('submit', (e) => this.handleListingSubmit(e));
+                
+                // フィルターのイベントリスナー
+                ['priceFilter', 'distanceFilter', 'amenityFilter', 'ratingFilter'].forEach(filterId => {
+                    document.getElementById(filterId).addEventListener('change', () => this.filterParkingSpaces());
+                });
+            }
+
+            setDefaultDateTime() {
+                const now = new Date();
+                const startTime = new Date(now.getTime() + 60 * 60 * 1000); // 1時間後
+                const endTime = new Date(startTime.getTime() + 2 * 60 * 60 * 1000); // さらに2時間後
+
+                document.getElementById('startTime').value = this.formatDateTime(startTime);
+                document.getElementById('endTime').value = this.formatDateTime(endTime);
+            }
+
+            formatDateTime(date) {
+                return date.toISOString().slice(0, 16);
+            }
+
+            renderParkingSpaces(spaces = this.parkingSpaces) {
+                const grid = document.getElementById('parkingGrid');
+
+                if (spaces.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <h3>該当する駐車場がありません</h3>
+                            <p>検索条件を変更してください</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                grid.innerHTML = spaces.map(space => this.createParkingCard(space)).join('');
+            }
+
+            createParkingCard(space) {
+                const statusLabels = {
+                    available: '利用可能',
+                    unavailable: '利用不可',
+                    reserved: '予約済み'
+                };
+
+                const statusClasses = {
+                    available: 'status-available',
+                    unavailable: 'status-unavailable',
+                    reserved: 'status-reserved'
+                };
+
+                const amenityLabels = {
+                    covered: '🏠 屋根付き',
+                    security: '🔒 防犯カメラ',
+                    lighting: '💡 夜間照明',
+                    ev: '⚡ EV充電',
+                    wide: '🚗 大型車対応',
+                    easy: '🔄 出入り簡単'
+                };
+
+                const vehicleLabels = {
+                    compact: '軽自動車',
+                    sedan: '普通車',
+                    suv: 'SUV',
+                    van: 'バン'
+                };
+
+                return `
+                    <div class="parking-card ${space.status}">
+                        <div class="parking-header">
+                            <div class="parking-status ${statusClasses[space.status]}">${statusLabels[space.status]}</div>
+                            <div class="parking-title">${space.name}</div>
+                            <div class="parking-address">📍 ${space.address}</div>
+                            <div class="owner-info">
+                                <div class="owner-avatar">${space.owner.charAt(0)}</div>
+                                <div class="owner-name">オーナー: ${space.owner}</div>
+                            </div>
+                            <div class="parking-features">
+                                <span>🚗 ${vehicleLabels[space.vehicleType]}まで</span>
+                                <span>📏 ${space.distance}km</span>
+                                <span>⏰ 最大${space.maxDuration}時間</span>
+                            </div>
+                        </div>
+
+                        <div class="parking-body">
+                            <div class="parking-description">${space.description}</div>
+
+                            <div class="parking-amenities">
+                                ${space.amenities.map(amenity => `<span class="amenity-tag">${amenityLabels[amenity]}</span>`).join('')}
+                            </div>
+
+                            <div class="parking-footer">
+                                <div>
+                                    <div class="parking-price">¥${space.hourlyRate}/時間</div>
+                                    <div class="parking-rating">
+                                        ${'★'.repeat(Math.floor(space.rating))} ${space.rating} (${space.reviews}件)
+                                    </div>
+                                </div>
+                                <button class="book-btn" 
+                                        onclick="app.bookParkingSpace(${space.id})" 
+                                        ${space.status !== 'available' ? 'disabled' : ''}>
+                                    ${space.status === 'available' ? '予約する' : '利用不可'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderBookings() {
+                const container = document.getElementById('bookingHistory');
+
+                if (this.bookings.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <h3>予約履歴がありません</h3>
+                            <p>駐車場を予約して便利な駐車ライフを始めましょう！</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const statusLabels = {
+                    confirmed: '予約確定',
+                    active: '利用中',
+                    completed: '利用完了'
+                };
+
+                container.innerHTML = this.bookings.map(booking => `
+                    <div class="booking-card">
+                        <div class="booking-header">
+                            <div class="booking-title">${booking.parkingName}</div>
+                            <div class="booking-status status-${booking.status}">${statusLabels[booking.status]}</div>
+                        </div>
+                        <div class="booking-details">📍 ${booking.address}</div>
+                        <div class="booking-details">
+                            🕐 ${booking.startTime} ～ ${booking.endTime}
+                        </div>
+                        <div class="booking-details">
+                            💰 合計料金: ¥${booking.totalCost.toLocaleString()}
+                        </div>
+                        <div class="booking-actions">
+                            ${booking.status === 'confirmed' ? '<button class="action-btn">キャンセル</button>' : ''}
+                            ${booking.status === 'completed' ? '<button class="action-btn">レビューを書く</button>' : ''}
+                            <button class="action-btn">詳細を見る</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            searchParkingSpaces() {
+                const location = document.getElementById('locationInput').value;
+                const startTime = document.getElementById('startTime').value;
+                const endTime = document.getElementById('endTime').value;
+                const vehicleType = document.getElementById('vehicleType').value;
+
+                if (!startTime || !endTime) {
+                    alert('利用開始時間と終了時間を選択してください');
+                    return;
+                }
+
+                // 簡単な検索シミュレーション
+                let filtered = this.parkingSpaces;
+
+                if (location) {
+                    filtered = filtered.filter(space => 
+                        space.address.toLowerCase().includes(location.toLowerCase()) ||
+                        space.name.toLowerCase().includes(location.toLowerCase())
+                    );
+                }
+
+                if (vehicleType) {
+                    const vehicleOrder = ['compact', 'sedan', 'suv', 'van'];
+                    const selectedIndex = vehicleOrder.indexOf(vehicleType);
+                    filtered = filtered.filter(space => {
+                        const spaceIndex = vehicleOrder.indexOf(space.vehicleType);
+                        return spaceIndex >= selectedIndex;
+                    });
+                }
+
+                this.renderParkingSpaces(filtered);
+                alert(`${filtered.length}件の駐車場が見つかりました`);
+            }
+
+            filterParkingSpaces() {
+                const priceRange = document.getElementById('priceFilter').value;
+                const maxDistance = document.getElementById('distanceFilter').value;
+                const amenity = document.getElementById('amenityFilter').value;
+                const minRating = document.getElementById('ratingFilter').value;
+
+                let filtered = this.parkingSpaces.filter(space => {
+                    // 料金フィルター
+                    if (priceRange) {
+                        const [min, max] = priceRange.split('-').map(p => p === '+' ? Infinity : parseInt(p));
+                        if (max && (space.hourlyRate < min || space.hourlyRate > max)) return false;
+                        if (!max && space.hourlyRate < min) return false;
+                    }
+
+                    // 距離フィルター
+                    if (maxDistance && space.distance * 1000 > parseInt(maxDistance)) return false;
+
+                    // 設備フィルター
+                    if (amenity && !space.amenities.includes(amenity)) return false;
+
+                    // 評価フィルター
+                    if (minRating && space.rating < parseFloat(minRating)) return false;
+
+                    return true;
+                });
+
+                this.renderParkingSpaces(filtered);
+            }
+
+            bookParkingSpace(spaceId) {
+                const space = this.parkingSpaces.find(s => s.id === spaceId);
+                if (!space || space.status !== 'available') return;
+
+                const startTime = document.getElementById('startTime').value;
+                const endTime = document.getElementById('endTime').value;
+
+                if (!startTime || !endTime) {
+                    alert('利用時間を設定してから予約してください');
+                    return;
+                }
+
+                const start = new Date(startTime);
+                const end = new Date(endTime);
+                const hours = (end - start) / (1000 * 60 * 60);
+                const totalCost = Math.ceil(hours * space.hourlyRate);
+
+                const confirmation = confirm(`
+                    ${space.name}を予約しますか？
+                    
+                    利用時間: ${start.toLocaleString()} ～ ${end.toLocaleString()}
+                    時間: ${hours}時間
+                    料金: ¥${totalCost.toLocaleString()}
+                `);
+
+                if (confirmation) {
+                    // 新しい予約を追加
+                    const newBooking = {
+                        id: this.bookings.length + 1,
+                        parkingName: space.name,
+                        address: space.address,
+                        startTime: start.toLocaleString(),
+                        endTime: end.toLocaleString(),
+                        totalCost: totalCost,
+                        status: 'confirmed'
+                    };
+
+                    this.bookings.unshift(newBooking);
+
+                    // 駐車場のステータスを更新
+                    space.status = 'reserved';
+
+                    alert('予約が完了しました！予約履歴でご確認ください。');
+
+                    // 表示を更新
+                    this.renderParkingSpaces();
+                    this.renderBookings();
+                    this.updateStats();
+                }
+            }
+
+            handleListingSubmit(e) {
+                e.preventDefault();
+
+                const formData = new FormData(e.target);
+                const amenities = formData.getAll('amenities');
+                
+                const newSpace = {
+                    id: this.parkingSpaces.length + 1,
+                    name: formData.get('name'),
+                    address: formData.get('address'),
+                    hourlyRate: parseInt(formData.get('hourlyRate')),
+                    distance: Math.random() * 2, // ランダムな距離
+                    rating: 0,
+                    reviews: 0,
+                    owner: "あなた", // 実際にはログインユーザー名
+                    vehicleType: formData.get('vehicleType'),
+                    amenities: amenities,
+                    description: formData.get('description') || "新規登録の駐車場です。",
+                    status: "available",
+                    maxDuration: parseInt(formData.get('maxDuration'))
+                };
+
+                this.parkingSpaces.unshift(newSpace);
+
+                alert('駐車場が正常に登録されました！承認後に公開されます。');
+                e.target.reset();
+
+                // 駐車場一覧タブに切り替え
+                showTab('browse');
+                this.renderParkingSpaces();
+                this.updateStats();
+            }
+
+            updateStats() {
+                const totalSpaces = document.getElementById('totalSpaces');
+                const activeUsers = document.getElementById('activeUsers');
+                const totalBookings = document.getElementById('totalBookings');
+                const carbonSaved = document.getElementById('carbonSaved');
+
+                // アニメーション付きで数値を更新
+                this.animateCounter(totalSpaces, parseInt(totalSpaces.textContent.replace(/,/g, '')), 2847 + Math.floor(Math.random() * 50));
+                this.animateCounter(activeUsers, parseInt(activeUsers.textContent.replace(/,/g, '')), 15234 + Math.floor(Math.random() * 100));
+                this.animateCounter(totalBookings, parseInt(totalBookings.textContent.replace(/,/g, '')), 89567 + Math.floor(Math.random() * 200));
+                
+                // CO2削減量の更新
+                const currentCarbon = parseFloat(carbonSaved.textContent.replace('t', ''));
+                const newCarbon = currentCarbon + Math.random() * 0.1;
+                carbonSaved.textContent = `${newCarbon.toFixed(1)}t`;
+            }
+
+            animateCounter(element, start, end) {
+                const duration = 1000;
+                const startTime = performance.now();
+
+                const updateCounter = (currentTime) => {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+
+                    const current = Math.floor(start + (end - start) * progress);
+                    element.textContent = current.toLocaleString();
+
+                    if (progress < 1) {
+                        requestAnimationFrame(updateCounter);
+                    }
+                };
+
+                requestAnimationFrame(updateCounter);
+            }
+        }
+
+        // タブ切り替え機能
+        function showTab(tabName) {
+            // すべてのタブコンテンツを非表示
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+
+            // すべてのタブボタンからactiveクラスを削除
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // 選択されたタブコンテンツを表示
+            document.getElementById(`${tabName}-tab`).style.display = 'block';
+
+            // 選択されたタブボタンにactiveクラスを追加
+            event.target.classList.add('active');
+        }
+
+        // アプリケーション初期化
+        let app;
+        document.addEventListener('DOMContentLoaded', () => {
+            app = new ParkShareApp();
+        });
+    </script>
+</body>
+</html> 

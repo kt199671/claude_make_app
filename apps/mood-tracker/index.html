@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindWell - メンタルヘルス・ムードトラッカー</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 36px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .mood-input-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .mood-selector {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .mood-title {
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .mood-options {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .mood-option {
+            cursor: pointer;
+            padding: 20px;
+            border-radius: 50%;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 80px;
+        }
+
+        .mood-option:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .mood-option.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .mood-emoji {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .mood-label {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .mood-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .detail-group {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .detail-title {
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .energy-selector, .stress-selector {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .scale-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .scale-option:hover {
+            transform: scale(1.2);
+        }
+
+        .scale-option.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .note-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .note-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .activity-tags {
+            margin-bottom: 20px;
+        }
+
+        .tag-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .activity-tag {
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 20px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .activity-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .activity-tag.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .save-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.4);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #7f8c8d;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            min-height: 500px;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            border-left: 5px solid #667eea;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+
+        .chart-container {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+
+        .chart-title {
+            font-size: 20px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .mood-timeline {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            height: 200px;
+            margin-bottom: 15px;
+            padding: 0 10px;
+        }
+
+        .timeline-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 5px 5px 0 0;
+            min-width: 30px;
+            margin: 0 2px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-bar:hover {
+            transform: scale(1.1);
+            opacity: 0.8;
+        }
+
+        .timeline-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 10px;
+        }
+
+        .history-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 5px solid;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .history-item.excellent { border-left-color: #27ae60; }
+        .history-item.good { border-left-color: #2ecc71; }
+        .history-item.okay { border-left-color: #f39c12; }
+        .history-item.bad { border-left-color: #e67e22; }
+        .history-item.terrible { border-left-color: #e74c3c; }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .history-mood {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .history-date {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .history-details {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .history-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .history-tag {
+            background: #e9ecef;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .ai-insights {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+
+        .ai-title {
+            font-size: 20px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .insight-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .insight-text {
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+
+        .recommendations {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+        }
+
+        .recommendation-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .recommendation-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .recommendation-icon {
+            font-size: 24px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .recommendation-content h4 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .recommendation-content p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .mood-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .mood-options {
+                gap: 10px;
+            }
+            
+            .mood-option {
+                min-width: 60px;
+                padding: 15px;
+            }
+            
+            .mood-emoji {
+                font-size: 24px;
+            }
+            
+            .tabs {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+            
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 MindWell</h1>
+            <p>AIが分析するメンタルヘルス・ムードトラッカー</p>
+        </div>
+
+        <div class="mood-input-section" id="moodInputSection">
+            <div class="mood-selector">
+                <h2 class="mood-title">今の気分はいかがですか？</h2>
+                <div class="mood-options">
+                    <div class="mood-option" data-mood="excellent">
+                        <div class="mood-emoji">😄</div>
+                        <div class="mood-label">最高</div>
+                    </div>
+                    <div class="mood-option" data-mood="good">
+                        <div class="mood-emoji">😊</div>
+                        <div class="mood-label">良い</div>
+                    </div>
+                    <div class="mood-option" data-mood="okay">
+                        <div class="mood-emoji">😐</div>
+                        <div class="mood-label">普通</div>
+                    </div>
+                    <div class="mood-option" data-mood="bad">
+                        <div class="mood-emoji">😔</div>
+                        <div class="mood-label">悪い</div>
+                    </div>
+                    <div class="mood-option" data-mood="terrible">
+                        <div class="mood-emoji">😭</div>
+                        <div class="mood-label">最悪</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mood-details">
+                <div class="detail-group">
+                    <h3 class="detail-title">エネルギーレベル (1-5)</h3>
+                    <div class="energy-selector">
+                        <div class="scale-option" data-energy="1">1</div>
+                        <div class="scale-option" data-energy="2">2</div>
+                        <div class="scale-option" data-energy="3">3</div>
+                        <div class="scale-option" data-energy="4">4</div>
+                        <div class="scale-option" data-energy="5">5</div>
+                    </div>
+                    <small style="color: #666;">1: とても疲れている → 5: エネルギッシュ</small>
+                </div>
+
+                <div class="detail-group">
+                    <h3 class="detail-title">ストレスレベル (1-5)</h3>
+                    <div class="stress-selector">
+                        <div class="scale-option" data-stress="1">1</div>
+                        <div class="scale-option" data-stress="2">2</div>
+                        <div class="scale-option" data-stress="3">3</div>
+                        <div class="scale-option" data-stress="4">4</div>
+                        <div class="scale-option" data-stress="5">5</div>
+                    </div>
+                    <small style="color: #666;">1: とてもリラックス → 5: とてもストレスフル</small>
+                </div>
+            </div>
+
+            <div class="activity-tags">
+                <h3 class="detail-title">今日の活動（複数選択可）</h3>
+                <div class="tag-grid">
+                    <div class="activity-tag" data-activity="work">仕事</div>
+                    <div class="activity-tag" data-activity="exercise">運動</div>
+                    <div class="activity-tag" data-activity="social">友人と過ごす</div>
+                    <div class="activity-tag" data-activity="family">家族時間</div>
+                    <div class="activity-tag" data-activity="hobby">趣味</div>
+                    <div class="activity-tag" data-activity="study">勉強</div>
+                    <div class="activity-tag" data-activity="meditation">瞑想</div>
+                    <div class="activity-tag" data-activity="nature">自然散策</div>
+                    <div class="activity-tag" data-activity="reading">読書</div>
+                    <div class="activity-tag" data-activity="music">音楽</div>
+                    <div class="activity-tag" data-activity="cooking">料理</div>
+                    <div class="activity-tag" data-activity="sleep">十分な睡眠</div>
+                </div>
+            </div>
+
+            <div class="detail-group">
+                <h3 class="detail-title">今日の振り返り</h3>
+                <textarea class="note-input" id="noteInput" placeholder="今日の出来事や感じたことを自由に書いてください..."></textarea>
+            </div>
+
+            <button class="save-btn" onclick="app.saveMoodEntry()">気分を記録する</button>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('analytics')">📊 分析</button>
+            <button class="tab" onclick="showTab('history')">📝 履歴</button>
+            <button class="tab" onclick="showTab('insights')">🤖 AIインサイト</button>
+        </div>
+
+        <div class="content">
+            <div id="analytics-tab" class="tab-content">
+                <div class="analytics-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="averageMood">3.4</div>
+                        <div class="stat-label">平均気分スコア</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="moodTrend">↗️</div>
+                        <div class="stat-label">今週のトレンド</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="streakDays">7</div>
+                        <div class="stat-label">連続記録日数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="bestActivity">🏃‍♂️</div>
+                        <div class="stat-label">最良気分の活動</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3 class="chart-title">過去7日間の気分変化</h3>
+                    <div class="mood-timeline" id="moodChart">
+                        <!-- チャートがここに動的に生成されます -->
+                    </div>
+                    <div class="timeline-labels" id="chartLabels">
+                        <!-- 日付ラベルがここに生成されます -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="history-tab" class="tab-content" style="display: none;">
+                <h2 style="margin-bottom: 20px; color: #2c3e50;">📝 気分履歴</h2>
+                <div class="history-list" id="historyList">
+                    <!-- 履歴がここに表示されます -->
+                </div>
+            </div>
+
+            <div id="insights-tab" class="tab-content" style="display: none;">
+                <div class="ai-insights">
+                    <h2 class="ai-title">🤖 AIインサイト</h2>
+                    <div class="insight-item">
+                        <div class="insight-text">あなたの気分は運動をした日に平均20%向上する傾向にあります。週3回の運動を継続することをお勧めします。</div>
+                    </div>
+                    <div class="insight-item">
+                        <div class="insight-text">ストレスレベルが3以上の日は睡眠時間が6時間未満になっています。早めの就寝を心がけましょう。</div>
+                    </div>
+                    <div class="insight-item">
+                        <div class="insight-text">友人や家族と過ごす日は気分スコアが15%高くなっています。社会的な交流を大切にしましょう。</div>
+                    </div>
+                </div>
+
+                <div class="recommendations">
+                    <h2 style="margin-bottom: 20px; color: #2c3e50;">💡 おすすめアクション</h2>
+                    
+                    <div class="recommendation-item">
+                        <div class="recommendation-icon">🧘‍♀️</div>
+                        <div class="recommendation-content">
+                            <h4>5分間の瞑想</h4>
+                            <p>深呼吸と瞑想でストレスを軽減し、心を落ち着かせましょう</p>
+                        </div>
+                    </div>
+                    
+                    <div class="recommendation-item">
+                        <div class="recommendation-icon">🚶‍♂️</div>
+                        <div class="recommendation-content">
+                            <h4>散歩をする</h4>
+                            <p>15分程度の軽いウォーキングで気分をリフレッシュ</p>
+                        </div>
+                    </div>
+                    
+                    <div class="recommendation-item">
+                        <div class="recommendation-icon">📝</div>
+                        <div class="recommendation-content">
+                            <h4>感謝日記を書く</h4>
+                            <p>今日感謝したことを3つ書き出してみましょう</p>
+                        </div>
+                    </div>
+                    
+                    <div class="recommendation-item">
+                        <div class="recommendation-icon">🎵</div>
+                        <div class="recommendation-content">
+                            <h4>好きな音楽を聴く</h4>
+                            <p>お気に入りの音楽で気分を上げましょう</p>
+                        </div>
+                    </div>
+                    
+                    <div class="recommendation-item">
+                        <div class="recommendation-icon">☎️</div>
+                        <div class="recommendation-content">
+                            <h4>誰かに連絡する</h4>
+                            <p>大切な人との会話で心を軽くしましょう</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class MoodTrackerApp {
+            constructor() {
+                this.currentMood = null;
+                this.currentEnergy = null;
+                this.currentStress = null;
+                this.selectedActivities = new Set();
+                
+                this.moodHistory = [
+                    {
+                        date: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
+                        mood: 'good',
+                        energy: 4,
+                        stress: 2,
+                        activities: ['exercise', 'work'],
+                        note: '運動ができて気分が良かった'
+                    },
+                    {
+                        date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+                        mood: 'okay',
+                        energy: 3,
+                        stress: 3,
+                        activities: ['work', 'family'],
+                        note: '普通の一日だった'
+                    },
+                    {
+                        date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
+                        mood: 'excellent',
+                        energy: 5,
+                        stress: 1,
+                        activities: ['social', 'hobby', 'nature'],
+                        note: '友人と楽しい時間を過ごした'
+                    },
+                    {
+                        date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+                        mood: 'bad',
+                        energy: 2,
+                        stress: 4,
+                        activities: ['work'],
+                        note: '仕事が忙しくてストレスが多かった'
+                    },
+                    {
+                        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+                        mood: 'good',
+                        energy: 4,
+                        stress: 2,
+                        activities: ['exercise', 'meditation', 'reading'],
+                        note: '瞑想と読書でリラックスできた'
+                    },
+                    {
+                        date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+                        mood: 'okay',
+                        energy: 3,
+                        stress: 3,
+                        activities: ['family', 'cooking'],
+                        note: '家族と料理を作って楽しかった'
+                    }
+                ];
+                
+                this.init();
+            }
+            
+            init() {
+                this.setupEventListeners();
+                this.renderAnalytics();
+                this.renderHistory();
+                this.renderMoodChart();
+            }
+            
+            setupEventListeners() {
+                // 気分選択
+                document.querySelectorAll('.mood-option').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        document.querySelectorAll('.mood-option').forEach(o => o.classList.remove('selected'));
+                        option.classList.add('selected');
+                        this.currentMood = option.dataset.mood;
+                    });
+                });
+                
+                // エネルギーレベル選択
+                document.querySelectorAll('[data-energy]').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        document.querySelectorAll('[data-energy]').forEach(o => o.classList.remove('selected'));
+                        option.classList.add('selected');
+                        this.currentEnergy = parseInt(option.dataset.energy);
+                    });
+                });
+                
+                // ストレスレベル選択
+                document.querySelectorAll('[data-stress]').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        document.querySelectorAll('[data-stress]').forEach(o => o.classList.remove('selected'));
+                        option.classList.add('selected');
+                        this.currentStress = parseInt(option.dataset.stress);
+                    });
+                });
+                
+                // 活動タグ選択
+                document.querySelectorAll('.activity-tag').forEach(tag => {
+                    tag.addEventListener('click', (e) => {
+                        const activity = tag.dataset.activity;
+                        if (this.selectedActivities.has(activity)) {
+                            this.selectedActivities.delete(activity);
+                            tag.classList.remove('selected');
+                        } else {
+                            this.selectedActivities.add(activity);
+                            tag.classList.add('selected');
+                        }
+                    });
+                });
+            }
+            
+            saveMoodEntry() {
+                if (!this.currentMood) {
+                    alert('気分を選択してください');
+                    return;
+                }
+                
+                if (!this.currentEnergy) {
+                    alert('エネルギーレベルを選択してください');
+                    return;
+                }
+                
+                if (!this.currentStress) {
+                    alert('ストレスレベルを選択してください');
+                    return;
+                }
+                
+                const note = document.getElementById('noteInput').value;
+                
+                const entry = {
+                    date: new Date(),
+                    mood: this.currentMood,
+                    energy: this.currentEnergy,
+                    stress: this.currentStress,
+                    activities: Array.from(this.selectedActivities),
+                    note: note
+                };
+                
+                this.moodHistory.unshift(entry);
+                
+                // リセット
+                this.resetForm();
+                
+                // 表示更新
+                this.renderAnalytics();
+                this.renderHistory();
+                this.renderMoodChart();
+                
+                alert('気分が記録されました！');
+            }
+            
+            resetForm() {
+                this.currentMood = null;
+                this.currentEnergy = null;
+                this.currentStress = null;
+                this.selectedActivities.clear();
+                
+                document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+                document.getElementById('noteInput').value = '';
+            }
+            
+            renderAnalytics() {
+                // 平均気分スコア計算
+                const moodScores = { terrible: 1, bad: 2, okay: 3, good: 4, excellent: 5 };
+                const avgMood = this.moodHistory.reduce((sum, entry) => sum + moodScores[entry.mood], 0) / this.moodHistory.length;
+                document.getElementById('averageMood').textContent = avgMood.toFixed(1);
+                
+                // トレンド計算
+                const recentMoods = this.moodHistory.slice(0, 3).map(entry => moodScores[entry.mood]);
+                const olderMoods = this.moodHistory.slice(3, 6).map(entry => moodScores[entry.mood]);
+                const recentAvg = recentMoods.reduce((sum, score) => sum + score, 0) / recentMoods.length;
+                const olderAvg = olderMoods.reduce((sum, score) => sum + score, 0) / olderMoods.length;
+                
+                let trendIcon = '→';
+                if (recentAvg > olderAvg + 0.2) trendIcon = '↗️';
+                else if (recentAvg < olderAvg - 0.2) trendIcon = '↘️';
+                
+                document.getElementById('moodTrend').textContent = trendIcon;
+                
+                // 連続記録日数
+                document.getElementById('streakDays').textContent = this.moodHistory.length;
+                
+                // 最良気分の活動
+                const activityMoodMap = {};
+                this.moodHistory.forEach(entry => {
+                    const score = moodScores[entry.mood];
+                    entry.activities.forEach(activity => {
+                        if (!activityMoodMap[activity]) activityMoodMap[activity] = [];
+                        activityMoodMap[activity].push(score);
+                    });
+                });
+                
+                let bestActivity = '🏃‍♂️';
+                let bestScore = 0;
+                
+                Object.keys(activityMoodMap).forEach(activity => {
+                    const avg = activityMoodMap[activity].reduce((sum, score) => sum + score, 0) / activityMoodMap[activity].length;
+                    if (avg > bestScore) {
+                        bestScore = avg;
+                        const activityIcons = {
+                            work: '💼', exercise: '🏃‍♂️', social: '👥', family: '👨‍👩‍👧‍👦',
+                            hobby: '🎨', study: '📚', meditation: '🧘‍♀️', nature: '🌲',
+                            reading: '📖', music: '🎵', cooking: '🍳', sleep: '😴'
+                        };
+                        bestActivity = activityIcons[activity] || '🏃‍♂️';
+                    }
+                });
+                
+                document.getElementById('bestActivity').textContent = bestActivity;
+            }
+            
+            renderMoodChart() {
+                const chart = document.getElementById('moodChart');
+                const labels = document.getElementById('chartLabels');
+                
+                const moodScores = { terrible: 1, bad: 2, okay: 3, good: 4, excellent: 5 };
+                const last7Days = this.moodHistory.slice(0, 7).reverse();
+                
+                chart.innerHTML = '';
+                labels.innerHTML = '';
+                
+                last7Days.forEach(entry => {
+                    const bar = document.createElement('div');
+                    bar.className = 'timeline-bar';
+                    const height = (moodScores[entry.mood] / 5) * 180;
+                    bar.style.height = `${height}px`;
+                    chart.appendChild(bar);
+                    
+                    const label = document.createElement('span');
+                    label.textContent = entry.date.toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' });
+                    labels.appendChild(label);
+                });
+            }
+            
+            renderHistory() {
+                const container = document.getElementById('historyList');
+                
+                if (this.moodHistory.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <h3>まだ記録がありません</h3>
+                            <p>気分を記録して、メンタルヘルスを管理しましょう</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                const moodLabels = {
+                    excellent: '😄 最高',
+                    good: '😊 良い',
+                    okay: '😐 普通',
+                    bad: '😔 悪い',
+                    terrible: '😭 最悪'
+                };
+                
+                const activityLabels = {
+                    work: '💼 仕事', exercise: '🏃‍♂️ 運動', social: '👥 友人', family: '👨‍👩‍👧‍👦 家族',
+                    hobby: '🎨 趣味', study: '📚 勉強', meditation: '🧘‍♀️ 瞑想', nature: '🌲 自然',
+                    reading: '📖 読書', music: '🎵 音楽', cooking: '🍳 料理', sleep: '😴 睡眠'
+                };
+                
+                container.innerHTML = this.moodHistory.map(entry => `
+                    <div class="history-item ${entry.mood}">
+                        <div class="history-header">
+                            <div class="history-mood">${moodLabels[entry.mood]}</div>
+                            <div class="history-date">${entry.date.toLocaleDateString('ja-JP', { 
+                                year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+                            })}</div>
+                        </div>
+                        <div class="history-details">
+                            エネルギー: ${entry.energy}/5 | ストレス: ${entry.stress}/5
+                        </div>
+                        ${entry.note ? `<div class="history-details">${entry.note}</div>` : ''}
+                        <div class="history-tags">
+                            ${entry.activities.map(activity => 
+                                `<span class="history-tag">${activityLabels[activity] || activity}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        // タブ切り替え機能
+        function showTab(tabName) {
+            // すべてのタブコンテンツを非表示
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // すべてのタブボタンからactiveクラスを削除
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 選択されたタブコンテンツを表示
+            document.getElementById(`${tabName}-tab`).style.display = 'block';
+            
+            // 選択されたタブボタンにactiveクラスを追加
+            event.target.classList.add('active');
+        }
+        
+        // アプリケーション初期化
+        let app;
+        document.addEventListener('DOMContentLoaded', () => {
+            app = new MoodTrackerApp();
+        });
+    </script>
+</body>
+</html> 

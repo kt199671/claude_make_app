@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Chat - リアルタイム翻訳チャット</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 800px;
+            height: 90vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .language-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .language-select {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .language-select:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .chat-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 15px;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .message.sent {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.received {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .message-original {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .message-translated {
+            font-size: 14px;
+            opacity: 0.8;
+            font-style: italic;
+            border-top: 1px solid rgba(255,255,255,0.3);
+            padding-top: 8px;
+            margin-top: 8px;
+        }
+
+        .message.received .message-translated {
+            border-top: 1px solid #e9ecef;
+        }
+
+        .input-area {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .message-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .send-btn {
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .online-users {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+        }
+
+        .typing-indicator {
+            padding: 10px 20px;
+            color: #666;
+            font-style: italic;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 14px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #4caf50;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+            
+            .language-selector {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="connection-status">
+                <div class="status-dot"></div>
+                <span>接続中</span>
+            </div>
+            <h1>🌍 Global Chat</h1>
+            <p>世界中の人とリアルタイム翻訳チャット</p>
+            <div class="online-users">👥 <span id="userCount">1,247</span> オンライン</div>
+            <div class="language-selector">
+                <select class="language-select" id="myLanguage">
+                    <option value="ja">🇯🇵 日本語</option>
+                    <option value="en">🇺🇸 English</option>
+                    <option value="zh">🇨🇳 中文</option>
+                    <option value="ko">🇰🇷 한국어</option>
+                    <option value="es">🇪🇸 Español</option>
+                    <option value="fr">🇫🇷 Français</option>
+                    <option value="de">🇩🇪 Deutsch</option>
+                    <option value="pt">🇧🇷 Português</option>
+                </select>
+                <span>→</span>
+                <select class="language-select" id="targetLanguage">
+                    <option value="en">🇺🇸 English</option>
+                    <option value="ja">🇯🇵 日本語</option>
+                    <option value="zh">🇨🇳 中文</option>
+                    <option value="ko">🇰🇷 한국어</option>
+                    <option value="es">🇪🇸 Español</option>
+                    <option value="fr">🇫🇷 Français</option>
+                    <option value="de">🇩🇪 Deutsch</option>
+                    <option value="pt">🇧🇷 Português</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="chat-area" id="chatArea">
+            <div class="message received">
+                <div class="message-original">Hello! Welcome to Global Chat! 👋</div>
+                <div class="message-translated">こんにちは！Global Chatへようこそ！👋</div>
+            </div>
+            <div class="message received">
+                <div class="message-original">¡Hola a todos desde España!</div>
+                <div class="message-translated">スペインからみなさんこんにちは！</div>
+            </div>
+            <div class="message received">
+                <div class="message-original">Bonjour de Paris! Comment allez-vous?</div>
+                <div class="message-translated">パリからこんにちは！お元気ですか？</div>
+            </div>
+        </div>
+        
+        <div class="typing-indicator" id="typingIndicator" style="display: none;">
+            誰かが入力中...
+        </div>
+        
+        <div class="input-area">
+            <input type="text" class="message-input" id="messageInput" placeholder="メッセージを入力..." maxlength="500">
+            <button class="send-btn" id="sendBtn">
+                <span>送信</span>
+                <span>🚀</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        class GlobalChatApp {
+            constructor() {
+                this.chatArea = document.getElementById('chatArea');
+                this.messageInput = document.getElementById('messageInput');
+                this.sendBtn = document.getElementById('sendBtn');
+                this.userCount = document.getElementById('userCount');
+                this.typingIndicator = document.getElementById('typingIndicator');
+                this.myLanguage = document.getElementById('myLanguage');
+                this.targetLanguage = document.getElementById('targetLanguage');
+                
+                this.currentUserCount = 1247;
+                this.typingTimeout = null;
+                this.isConnected = true;
+                
+                this.translations = {
+                    'ja': {
+                        'Hello! Welcome to Global Chat! 👋': 'こんにちは！Global Chatへようこそ！👋',
+                        '¡Hola a todos desde España!': 'スペインからみなさんこんにちは！',
+                        'Bonjour de Paris! Comment allez-vous?': 'パリからこんにちは！お元気ですか？',
+                        'Good morning from Tokyo!': '東京からおはようございます！',
+                        'How is everyone doing today?': '今日はみなさんいかがお過ごしですか？',
+                        'The weather is beautiful here!': 'こちらは天気がとても良いです！',
+                        'I love this app! So easy to talk to people worldwide!': 'このアプリ大好きです！世界中の人と話すのがとても簡単！',
+                        'What time is it in your country?': 'あなたの国では今何時ですか？'
+                    },
+                    'en': {
+                        'こんにちは！Global Chatへようこそ！👋': 'Hello! Welcome to Global Chat! 👋',
+                        'スペインからみなさんこんにちは！': 'Hello everyone from Spain!',
+                        'パリからこんにちは！お元気ですか？': 'Hello from Paris! How are you?',
+                        '東京からおはようございます！': 'Good morning from Tokyo!',
+                        '今日はみなさんいかがお過ごしですか？': 'How is everyone doing today?',
+                        'こちらは天気がとても良いです！': 'The weather is beautiful here!',
+                        'このアプリ大好きです！世界中の人と話すのがとても簡単！': 'I love this app! So easy to talk to people worldwide!',
+                        'あなたの国では今何時ですか？': 'What time is it in your country?'
+                    }
+                };
+                
+                this.init();
+            }
+            
+            init() {
+                this.sendBtn.addEventListener('click', () => this.sendMessage());
+                this.messageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.sendMessage();
+                    } else {
+                        this.showTyping();
+                    }
+                });
+                
+                this.myLanguage.addEventListener('change', () => this.updateLanguage());
+                this.targetLanguage.addEventListener('change', () => this.updateLanguage());
+                
+                // ユーザー数をリアルタイムで更新
+                this.updateUserCount();
+                
+                // ランダムメッセージを定期的に追加
+                this.startRandomMessages();
+                
+                // 初期化時にスクロールを最下部に
+                this.scrollToBottom();
+            }
+            
+            sendMessage() {
+                const message = this.messageInput.value.trim();
+                if (!message) return;
+                
+                const myLang = this.myLanguage.value;
+                const targetLang = this.targetLanguage.value;
+                
+                // 自分のメッセージを追加
+                this.addMessage(message, this.translateText(message, myLang, targetLang), true);
+                
+                this.messageInput.value = '';
+                this.scrollToBottom();
+                
+                // 相手からの返信をシミュレート
+                setTimeout(() => {
+                    this.simulateResponse();
+                }, Math.random() * 3000 + 1000);
+            }
+            
+            addMessage(original, translated, isSent = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+                messageDiv.innerHTML = `
+                    <div class="message-original">${original}</div>
+                    ${translated && translated !== original ? `<div class="message-translated">${translated}</div>` : ''}
+                `;
+                
+                this.chatArea.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+            
+            translateText(text, fromLang, toLang) {
+                if (fromLang === toLang) return text;
+                
+                // 簡単な翻訳シミュレーション
+                const translationDict = this.translations[toLang];
+                if (translationDict && translationDict[text]) {
+                    return translationDict[text];
+                }
+                
+                // より高度な翻訳エンジンをここで実装できます
+                const commonTranslations = {
+                    'Hello': { ja: 'こんにちは', es: 'Hola', fr: 'Bonjour', de: 'Hallo', zh: '你好', ko: '안녕하세요' },
+                    'Thank you': { ja: 'ありがとう', es: 'Gracias', fr: 'Merci', de: 'Danke', zh: '谢谢', ko: '감사합니다' },
+                    'Good morning': { ja: 'おはようございます', es: 'Buenos días', fr: 'Bonjour', de: 'Guten Morgen', zh: '早上好', ko: '좋은 아침' }
+                };
+                
+                for (const [english, translations] of Object.entries(commonTranslations)) {
+                    if (text.toLowerCase().includes(english.toLowerCase()) && translations[toLang]) {
+                        return text.replace(new RegExp(english, 'gi'), translations[toLang]);
+                    }
+                }
+                
+                return `[翻訳: ${text}]`;
+            }
+            
+            showTyping() {
+                this.typingIndicator.style.display = 'block';
+                clearTimeout(this.typingTimeout);
+                
+                this.typingTimeout = setTimeout(() => {
+                    this.typingIndicator.style.display = 'none';
+                }, 2000);
+            }
+            
+            updateUserCount() {
+                setInterval(() => {
+                    const change = Math.floor(Math.random() * 21) - 10; // -10 to +10
+                    this.currentUserCount = Math.max(1000, this.currentUserCount + change);
+                    this.userCount.textContent = this.currentUserCount.toLocaleString();
+                }, 5000);
+            }
+            
+            updateLanguage() {
+                // 言語変更時の処理
+                console.log(`言語設定: ${this.myLanguage.value} → ${this.targetLanguage.value}`);
+            }
+            
+            startRandomMessages() {
+                const randomMessages = [
+                    'Good morning from Tokyo!',
+                    'How is everyone doing today?',
+                    'The weather is beautiful here!',
+                    'I love this app! So easy to talk to people worldwide!',
+                    'What time is it in your country?',
+                    'こんにちは！日本からです！',
+                    'Buongiorno dall\'Italia! 🇮🇹',
+                    'Guten Tag aus Deutschland! 🇩🇪',
+                    'Hej från Sverige! 🇸🇪'
+                ];
+                
+                setInterval(() => {
+                    if (Math.random() < 0.3) { // 30%の確率
+                        const randomMessage = randomMessages[Math.floor(Math.random() * randomMessages.length)];
+                        const targetLang = this.targetLanguage.value;
+                        this.addMessage(randomMessage, this.translateText(randomMessage, 'en', targetLang), false);
+                    }
+                }, 8000);
+            }
+            
+            simulateResponse() {
+                const responses = [
+                    'That\'s interesting! Tell me more!',
+                    'Hello from Brazil! 🇧🇷',
+                    'Nice to meet you!',
+                    'I agree! This app is amazing!',
+                    'How\'s the weather there?'
+                ];
+                
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                const targetLang = this.targetLanguage.value;
+                this.addMessage(randomResponse, this.translateText(randomResponse, 'en', targetLang), false);
+            }
+            
+            scrollToBottom() {
+                this.chatArea.scrollTop = this.chatArea.scrollHeight;
+            }
+        }
+        
+        // アプリケーション初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            new GlobalChatApp();
+        });
+    </script>
+</body>
+</html> 

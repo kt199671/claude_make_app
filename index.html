@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Claude作品集</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
@@ -12,115 +14,330 @@
         }
 
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f5f5f5;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .background-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(255,255,255,0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
+            position: relative;
+            z-index: 1;
         }
 
         header {
-            background-color: #2c3e50;
-            color: white;
             text-align: center;
-            padding: 2rem 0;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 4rem 0 2rem;
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);
+            border-radius: 2px;
+            animation: shimmer 2s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
 
         h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 15px;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            letter-spacing: -0.02em;
+            animation: fadeInUp 1s ease-out;
         }
 
         .subtitle {
-            font-size: 1.2rem;
-            color: #ecf0f1;
+            font-size: 1.3rem;
+            color: rgba(255,255,255,0.9);
+            font-weight: 300;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .apps-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 30px;
             margin-top: 40px;
         }
 
         .app-card {
-            background: white;
-            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 
+                0 8px 32px rgba(0,0,0,0.1),
+                0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255,255,255,0.2);
+            position: relative;
+            animation: slideInUp 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .app-card:nth-child(1) { animation-delay: 0.1s; }
+        .app-card:nth-child(2) { animation-delay: 0.2s; }
+        .app-card:nth-child(3) { animation-delay: 0.3s; }
+        .app-card:nth-child(4) { animation-delay: 0.4s; }
+        .app-card:nth-child(5) { animation-delay: 0.5s; }
+        .app-card:nth-child(6) { animation-delay: 0.6s; }
+        .app-card:nth-child(7) { animation-delay: 0.7s; }
+        .app-card:nth-child(8) { animation-delay: 0.8s; }
+        .app-card:nth-child(9) { animation-delay: 0.9s; }
+        .app-card:nth-child(10) { animation-delay: 1.0s; }
+        .app-card:nth-child(11) { animation-delay: 1.1s; }
+        .app-card:nth-child(12) { animation-delay: 1.2s; }
+        .app-card:nth-child(13) { animation-delay: 1.3s; }
+        .app-card:nth-child(14) { animation-delay: 1.4s; }
+        .app-card:nth-child(15) { animation-delay: 1.5s; }
+        .app-card:nth-child(16) { animation-delay: 1.6s; }
+        .app-card:nth-child(17) { animation-delay: 1.7s; }
+        .app-card:nth-child(18) { animation-delay: 1.8s; }
+        .app-card:nth-child(19) { animation-delay: 1.9s; }
+        .app-card:nth-child(20) { animation-delay: 2.0s; }
+        .app-card:nth-child(21) { animation-delay: 2.1s; }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .app-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
         }
 
         .app-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 
+                0 20px 60px rgba(0,0,0,0.15),
+                0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .app-card:hover::before {
+            opacity: 1;
         }
 
         .app-image {
             width: 100%;
-            height: 200px;
-            background-color: #e0e0e0;
+            height: 220px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
+            font-size: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 50%),
+                radial-gradient(circle at 70% 70%, rgba(255,255,255,0.1) 0%, transparent 50%);
+        }
+
+        .app-image span {
+            position: relative;
+            z-index: 1;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+            transition: transform 0.3s ease;
+        }
+
+        .app-card:hover .app-image span {
+            transform: scale(1.1) rotate(5deg);
         }
 
         .app-content {
-            padding: 20px;
+            padding: 25px;
+            position: relative;
         }
 
         .app-title {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
+            font-weight: 600;
             color: #2c3e50;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            letter-spacing: -0.01em;
         }
 
         .app-description {
-            color: #666;
-            margin-bottom: 15px;
+            color: #64748b;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            font-weight: 400;
         }
 
         .app-link {
-            display: inline-block;
-            background-color: #3498db;
+            display: inline-flex;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 10px 20px;
+            padding: 12px 24px;
             text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
         }
 
         .app-link:hover {
-            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .app-link:hover::before {
+            left: 100%;
         }
 
         .footer {
             text-align: center;
-            margin-top: 50px;
-            padding: 20px;
-            color: #666;
-            border-top: 1px solid #ddd;
+            margin-top: 80px;
+            padding: 30px;
+            color: rgba(255,255,255,0.8);
+            font-weight: 300;
+            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* スクロールバーのスタイリング */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.5);
         }
 
         @media (max-width: 768px) {
             h1 {
-                font-size: 2rem;
+                font-size: 2.5rem;
             }
             
             .apps-grid {
                 grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            header {
+                padding: 3rem 0 1rem;
+                margin-bottom: 30px;
+            }
+
+            .app-card {
+                margin: 0 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1.1rem;
+            }
+
+            .app-content {
+                padding: 20px;
             }
         }
     </style>
 </head>
 <body>
+    <div class="background-pattern"></div>
+    
     <header>
         <h1>Claude作品集</h1>
         <p class="subtitle">Claude AIを使って作成したゲーム・アプリのコレクション</p>
@@ -130,7 +347,9 @@
         <div class="apps-grid">
             <!-- おみくじ -->
             <div class="app-card">
-                <div class="app-image">🥠</div>
+                <div class="app-image">
+                    <span>🥠</span>
+                </div>
                 <div class="app-content">
                     <h2 class="app-title">おみくじ</h2>
                     <p class="app-description">
@@ -142,7 +361,9 @@
 
             <!-- キャンディクラッシュ風パズル -->
             <div class="app-card">
-                <div class="app-image">🍬</div>
+                <div class="app-image">
+                    <span>🍬</span>
+                </div>
                 <div class="app-content">
                     <h2 class="app-title">キャンディクラッシュ風パズル</h2>
                     <p class="app-description">
@@ -155,7 +376,9 @@
             
             <!-- 電卓 -->
             <div class="app-card">
-                <div class="app-image">🧮</div>
+                <div class="app-image">
+                    <span>🧮</span>
+                </div>
                 <div class="app-content">
                     <h2 class="app-title">電卓</h2>
                     <p class="app-description">
@@ -168,7 +391,9 @@
 
             <!-- TODOリスト -->
             <div class="app-card">
-                <div class="app-image">📋</div>
+                <div class="app-image">
+                    <span>📋</span>
+                </div>
                 <div class="app-content">
                     <h2 class="app-title">TODOリスト</h2>
                     <p class="app-description">
@@ -181,7 +406,9 @@
 
             <!-- 天気予報 -->
             <div class="app-card">
-                <div class="app-image">🌦️</div>
+                <div class="app-image">
+                    <span>🌦️</span>
+                </div>
                 <div class="app-content">
                     <h2 class="app-title">天気予報</h2>
                     <p class="app-description">
@@ -194,7 +421,9 @@
 
             <!-- メモ帳 -->
             <div class="app-card">
-                <div class="app-image">📝</div>
+                <div class="app-image">
+                    <span>📝</span>
+                </div>
                 <div class="app-content">
                     <h2 class="app-title">メモ帳</h2>
                     <p class="app-description">
@@ -207,7 +436,9 @@
 
             <!-- ポモドーロタイマー -->
             <div class="app-card">
-                <div class="app-image">🍅</div>
+                <div class="app-image">
+                    <span>🍅</span>
+                </div>
                 <div class="app-content">
                     <h2 class="app-title">ポモドーロタイマー</h2>
                     <p class="app-description">
@@ -220,7 +451,9 @@
 
             <!-- スネークゲーム -->
             <div class="app-card">
-                <div class="app-image">🐍</div>
+                <div class="app-image">
+                    <span>🐍</span>
+                </div>
                 <div class="app-content">
                     <h2 class="app-title">スネークゲーム</h2>
                     <p class="app-description">
@@ -233,7 +466,9 @@
 
             <!-- チェスゲーム -->
             <div class="app-card">
-                <div class="app-image">♞</div>
+                <div class="app-image">
+                    <span>♞</span>
+                </div>
                 <div class="app-content">
                     <h2 class="app-title">チェス</h2>
                     <p class="app-description">
@@ -246,7 +481,9 @@
 
             <!-- ブロック崩し -->
             <div class="app-card">
-                <div class="app-image">🎮</div>
+                <div class="app-image">
+                    <span>🎮</span>
+                </div>
                 <div class="app-content">
                     <h2 class="app-title">ブロック崩し</h2>
                     <p class="app-description">
@@ -259,7 +496,9 @@
 
             <!-- Minecraftクローン -->
             <div class="app-card">
-                <div class="app-image">⛏️</div>
+                <div class="app-image">
+                    <span>⛏️</span>
+                </div>
                 <div class="app-content">
                     <h2 class="app-title">Minecraft Clone</h2>
                     <p class="app-description">
@@ -272,7 +511,9 @@
 
             <!-- 2048パズル -->
             <div class="app-card">
-                <div class="app-image">🔢</div>
+                <div class="app-image">
+                    <span>🔢</span>
+                </div>
                 <div class="app-content">
                     <h2 class="app-title">2048パズル</h2>
                     <p class="app-description">
@@ -285,7 +526,9 @@
 
             <!-- タイピングゲーム -->
             <div class="app-card">
-                <div class="app-image">⌨️</div>
+                <div class="app-image">
+                    <span>⌨️</span>
+                </div>
                 <div class="app-content">
                     <h2 class="app-title">タイピングゲーム</h2>
                     <p class="app-description">
@@ -298,7 +541,9 @@
 
             <!-- AI写真整理アプリ -->
             <div class="app-card">
-                <div class="app-image">📸</div>
+                <div class="app-image">
+                    <span>📸</span>
+                </div>
                 <div class="app-content">
                     <h2 class="app-title">AI写真整理アプリ</h2>
                     <p class="app-description">
@@ -306,6 +551,111 @@
                         重複写真の検出や品質分析も行います。
                     </p>
                     <a href="apps/photo-organizer/index.html" class="app-link">使ってみる</a>
+                </div>
+            </div>
+
+            <!-- AI Finance Manager -->
+            <div class="app-card">
+                <div class="app-image">
+                    <span>💰</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">AI Finance Manager</h2>
+                    <p class="app-description">
+                        AIを活用した家計管理アプリ。収入・支出の自動分類、予算管理、支出パターン分析機能を搭載。
+                        グラフとチャートで財務状況を可視化し、賢い節約提案も行います。
+                    </p>
+                    <a href="apps/ai-finance-manager/index.html" class="app-link">使ってみる</a>
+                </div>
+            </div>
+
+            <!-- AI Habit Tracker -->
+            <div class="app-card">
+                <div class="app-image">
+                    <span>📈</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">AI Habit Tracker</h2>
+                    <p class="app-description">
+                        AIが習慣形成をサポートする習慣トラッカー。習慣の進捗を記録・分析し、
+                        個人に最適化されたアドバイスとモチベーション向上のための機能を提供します。
+                    </p>
+                    <a href="apps/ai-habit-tracker/index.html" class="app-link">使ってみる</a>
+                </div>
+            </div>
+
+            <!-- Global Chat -->
+            <div class="app-card">
+                <div class="app-image">
+                    <span>🌍</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">Global Chat</h2>
+                    <p class="app-description">
+                        世界中の人とリアルタイム翻訳チャット。言語の壁を越えて、8つの言語でコミュニケーション。
+                        自動翻訳機能で、誰とでも自然な会話が楽しめます。
+                    </p>
+                    <a href="apps/realtime-translator/index.html" class="app-link">チャットする</a>
+                </div>
+            </div>
+
+            <!-- Food Rescue -->
+            <div class="app-card">
+                <div class="app-image">
+                    <span>🛡️</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">Food Rescue</h2>
+                    <p class="app-description">
+                        フードロス削減アプリ。期限切れ間近の食品をお得に購入し、環境保護に貢献。
+                        店舗と消費者をつなぎ、食品廃棄を減らす社会貢献型プラットフォーム。
+                    </p>
+                    <a href="apps/food-rescue/index.html" class="app-link">食品を探す</a>
+                </div>
+            </div>
+
+            <!-- SkillConnect -->
+            <div class="app-card">
+                <div class="app-image">
+                    <span>🎯</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">SkillConnect</h2>
+                    <p class="app-description">
+                        スキルシェア・マイクロラーニングプラットフォーム。短時間で新しいスキルを学び、
+                        専門知識を教えることができる。プログラミングからデザイン、語学まで幅広いカテゴリ。
+                    </p>
+                    <a href="apps/skill-exchange/index.html" class="app-link">学習する</a>
+                </div>
+            </div>
+
+            <!-- MindWell -->
+            <div class="app-card">
+                <div class="app-image">
+                    <span>🧠</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">MindWell</h2>
+                    <p class="app-description">
+                        AIが分析するメンタルヘルス・ムードトラッカー。日々の気分、エネルギー、ストレスレベルを記録し、
+                        パターン分析とパーソナライズされた改善提案を提供します。
+                    </p>
+                    <a href="apps/mood-tracker/index.html" class="app-link">気分を記録</a>
+                </div>
+            </div>
+
+            <!-- ParkShare -->
+            <div class="app-card">
+                <div class="app-image">
+                    <span>🅿️</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">ParkShare</h2>
+                    <p class="app-description">
+                        駐車場シェアリングアプリ。空いている駐車スペースを貸し借りできるプラットフォーム。
+                        位置情報ベースの検索で、必要な時に最適な駐車場を見つけられます。
+                    </p>
+                    <a href="apps/parking-share/index.html" class="app-link">駐車場を探す</a>
                 </div>
             </div>
         </div>

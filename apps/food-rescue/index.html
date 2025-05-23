@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Rescue - フードロス削減アプリ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 36px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            color: white;
+            min-width: 150px;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #7f8c8d;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            min-height: 500px;
+        }
+
+        .food-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .food-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #e74c3c;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .food-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .food-card.about-to-expire {
+            border-left-color: #f39c12;
+        }
+
+        .food-card.fresh {
+            border-left-color: #27ae60;
+        }
+
+        .food-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .food-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .store-name {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .food-details {
+            margin-bottom: 15px;
+        }
+
+        .price {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .original-price {
+            text-decoration: line-through;
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+
+        .sale-price {
+            color: #e74c3c;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .discount {
+            background: #e74c3c;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .expiry-info {
+            color: #e67e22;
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .distance {
+            color: #3498db;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .reserve-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .reserve-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .filter-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .filter-select, .filter-input {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .filter-select:focus, .filter-input:focus {
+            border-color: #667eea;
+        }
+
+        .add-store-section {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .add-store-form {
+            max-width: 500px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.4);
+        }
+
+        .my-reservations {
+            display: grid;
+            gap: 20px;
+        }
+
+        .reservation-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 5px solid #3498db;
+        }
+
+        .reservation-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .status-confirmed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-ready {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-completed {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .stats {
+                flex-direction: column;
+            }
+            
+            .stat-item {
+                min-width: auto;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .food-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-state img {
+            width: 120px;
+            opacity: 0.5;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ Food Rescue</h1>
+            <p>フードロスを削減し、お得に食品を購入できるマッチングプラットフォーム</p>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="savedFood">12,847</div>
+                    <div class="stat-label">救われた食品 (kg)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="savedMoney">¥2,456,780</div>
+                    <div class="stat-label">節約金額</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="partnerStores">1,234</div>
+                    <div class="stat-label">パートナー店舗</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="activeUsers">89,567</div>
+                    <div class="stat-label">アクティブユーザー</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('browse')">🔍 食品を探す</button>
+            <button class="tab" onclick="showTab('reservations')">📋 予約履歴</button>
+            <button class="tab" onclick="showTab('add-store')">🏪 店舗登録</button>
+        </div>
+
+        <div class="content">
+            <div id="browse-tab" class="tab-content">
+                <div class="filter-section">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label class="filter-label">カテゴリー</label>
+                            <select class="filter-select" id="categoryFilter">
+                                <option value="">すべて</option>
+                                <option value="bread">パン・ベーカリー</option>
+                                <option value="produce">野菜・果物</option>
+                                <option value="dairy">乳製品</option>
+                                <option value="meat">肉・魚</option>
+                                <option value="prepared">惣菜・弁当</option>
+                                <option value="dessert">デザート・スイーツ</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">最大距離 (km)</label>
+                            <select class="filter-select" id="distanceFilter">
+                                <option value="">制限なし</option>
+                                <option value="1">1km以内</option>
+                                <option value="3">3km以内</option>
+                                <option value="5">5km以内</option>
+                                <option value="10">10km以内</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">割引率</label>
+                            <select class="filter-select" id="discountFilter">
+                                <option value="">すべて</option>
+                                <option value="30">30%以上</option>
+                                <option value="50">50%以上</option>
+                                <option value="70">70%以上</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">検索</label>
+                            <input type="text" class="filter-input" id="searchInput" placeholder="商品名、店舗名で検索">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="food-grid" id="foodGrid">
+                    <!-- 食品アイテムがここに動的に表示されます -->
+                </div>
+            </div>
+
+            <div id="reservations-tab" class="tab-content" style="display: none;">
+                <h2 style="margin-bottom: 20px; color: #2c3e50;">📋 予約履歴</h2>
+                <div class="my-reservations" id="myReservations">
+                    <!-- 予約履歴がここに表示されます -->
+                </div>
+            </div>
+
+            <div id="add-store-tab" class="tab-content" style="display: none;">
+                <div class="add-store-section">
+                    <h2 style="margin-bottom: 30px; color: #2c3e50;">🏪 店舗・商品登録</h2>
+                    <p style="margin-bottom: 30px; color: #7f8c8d;">フードロス削減にご協力いただき、ありがとうございます。</p>
+                    
+                    <form class="add-store-form" id="addStoreForm">
+                        <div class="form-group">
+                            <label class="form-label">店舗名</label>
+                            <input type="text" class="form-input" name="storeName" required placeholder="例：田中パン屋">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">商品名</label>
+                            <input type="text" class="form-input" name="productName" required placeholder="例：クロワッサン（5個セット）">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">カテゴリー</label>
+                            <select class="form-select" name="category" required>
+                                <option value="">選択してください</option>
+                                <option value="bread">パン・ベーカリー</option>
+                                <option value="produce">野菜・果物</option>
+                                <option value="dairy">乳製品</option>
+                                <option value="meat">肉・魚</option>
+                                <option value="prepared">惣菜・弁当</option>
+                                <option value="dessert">デザート・スイーツ</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">通常価格（円）</label>
+                            <input type="number" class="form-input" name="originalPrice" required placeholder="例：800">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">販売価格（円）</label>
+                            <input type="number" class="form-input" name="salePrice" required placeholder="例：300">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">賞味期限</label>
+                            <input type="datetime-local" class="form-input" name="expiryDate" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">数量</label>
+                            <input type="number" class="form-input" name="quantity" required placeholder="例：10" min="1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">住所</label>
+                            <input type="text" class="form-input" name="address" required placeholder="例：東京都渋谷区1-1-1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">商品説明</label>
+                            <textarea class="form-textarea" name="description" placeholder="商品の詳細や受け取り方法などをご記入ください"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="submit-btn">商品を登録する</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class FoodRescueApp {
+            constructor() {
+                this.foodItems = [
+                    {
+                        id: 1,
+                        title: "焼きたてクロワッサン5個セット",
+                        store: "田中ベーカリー",
+                        category: "bread",
+                        originalPrice: 800,
+                        salePrice: 300,
+                        expiryDate: new Date(Date.now() + 4 * 60 * 60 * 1000), // 4時間後
+                        distance: 0.8,
+                        quantity: 3,
+                        description: "今朝焼きあがったクロワッサンです"
+                    },
+                    {
+                        id: 2,
+                        title: "有機野菜セット（3kg）",
+                        store: "グリーンファーム",
+                        category: "produce",
+                        originalPrice: 1500,
+                        salePrice: 600,
+                        expiryDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1日後
+                        distance: 1.2,
+                        quantity: 5,
+                        description: "新鮮な有機野菜の詰め合わせ"
+                    },
+                    {
+                        id: 3,
+                        title: "手作りサンドイッチ",
+                        store: "カフェ・ドゥ・パリ",
+                        category: "prepared",
+                        originalPrice: 650,
+                        salePrice: 250,
+                        expiryDate: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2時間後
+                        distance: 0.5,
+                        quantity: 8,
+                        description: "ハム&チーズサンドイッチ"
+                    },
+                    {
+                        id: 4,
+                        title: "プレミアムチーズケーキ",
+                        store: "スイーツパラダイス",
+                        category: "dessert",
+                        originalPrice: 1200,
+                        salePrice: 400,
+                        expiryDate: new Date(Date.now() + 12 * 60 * 60 * 1000), // 12時間後
+                        distance: 2.1,
+                        quantity: 2,
+                        description: "濃厚なチーズケーキです"
+                    },
+                    {
+                        id: 5,
+                        title: "新鮮刺身盛り合わせ",
+                        store: "魚源",
+                        category: "meat",
+                        originalPrice: 2000,
+                        salePrice: 800,
+                        expiryDate: new Date(Date.now() + 6 * 60 * 60 * 1000), // 6時間後
+                        distance: 1.8,
+                        quantity: 4,
+                        description: "本日入荷の新鮮な刺身"
+                    },
+                    {
+                        id: 6,
+                        title: "無添加牛乳パック(1L×3本)",
+                        store: "ミルクランド",
+                        category: "dairy",
+                        originalPrice: 900,
+                        salePrice: 450,
+                        expiryDate: new Date(Date.now() + 72 * 60 * 60 * 1000), // 3日後
+                        distance: 0.9,
+                        quantity: 10,
+                        description: "添加物を使わない新鮮牛乳"
+                    }
+                ];
+                
+                this.reservations = [
+                    {
+                        id: 1,
+                        item: "焼きたてクロワッサン5個セット",
+                        store: "田中ベーカリー",
+                        pickupTime: "今日 16:00",
+                        status: "confirmed",
+                        price: 300
+                    },
+                    {
+                        id: 2,
+                        item: "有機野菜セット（3kg）",
+                        store: "グリーンファーム",
+                        pickupTime: "明日 10:00",
+                        status: "ready",
+                        price: 600
+                    }
+                ];
+                
+                this.init();
+            }
+            
+            init() {
+                this.renderFoodItems();
+                this.renderReservations();
+                this.setupEventListeners();
+                this.updateStats();
+            }
+            
+            setupEventListeners() {
+                // フィルターのイベントリスナー
+                document.getElementById('categoryFilter').addEventListener('change', () => this.filterItems());
+                document.getElementById('distanceFilter').addEventListener('change', () => this.filterItems());
+                document.getElementById('discountFilter').addEventListener('change', () => this.filterItems());
+                document.getElementById('searchInput').addEventListener('input', () => this.filterItems());
+                
+                // フォーム送信
+                document.getElementById('addStoreForm').addEventListener('submit', (e) => this.handleFormSubmit(e));
+            }
+            
+            renderFoodItems(items = this.foodItems) {
+                const grid = document.getElementById('foodGrid');
+                
+                if (items.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <h3>該当する商品がありません</h3>
+                            <p>フィルター条件を変更してください</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                grid.innerHTML = items.map(item => this.createFoodCard(item)).join('');
+            }
+            
+            createFoodCard(item) {
+                const discount = Math.round((1 - item.salePrice / item.originalPrice) * 100);
+                const timeUntilExpiry = item.expiryDate - new Date();
+                const hoursUntilExpiry = Math.ceil(timeUntilExpiry / (1000 * 60 * 60));
+                
+                let expiryClass = 'fresh';
+                let expiryText = '';
+                
+                if (hoursUntilExpiry <= 4) {
+                    expiryClass = 'expired';
+                    expiryText = `⚠️ ${hoursUntilExpiry}時間後に期限切れ`;
+                } else if (hoursUntilExpiry <= 12) {
+                    expiryClass = 'about-to-expire';
+                    expiryText = `⏰ ${hoursUntilExpiry}時間後に期限切れ`;
+                } else {
+                    expiryText = `✅ ${Math.ceil(hoursUntilExpiry / 24)}日間有効`;
+                }
+                
+                return `
+                    <div class="food-card ${expiryClass}">
+                        <div class="food-title">${item.title}</div>
+                        <div class="store-name">📍 ${item.store}</div>
+                        
+                        <div class="food-details">
+                            <div class="price">
+                                <span class="original-price">¥${item.originalPrice.toLocaleString()}</span>
+                                <span class="sale-price">¥${item.salePrice.toLocaleString()}</span>
+                                <span class="discount">${discount}%OFF</span>
+                            </div>
+                            
+                            <div class="expiry-info">
+                                ${expiryText}
+                            </div>
+                            
+                            <div class="distance">
+                                🚶‍♀️ ${item.distance}km • 残り${item.quantity}個
+                            </div>
+                        </div>
+                        
+                        <button class="reserve-btn" onclick="app.reserveItem(${item.id})">
+                            予約する
+                        </button>
+                    </div>
+                `;
+            }
+            
+            filterItems() {
+                const category = document.getElementById('categoryFilter').value;
+                const maxDistance = parseFloat(document.getElementById('distanceFilter').value);
+                const minDiscount = parseInt(document.getElementById('discountFilter').value);
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                
+                let filtered = this.foodItems.filter(item => {
+                    // カテゴリーフィルター
+                    if (category && item.category !== category) return false;
+                    
+                    // 距離フィルター
+                    if (maxDistance && item.distance > maxDistance) return false;
+                    
+                    // 割引率フィルター
+                    if (minDiscount) {
+                        const discount = Math.round((1 - item.salePrice / item.originalPrice) * 100);
+                        if (discount < minDiscount) return false;
+                    }
+                    
+                    // 検索フィルター
+                    if (searchTerm && 
+                        !item.title.toLowerCase().includes(searchTerm) && 
+                        !item.store.toLowerCase().includes(searchTerm)) {
+                        return false;
+                    }
+                    
+                    return true;
+                });
+                
+                this.renderFoodItems(filtered);
+            }
+            
+            renderReservations() {
+                const container = document.getElementById('myReservations');
+                
+                if (this.reservations.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <h3>予約はありません</h3>
+                            <p>食品を予約して、フードロス削減に貢献しましょう！</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = this.reservations.map(reservation => `
+                    <div class="reservation-card">
+                        <div class="reservation-status status-${reservation.status}">
+                            ${this.getStatusText(reservation.status)}
+                        </div>
+                        <div class="food-title">${reservation.item}</div>
+                        <div class="store-name">📍 ${reservation.store}</div>
+                        <div style="margin-top: 10px; color: #666;">
+                            <div>🕐 受け取り時間: ${reservation.pickupTime}</div>
+                            <div>💰 金額: ¥${reservation.price.toLocaleString()}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            getStatusText(status) {
+                switch (status) {
+                    case 'confirmed': return '予約確定';
+                    case 'ready': return '受け取り準備完了';
+                    case 'completed': return '受け取り完了';
+                    default: return '不明';
+                }
+            }
+            
+            reserveItem(itemId) {
+                const item = this.foodItems.find(i => i.id === itemId);
+                if (!item) return;
+                
+                if (item.quantity <= 0) {
+                    alert('申し訳ございません。この商品は在庫切れです。');
+                    return;
+                }
+                
+                // 予約処理をシミュレート
+                const confirmation = confirm(`「${item.title}」を¥${item.salePrice.toLocaleString()}で予約しますか？`);
+                
+                if (confirmation) {
+                    // 在庫を減らす
+                    item.quantity--;
+                    
+                    // 予約に追加
+                    const newReservation = {
+                        id: this.reservations.length + 1,
+                        item: item.title,
+                        store: item.store,
+                        pickupTime: "今日 18:00",
+                        status: "confirmed",
+                        price: item.salePrice
+                    };
+                    
+                    this.reservations.unshift(newReservation);
+                    
+                    alert('予約が完了しました！店舗からの連絡をお待ちください。');
+                    
+                    // 表示を更新
+                    this.renderFoodItems();
+                    this.renderReservations();
+                    this.updateStats();
+                }
+            }
+            
+            handleFormSubmit(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData.entries());
+                
+                // 新しい食品アイテムを作成
+                const newItem = {
+                    id: this.foodItems.length + 1,
+                    title: data.productName,
+                    store: data.storeName,
+                    category: data.category,
+                    originalPrice: parseInt(data.originalPrice),
+                    salePrice: parseInt(data.salePrice),
+                    expiryDate: new Date(data.expiryDate),
+                    distance: Math.random() * 5, // ランダムな距離
+                    quantity: parseInt(data.quantity),
+                    description: data.description
+                };
+                
+                this.foodItems.unshift(newItem);
+                
+                alert('商品が正常に登録されました！');
+                e.target.reset();
+                
+                // 食品一覧タブに切り替え
+                showTab('browse');
+                this.renderFoodItems();
+                this.updateStats();
+            }
+            
+            updateStats() {
+                // 統計を動的に更新
+                const savedFood = document.getElementById('savedFood');
+                const savedMoney = document.getElementById('savedMoney');
+                const partnerStores = document.getElementById('partnerStores');
+                const activeUsers = document.getElementById('activeUsers');
+                
+                // アニメーション付きで数値を更新
+                this.animateCounter(savedFood, parseInt(savedFood.textContent.replace(/,/g, '')), 12847 + Math.floor(Math.random() * 100));
+                this.animateCounter(savedMoney, parseInt(savedMoney.textContent.replace(/[¥,]/g, '')), 2456780 + Math.floor(Math.random() * 10000));
+                this.animateCounter(partnerStores, parseInt(partnerStores.textContent.replace(/,/g, '')), 1234 + Math.floor(Math.random() * 10));
+                this.animateCounter(activeUsers, parseInt(activeUsers.textContent.replace(/,/g, '')), 89567 + Math.floor(Math.random() * 100));
+            }
+            
+            animateCounter(element, start, end) {
+                const duration = 1000;
+                const startTime = performance.now();
+                
+                const updateCounter = (currentTime) => {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    
+                    const current = Math.floor(start + (end - start) * progress);
+                    
+                    if (element.id === 'savedMoney') {
+                        element.textContent = `¥${current.toLocaleString()}`;
+                    } else {
+                        element.textContent = current.toLocaleString();
+                    }
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(updateCounter);
+                    }
+                };
+                
+                requestAnimationFrame(updateCounter);
+            }
+        }
+        
+        // タブ切り替え機能
+        function showTab(tabName) {
+            // すべてのタブコンテンツを非表示
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // すべてのタブボタンからactiveクラスを削除
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 選択されたタブコンテンツを表示
+            document.getElementById(`${tabName}-tab`).style.display = 'block';
+            
+            // 選択されたタブボタンにactiveクラスを追加
+            event.target.classList.add('active');
+        }
+        
+        // アプリケーション初期化
+        let app;
+        document.addEventListener('DOMContentLoaded', () => {
+            app = new FoodRescueApp();
+        });
+    </script>
+</body>
+</html> 

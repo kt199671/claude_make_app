@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillConnect - スキルシェア・マイクロラーニング</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 36px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .search-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+            min-width: 300px;
+        }
+
+        .search-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .filter-select {
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-select:focus {
+            border-color: #667eea;
+        }
+
+        .search-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #7f8c8d;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            min-height: 600px;
+        }
+
+        .lessons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .lesson-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border-left: 5px solid;
+        }
+
+        .lesson-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .lesson-card.beginner {
+            border-left-color: #27ae60;
+        }
+
+        .lesson-card.intermediate {
+            border-left-color: #f39c12;
+        }
+
+        .lesson-card.advanced {
+            border-left-color: #e74c3c;
+        }
+
+        .lesson-header {
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+
+        .lesson-category {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .lesson-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .instructor-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .instructor-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .instructor-name {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .lesson-meta {
+            display: flex;
+            gap: 15px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .lesson-body {
+            padding: 20px;
+        }
+
+        .lesson-description {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .lesson-tags {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: #f8f9fa;
+            color: #666;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+
+        .lesson-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .lesson-price {
+            font-size: 18px;
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        .lesson-rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #f39c12;
+        }
+
+        .enroll-btn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .enroll-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .my-courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .course-progress-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 5px solid #3498db;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .teaching-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.4);
+        }
+
+        .featured-teachers {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .teacher-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .teacher-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .teacher-avatar-large {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+            margin: 0 auto 15px;
+        }
+
+        .teacher-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .teacher-specialty {
+            color: #7f8c8d;
+            margin-bottom: 15px;
+        }
+
+        .teacher-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 15px;
+        }
+
+        .teacher-stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        .follow-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .follow-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .search-bar {
+                flex-direction: column;
+            }
+            
+            .search-input {
+                min-width: auto;
+            }
+            
+            .tabs {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+            
+            .lessons-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .my-courses-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .featured-teachers {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .skill-badges {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .skill-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 SkillConnect</h1>
+            <p>短時間でスキルを学び、専門知識をシェアするマイクロラーニングプラットフォーム</p>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalLessons">4,567</div>
+                    <div class="stat-label">レッスン数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="activeTeachers">1,234</div>
+                    <div class="stat-label">講師数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalStudents">89,567</div>
+                    <div class="stat-label">受講者数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="completedLessons">567,890</div>
+                    <div class="stat-label">完了レッスン</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-section">
+            <div class="search-bar">
+                <input type="text" class="search-input" id="searchInput" placeholder="スキル、キーワードで検索...">
+                <select class="filter-select" id="categoryFilter">
+                    <option value="">すべてのカテゴリー</option>
+                    <option value="programming">プログラミング</option>
+                    <option value="design">デザイン</option>
+                    <option value="business">ビジネス</option>
+                    <option value="language">語学</option>
+                    <option value="marketing">マーケティング</option>
+                    <option value="cooking">料理</option>
+                    <option value="music">音楽</option>
+                    <option value="photography">写真</option>
+                </select>
+                <select class="filter-select" id="levelFilter">
+                    <option value="">すべてのレベル</option>
+                    <option value="beginner">初級</option>
+                    <option value="intermediate">中級</option>
+                    <option value="advanced">上級</option>
+                </select>
+                <select class="filter-select" id="durationFilter">
+                    <option value="">すべての時間</option>
+                    <option value="15">15分以内</option>
+                    <option value="30">30分以内</option>
+                    <option value="60">1時間以内</option>
+                </select>
+                <button class="search-btn" onclick="app.filterLessons()">🔍 検索</button>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('browse')">🔍 レッスンを探す</button>
+            <button class="tab" onclick="showTab('my-courses')">📚 マイコース</button>
+            <button class="tab" onclick="showTab('teach')">🎓 教える</button>
+            <button class="tab" onclick="showTab('teachers')">👨‍🏫 人気講師</button>
+        </div>
+
+        <div class="content">
+            <div id="browse-tab" class="tab-content">
+                <div class="lessons-grid" id="lessonsGrid">
+                    <!-- レッスンカードがここに動的に表示されます -->
+                </div>
+            </div>
+
+            <div id="my-courses-tab" class="tab-content" style="display: none;">
+                <h2 style="margin-bottom: 20px; color: #2c3e50;">📚 受講中のコース</h2>
+                <div class="my-courses-grid" id="myCoursesGrid">
+                    <!-- 受講中のコースがここに表示されます -->
+                </div>
+            </div>
+
+            <div id="teach-tab" class="tab-content" style="display: none;">
+                <h2 style="margin-bottom: 30px; color: #2c3e50; text-align: center;">🎓 新しいレッスンを作成</h2>
+                <form class="teaching-form" id="teachingForm">
+                    <div class="form-group">
+                        <label class="form-label">レッスンタイトル</label>
+                        <input type="text" class="form-input" name="title" required placeholder="例：JavaScript入門：変数と関数の基礎">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">カテゴリー</label>
+                        <select class="form-select" name="category" required>
+                            <option value="">選択してください</option>
+                            <option value="programming">プログラミング</option>
+                            <option value="design">デザイン</option>
+                            <option value="business">ビジネス</option>
+                            <option value="language">語学</option>
+                            <option value="marketing">マーケティング</option>
+                            <option value="cooking">料理</option>
+                            <option value="music">音楽</option>
+                            <option value="photography">写真</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">難易度</label>
+                        <select class="form-select" name="level" required>
+                            <option value="">選択してください</option>
+                            <option value="beginner">初級 - 初心者向け</option>
+                            <option value="intermediate">中級 - 基礎知識がある方向け</option>
+                            <option value="advanced">上級 - 経験者向け</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">レッスン時間（分）</label>
+                        <select class="form-select" name="duration" required>
+                            <option value="">選択してください</option>
+                            <option value="15">15分</option>
+                            <option value="30">30分</option>
+                            <option value="45">45分</option>
+                            <option value="60">60分</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">料金（円）</label>
+                        <input type="number" class="form-input" name="price" required placeholder="例：1000" min="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">レッスン内容</label>
+                        <textarea class="form-textarea" name="description" required placeholder="レッスンの詳細な内容を記載してください..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">対象者</label>
+                        <textarea class="form-textarea" name="target" placeholder="どのような方におすすめかを記載してください..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">学習内容（タグ）</label>
+                        <input type="text" class="form-input" name="tags" placeholder="JavaScript,変数,関数,初心者（カンマ区切り）">
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">レッスンを公開する</button>
+                </form>
+            </div>
+
+            <div id="teachers-tab" class="tab-content" style="display: none;">
+                <h2 style="margin-bottom: 20px; color: #2c3e50;">👨‍🏫 人気講師</h2>
+                <div class="featured-teachers" id="teachersGrid">
+                    <!-- 講師カードがここに表示されます -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class SkillConnectApp {
+            constructor() {
+                this.lessons = [
+                    {
+                        id: 1,
+                        title: "JavaScript基礎：変数と関数をマスター",
+                        category: "programming",
+                        level: "beginner",
+                        duration: 30,
+                        price: 800,
+                        instructor: "田中太郎",
+                        rating: 4.8,
+                        students: 234,
+                        description: "JavaScriptの基本的な変数の宣言方法と関数の作り方を学習します。",
+                        tags: ["JavaScript", "変数", "関数", "初心者"]
+                    },
+                    {
+                        id: 2,
+                        title: "Photoshop入門：写真加工の基本テクニック",
+                        category: "design",
+                        level: "beginner",
+                        duration: 45,
+                        price: 1200,
+                        instructor: "佐藤花子",
+                        rating: 4.9,
+                        students: 189,
+                        description: "写真の基本的な加工方法からレタッチテクニックまでを学習します。",
+                        tags: ["Photoshop", "写真加工", "レタッチ", "デザイン"]
+                    },
+                    {
+                        id: 3,
+                        title: "英会話：日常会話で使える基本フレーズ",
+                        category: "language",
+                        level: "beginner",
+                        duration: 25,
+                        price: 600,
+                        instructor: "Mike Johnson",
+                        rating: 4.7,
+                        students: 456,
+                        description: "日常生活で使える基本的な英語フレーズを音声付きで学習します。",
+                        tags: ["英語", "日常会話", "フレーズ", "発音"]
+                    },
+                    {
+                        id: 4,
+                        title: "React基礎：コンポーネントの作り方",
+                        category: "programming",
+                        level: "intermediate",
+                        duration: 60,
+                        price: 1500,
+                        instructor: "山田一郎",
+                        rating: 4.9,
+                        students: 123,
+                        description: "Reactの基本概念とコンポーネントの作成方法を実践的に学習します。",
+                        tags: ["React", "コンポーネント", "JavaScript", "フロントエンド"]
+                    },
+                    {
+                        id: 5,
+                        title: "マーケティング基礎：SNS活用法",
+                        category: "marketing",
+                        level: "beginner",
+                        duration: 40,
+                        price: 1000,
+                        instructor: "鈴木美咲",
+                        rating: 4.6,
+                        students: 267,
+                        description: "Instagram、Twitter、TikTokを使った効果的なマーケティング手法を学習します。",
+                        tags: ["SNS", "マーケティング", "Instagram", "Twitter"]
+                    },
+                    {
+                        id: 6,
+                        title: "基本のパスタ料理：5種類の作り方",
+                        category: "cooking",
+                        level: "beginner",
+                        duration: 35,
+                        price: 700,
+                        instructor: "イタリアン佐々木",
+                        rating: 4.8,
+                        students: 345,
+                        description: "家庭でできる本格的なパスタ料理を5種類、詳しく解説します。",
+                        tags: ["パスタ", "イタリアン", "料理", "基本"]
+                    }
+                ];
+                
+                this.myCourses = [
+                    {
+                        id: 1,
+                        title: "JavaScript基礎：変数と関数をマスター",
+                        instructor: "田中太郎",
+                        progress: 65,
+                        totalLessons: 8,
+                        completedLessons: 5,
+                        nextLesson: "配列の操作方法"
+                    },
+                    {
+                        id: 3,
+                        title: "英会話：日常会話で使える基本フレーズ",
+                        instructor: "Mike Johnson",
+                        progress: 80,
+                        totalLessons: 10,
+                        completedLessons: 8,
+                        nextLesson: "レストランでの注文"
+                    }
+                ];
+                
+                this.teachers = [
+                    {
+                        id: 1,
+                        name: "田中太郎",
+                        specialty: "フロントエンド開発",
+                        avatar: "田",
+                        followers: 1234,
+                        courses: 12,
+                        rating: 4.9,
+                        skills: ["JavaScript", "React", "Vue.js"]
+                    },
+                    {
+                        id: 2,
+                        name: "佐藤花子",
+                        specialty: "UIデザイン",
+                        avatar: "佐",
+                        followers: 987,
+                        courses: 8,
+                        rating: 4.8,
+                        skills: ["Photoshop", "Figma", "UI/UX"]
+                    },
+                    {
+                        id: 3,
+                        name: "Mike Johnson",
+                        specialty: "英語教育",
+                        avatar: "M",
+                        followers: 2156,
+                        courses: 15,
+                        rating: 4.9,
+                        skills: ["英会話", "TOEIC", "ビジネス英語"]
+                    },
+                    {
+                        id: 4,
+                        name: "鈴木美咲",
+                        specialty: "デジタルマーケティング",
+                        avatar: "鈴",
+                        followers: 1567,
+                        courses: 10,
+                        rating: 4.7,
+                        skills: ["SNS", "SEO", "Google Analytics"]
+                    }
+                ];
+                
+                this.init();
+            }
+            
+            init() {
+                this.renderLessons();
+                this.renderMyCourses();
+                this.renderTeachers();
+                this.setupEventListeners();
+                this.updateStats();
+            }
+            
+            setupEventListeners() {
+                document.getElementById('teachingForm').addEventListener('submit', (e) => this.handleTeachingSubmit(e));
+            }
+            
+            renderLessons(lessons = this.lessons) {
+                const grid = document.getElementById('lessonsGrid');
+                
+                if (lessons.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <h3>該当するレッスンがありません</h3>
+                            <p>検索条件を変更してください</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                grid.innerHTML = lessons.map(lesson => this.createLessonCard(lesson)).join('');
+            }
+            
+            createLessonCard(lesson) {
+                const categoryLabels = {
+                    programming: 'プログラミング',
+                    design: 'デザイン',
+                    business: 'ビジネス',
+                    language: '語学',
+                    marketing: 'マーケティング',
+                    cooking: '料理',
+                    music: '音楽',
+                    photography: '写真'
+                };
+                
+                const levelLabels = {
+                    beginner: '初級',
+                    intermediate: '中級',
+                    advanced: '上級'
+                };
+                
+                return `
+                    <div class="lesson-card ${lesson.level}">
+                        <div class="lesson-header">
+                            <div class="lesson-category">${categoryLabels[lesson.category] || lesson.category}</div>
+                            <div class="lesson-title">${lesson.title}</div>
+                            <div class="instructor-info">
+                                <div class="instructor-avatar">${lesson.instructor.charAt(0)}</div>
+                                <div class="instructor-name">${lesson.instructor}</div>
+                            </div>
+                            <div class="lesson-meta">
+                                <span>⏱️ ${lesson.duration}分</span>
+                                <span>📈 ${levelLabels[lesson.level]}</span>
+                                <span>👥 ${lesson.students}人受講</span>
+                            </div>
+                        </div>
+                        
+                        <div class="lesson-body">
+                            <div class="lesson-description">${lesson.description}</div>
+                            
+                            <div class="lesson-tags">
+                                ${lesson.tags.map(tag => `<span class="tag">#${tag}</span>`).join('')}
+                            </div>
+                            
+                            <div class="lesson-footer">
+                                <div>
+                                    <div class="lesson-price">¥${lesson.price.toLocaleString()}</div>
+                                    <div class="lesson-rating">
+                                        ${'★'.repeat(Math.floor(lesson.rating))} ${lesson.rating}
+                                    </div>
+                                </div>
+                                <button class="enroll-btn" onclick="app.enrollLesson(${lesson.id})">
+                                    受講する
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            renderMyCourses() {
+                const grid = document.getElementById('myCoursesGrid');
+                
+                if (this.myCourses.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <h3>受講中のコースがありません</h3>
+                            <p>レッスンを探して学習を始めましょう！</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                grid.innerHTML = this.myCourses.map(course => `
+                    <div class="course-progress-card">
+                        <div class="progress-header">
+                            <h3>${course.title}</h3>
+                            <span>${course.progress}%</span>
+                        </div>
+                        <div class="instructor-name">講師: ${course.instructor}</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${course.progress}%"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                            <span>${course.completedLessons}/${course.totalLessons} レッスン完了</span>
+                        </div>
+                        <div style="color: #666; margin-bottom: 15px;">
+                            次のレッスン: ${course.nextLesson}
+                        </div>
+                        <button class="enroll-btn" onclick="app.continueLesson(${course.id})">
+                            続きを学習する
+                        </button>
+                    </div>
+                `).join('');
+            }
+            
+            renderTeachers() {
+                const grid = document.getElementById('teachersGrid');
+                
+                grid.innerHTML = this.teachers.map(teacher => `
+                    <div class="teacher-card">
+                        <div class="teacher-avatar-large">${teacher.avatar}</div>
+                        <div class="teacher-name">${teacher.name}</div>
+                        <div class="teacher-specialty">${teacher.specialty}</div>
+                        
+                        <div class="teacher-stats">
+                            <div class="teacher-stat">
+                                <div class="stat-value">${teacher.followers}</div>
+                                <div class="stat-label">フォロワー</div>
+                            </div>
+                            <div class="teacher-stat">
+                                <div class="stat-value">${teacher.courses}</div>
+                                <div class="stat-label">コース数</div>
+                            </div>
+                            <div class="teacher-stat">
+                                <div class="stat-value">${teacher.rating}</div>
+                                <div class="stat-label">評価</div>
+                            </div>
+                        </div>
+                        
+                        <div class="skill-badges">
+                            ${teacher.skills.map(skill => `<span class="skill-badge">${skill}</span>`).join('')}
+                        </div>
+                        
+                        <button class="follow-btn" onclick="app.followTeacher(${teacher.id})">
+                            フォロー
+                        </button>
+                    </div>
+                `).join('');
+            }
+            
+            filterLessons() {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const category = document.getElementById('categoryFilter').value;
+                const level = document.getElementById('levelFilter').value;
+                const maxDuration = parseInt(document.getElementById('durationFilter').value);
+                
+                let filtered = this.lessons.filter(lesson => {
+                    // 検索キーワード
+                    if (searchTerm && 
+                        !lesson.title.toLowerCase().includes(searchTerm) &&
+                        !lesson.description.toLowerCase().includes(searchTerm) &&
+                        !lesson.tags.some(tag => tag.toLowerCase().includes(searchTerm))) {
+                        return false;
+                    }
+                    
+                    // カテゴリー
+                    if (category && lesson.category !== category) return false;
+                    
+                    // レベル
+                    if (level && lesson.level !== level) return false;
+                    
+                    // 時間
+                    if (maxDuration && lesson.duration > maxDuration) return false;
+                    
+                    return true;
+                });
+                
+                this.renderLessons(filtered);
+            }
+            
+            enrollLesson(lessonId) {
+                const lesson = this.lessons.find(l => l.id === lessonId);
+                if (!lesson) return;
+                
+                const confirmation = confirm(`「${lesson.title}」を¥${lesson.price.toLocaleString()}で受講しますか？`);
+                
+                if (confirmation) {
+                    // 既に受講中でないかチェック
+                    const alreadyEnrolled = this.myCourses.find(c => c.id === lessonId);
+                    if (alreadyEnrolled) {
+                        alert('すでに受講中のコースです！');
+                        return;
+                    }
+                    
+                    // 新しいコースをマイコースに追加
+                    const newCourse = {
+                        id: lessonId,
+                        title: lesson.title,
+                        instructor: lesson.instructor,
+                        progress: 0,
+                        totalLessons: Math.ceil(lesson.duration / 5), // 5分単位でレッスン数を計算
+                        completedLessons: 0,
+                        nextLesson: "第1回：イントロダクション"
+                    };
+                    
+                    this.myCourses.unshift(newCourse);
+                    
+                    alert('受講を開始しました！マイコースから学習を進めてください。');
+                    this.renderMyCourses();
+                    this.updateStats();
+                }
+            }
+            
+            continueLesson(courseId) {
+                const course = this.myCourses.find(c => c.id === courseId);
+                if (!course) return;
+                
+                // 進捗を更新（シミュレーション）
+                const progressIncrease = Math.floor(Math.random() * 20) + 10; // 10-30%増加
+                course.progress = Math.min(100, course.progress + progressIncrease);
+                course.completedLessons = Math.floor((course.progress / 100) * course.totalLessons);
+                
+                if (course.progress >= 100) {
+                    alert('おめでとうございます！コースを完了しました！🎉');
+                } else {
+                    alert(`学習を続けました！進捗: ${course.progress}%`);
+                }
+                
+                this.renderMyCourses();
+                this.updateStats();
+            }
+            
+            followTeacher(teacherId) {
+                const teacher = this.teachers.find(t => t.id === teacherId);
+                if (!teacher) return;
+                
+                teacher.followers++;
+                alert(`${teacher.name}さんをフォローしました！`);
+                this.renderTeachers();
+            }
+            
+            handleTeachingSubmit(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData.entries());
+                
+                // 新しいレッスンを作成
+                const newLesson = {
+                    id: this.lessons.length + 1,
+                    title: data.title,
+                    category: data.category,
+                    level: data.level,
+                    duration: parseInt(data.duration),
+                    price: parseInt(data.price),
+                    instructor: "あなた", // 実際にはログインユーザー名
+                    rating: 0,
+                    students: 0,
+                    description: data.description,
+                    tags: data.tags ? data.tags.split(',').map(tag => tag.trim()) : []
+                };
+                
+                this.lessons.unshift(newLesson);
+                
+                alert('レッスンが正常に公開されました！');
+                e.target.reset();
+                
+                // レッスン一覧タブに切り替え
+                showTab('browse');
+                this.renderLessons();
+                this.updateStats();
+            }
+            
+            updateStats() {
+                const totalLessons = document.getElementById('totalLessons');
+                const activeTeachers = document.getElementById('activeTeachers');
+                const totalStudents = document.getElementById('totalStudents');
+                const completedLessons = document.getElementById('completedLessons');
+                
+                // アニメーション付きで数値を更新
+                this.animateCounter(totalLessons, parseInt(totalLessons.textContent.replace(/,/g, '')), 4567 + Math.floor(Math.random() * 50));
+                this.animateCounter(activeTeachers, parseInt(activeTeachers.textContent.replace(/,/g, '')), 1234 + Math.floor(Math.random() * 20));
+                this.animateCounter(totalStudents, parseInt(totalStudents.textContent.replace(/,/g, '')), 89567 + Math.floor(Math.random() * 100));
+                this.animateCounter(completedLessons, parseInt(completedLessons.textContent.replace(/,/g, '')), 567890 + Math.floor(Math.random() * 500));
+            }
+            
+            animateCounter(element, start, end) {
+                const duration = 1000;
+                const startTime = performance.now();
+                
+                const updateCounter = (currentTime) => {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    
+                    const current = Math.floor(start + (end - start) * progress);
+                    element.textContent = current.toLocaleString();
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(updateCounter);
+                    }
+                };
+                
+                requestAnimationFrame(updateCounter);
+            }
+        }
+        
+        // タブ切り替え機能
+        function showTab(tabName) {
+            // すべてのタブコンテンツを非表示
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // すべてのタブボタンからactiveクラスを削除
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 選択されたタブコンテンツを表示
+            document.getElementById(`${tabName}-tab`).style.display = 'block';
+            
+            // 選択されたタブボタンにactiveクラスを追加
+            event.target.classList.add('active');
+        }
+        
+        // アプリケーション初期化
+        let app;
+        document.addEventListener('DOMContentLoaded', () => {
+            app = new SkillConnectApp();
+        });
+    </script>
+</body>
+</html> 
