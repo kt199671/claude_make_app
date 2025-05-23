@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI習慣トラッカー - 人生を変える習慣管理</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- ヘッダー -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1 class="app-title">
+                    <span class="logo-icon">🚀</span>
+                    HabitAI
+                </h1>
+                <div class="user-section">
+                    <div class="streak-counter">
+                        <span class="streak-fire">🔥</span>
+                        <span class="streak-days">0</span>
+                        <span class="streak-label">日連続</span>
+                    </div>
+                    <div class="user-profile">
+                        <div class="user-avatar">👤</div>
+                        <div class="user-stats">
+                            <div class="user-level">Lv.<span id="userLevel">1</span></div>
+                            <div class="experience-bar">
+                                <div class="experience-fill"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- メインコンテンツ -->
+        <main class="main-content">
+            <!-- 習慣追加セクション -->
+            <section class="add-habit-section">
+                <h2 class="section-title">新しい習慣を始める</h2>
+                <div class="habit-input-container">
+                    <input type="text" id="habitInput" class="habit-input" placeholder="例: 毎日30分読書する">
+                    <button id="addHabitBtn" class="add-habit-btn">
+                        <span class="btn-icon">➕</span>
+                        追加
+                    </button>
+                </div>
+                <div class="ai-suggestions">
+                    <h3 class="suggestions-title">🤖 AIのおすすめ習慣</h3>
+                    <div class="suggestion-chips">
+                        <button class="suggestion-chip" data-habit="毎日7,000歩歩く">🚶 ウォーキング</button>
+                        <button class="suggestion-chip" data-habit="毎日10分瞑想する">🧘 瞑想</button>
+                        <button class="suggestion-chip" data-habit="毎日水を2L飲む">💧 水分補給</button>
+                        <button class="suggestion-chip" data-habit="毎日日記を書く">📝 ジャーナリング</button>
+                        <button class="suggestion-chip" data-habit="毎日23時までに就寝">😴 早寝</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 習慣リスト -->
+            <section class="habits-section">
+                <h2 class="section-title">今日の習慣</h2>
+                <div id="habitsList" class="habits-list">
+                    <!-- 習慣カードがここに追加される -->
+                </div>
+            </section>
+
+            <!-- 統計セクション -->
+            <section class="stats-section">
+                <h2 class="section-title">あなたの成長</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-value" id="completionRate">0%</div>
+                        <div class="stat-label">完了率</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-value" id="totalCompleted">0</div>
+                        <div class="stat-label">完了した習慣</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🏆</div>
+                        <div class="stat-value" id="achievementCount">0</div>
+                        <div class="stat-label">獲得実績</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💎</div>
+                        <div class="stat-value" id="totalPoints">0</div>
+                        <div class="stat-label">ポイント</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- データ管理セクション -->
+            <section class="data-management-section">
+                <h2 class="section-title">データ管理</h2>
+                <div class="data-actions">
+                    <button class="data-btn export-btn" onclick="exportData()">
+                        <span class="btn-icon">📁</span>
+                        データをエクスポート
+                    </button>
+                    <label class="data-btn import-btn">
+                        <span class="btn-icon">📥</span>
+                        データをインポート
+                        <input type="file" accept=".json" onchange="importData(event)" style="display: none;">
+                    </label>
+                    <button class="data-btn report-btn" onclick="generateStatsReport()">
+                        <span class="btn-icon">📊</span>
+                        統計レポート生成
+                    </button>
+                </div>
+            </section>
+
+            <!-- チャレンジセクション -->
+            <section class="challenges-section">
+                <h2 class="section-title">週間チャレンジ</h2>
+                <div class="challenges-list">
+                    <div class="challenge-card active">
+                        <div class="challenge-icon">🏃</div>
+                        <div class="challenge-info">
+                            <h3 class="challenge-title">健康週間チャレンジ</h3>
+                            <p class="challenge-desc">7日間連続で運動習慣を実行</p>
+                            <div class="challenge-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 0%"></div>
+                                </div>
+                                <span class="progress-text">0/7日</span>
+                            </div>
+                        </div>
+                        <div class="challenge-reward">
+                            <span class="reward-icon">🎁</span>
+                            <span class="reward-text">500pt</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- リーダーボード -->
+            <section class="leaderboard-section">
+                <h2 class="section-title">ランキング</h2>
+                <div class="leaderboard-tabs">
+                    <button class="tab-btn active">週間</button>
+                    <button class="tab-btn">月間</button>
+                    <button class="tab-btn">全期間</button>
+                </div>
+                <div class="leaderboard-list">
+                    <div class="leaderboard-item">
+                        <div class="rank">1</div>
+                        <div class="user-info">
+                            <div class="user-avatar-small">🦸</div>
+                            <div class="user-name">習慣マスター</div>
+                        </div>
+                        <div class="score">12,450pt</div>
+                    </div>
+                    <div class="leaderboard-item">
+                        <div class="rank">2</div>
+                        <div class="user-info">
+                            <div class="user-avatar-small">🌟</div>
+                            <div class="user-name">毎日コツコツ</div>
+                        </div>
+                        <div class="score">11,200pt</div>
+                    </div>
+                    <div class="leaderboard-item current-user">
+                        <div class="rank">156</div>
+                        <div class="user-info">
+                            <div class="user-avatar-small">👤</div>
+                            <div class="user-name">あなた</div>
+                        </div>
+                        <div class="score" id="userScore">0pt</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 実績モーダル -->
+        <div id="achievementModal" class="achievement-modal">
+            <div class="achievement-content">
+                <div class="achievement-icon">🏅</div>
+                <h2 class="achievement-title">実績解除！</h2>
+                <p class="achievement-name" id="achievementName">初めての一歩</p>
+                <p class="achievement-desc" id="achievementDesc">最初の習慣を完了しました</p>
+                <button class="achievement-close">素晴らしい！</button>
+            </div>
+        </div>
+
+        <!-- AI分析モーダル -->
+        <div id="aiModal" class="ai-modal">
+            <div class="ai-modal-content">
+                <button class="modal-close">&times;</button>
+                <h2 class="modal-title">🤖 AI分析レポート</h2>
+                <div class="ai-insights">
+                    <div class="insight-card">
+                        <h3>パフォーマンス分析</h3>
+                        <p id="performanceInsight">分析中...</p>
+                    </div>
+                    <div class="insight-card">
+                        <h3>改善提案</h3>
+                        <p id="improvementSuggestion">分析中...</p>
+                    </div>
+                    <div class="insight-card">
+                        <h3>次のステップ</h3>
+                        <p id="nextSteps">分析中...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

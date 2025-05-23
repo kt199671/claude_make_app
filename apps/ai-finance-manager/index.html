@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Finance Manager - 次世代資産管理アプリ</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>💰 AI Finance Manager</h1>
+            <div class="user-stats">
+                <div class="stat">
+                    <span class="label">総資産</span>
+                    <span class="value" id="totalAssets">¥0</span>
+                </div>
+                <div class="stat">
+                    <span class="label">月間収支</span>
+                    <span class="value" id="monthlyBalance">¥0</span>
+                </div>
+                <div class="stat">
+                    <span class="label">投資利益</span>
+                    <span class="value" id="investmentProfit">¥0</span>
+                </div>
+            </div>
+        </header>
+
+        <nav class="tab-navigation">
+            <button class="tab-btn active" data-tab="dashboard">ダッシュボード</button>
+            <button class="tab-btn" data-tab="transactions">取引記録</button>
+            <button class="tab-btn" data-tab="investments">投資ポートフォリオ</button>
+            <button class="tab-btn" data-tab="budget">予算管理</button>
+            <button class="tab-btn" data-tab="statistics">詳細統計</button>
+            <button class="tab-btn" data-tab="ai-insights">AIアドバイス</button>
+        </nav>
+
+        <main>
+            <!-- Dashboard Tab -->
+            <div class="tab-content active" id="dashboard">
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3>資産推移</h3>
+                        <canvas id="assetChart"></canvas>
+                    </div>
+                    <div class="card">
+                        <h3>支出カテゴリ</h3>
+                        <canvas id="expenseChart"></canvas>
+                    </div>
+                    <div class="card">
+                        <h3>収入源</h3>
+                        <canvas id="incomeChart"></canvas>
+                    </div>
+                    <div class="card">
+                        <h3>貯蓄目標</h3>
+                        <div class="savings-goal">
+                            <div class="progress-bar">
+                                <div class="progress" id="savingsProgress"></div>
+                            </div>
+                            <div class="goal-info">
+                                <span id="currentSavings">¥0</span> / <span id="savingsTarget">¥1,000,000</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card full-width">
+                        <h3>月次レポート</h3>
+                        <div class="monthly-report-selector">
+                            <button class="btn secondary" id="prevMonthBtn">＜ 前月</button>
+                            <span id="reportMonth">2025年1月</span>
+                            <button class="btn secondary" id="nextMonthBtn">次月 ＞</button>
+                        </div>
+                        <div class="monthly-report-content" id="monthlyReportContent">
+                            <div class="report-summary">
+                                <div class="report-item">
+                                    <span class="report-label">収入合計</span>
+                                    <span class="report-value income" id="reportIncome">¥0</span>
+                                </div>
+                                <div class="report-item">
+                                    <span class="report-label">支出合計</span>
+                                    <span class="report-value expense" id="reportExpense">¥0</span>
+                                </div>
+                                <div class="report-item">
+                                    <span class="report-label">収支</span>
+                                    <span class="report-value" id="reportBalance">¥0</span>
+                                </div>
+                                <div class="report-item">
+                                    <span class="report-label">貯蓄率</span>
+                                    <span class="report-value" id="reportSavingsRate">0%</span>
+                                </div>
+                            </div>
+                            <div class="report-charts">
+                                <canvas id="monthlyReportChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transactions Tab -->
+            <div class="tab-content" id="transactions">
+                <div class="transaction-controls">
+                    <button class="btn primary" id="addTransactionBtn">+ 取引を追加</button>
+                    <div class="filter-controls">
+                        <input type="text" id="searchTransactions" placeholder="🔍 取引を検索..." />
+                        <select id="filterCategory">
+                            <option value="all">すべてのカテゴリ</option>
+                            <option value="income">収入</option>
+                            <option value="food">食費</option>
+                            <option value="transport">交通費</option>
+                            <option value="entertainment">娯楽</option>
+                            <option value="utilities">光熱費</option>
+                            <option value="other">その他</option>
+                        </select>
+                        <select id="filterDateRange">
+                            <option value="all">すべての期間</option>
+                            <option value="thisMonth">今月</option>
+                            <option value="lastMonth">先月</option>
+                            <option value="last3Months">過去3ヶ月</option>
+                            <option value="thisYear">今年</option>
+                        </select>
+                        <button class="btn secondary" id="clearFiltersBtn">フィルターをクリア</button>
+                    </div>
+                </div>
+                <div class="transaction-list" id="transactionList"></div>
+            </div>
+
+            <!-- Investments Tab -->
+            <div class="tab-content" id="investments">
+                <div class="investment-summary">
+                    <div class="portfolio-value">
+                        <h3>ポートフォリオ総額</h3>
+                        <p class="large-number" id="portfolioTotal">¥0</p>
+                        <p class="change positive" id="portfolioChange">+0%</p>
+                    </div>
+                    <canvas id="portfolioChart"></canvas>
+                </div>
+                <div class="holdings-list" id="holdingsList"></div>
+                <button class="btn primary" id="addInvestmentBtn">+ 投資を追加</button>
+            </div>
+
+            <!-- Budget Tab -->
+            <div class="tab-content" id="budget">
+                <div class="budget-setup">
+                    <h3>月間予算設定</h3>
+                    <div class="budget-categories" id="budgetCategories"></div>
+                    <button class="btn secondary" id="saveBudgetBtn">予算を保存</button>
+                </div>
+                <div class="budget-tracking">
+                    <h3>予算使用状況</h3>
+                    <div class="budget-items" id="budgetTracking"></div>
+                </div>
+            </div>
+
+            <!-- Statistics Tab -->
+            <div class="tab-content" id="statistics">
+                <div class="statistics-overview">
+                    <h3>📊 詳細統計情報</h3>
+                    <div class="stats-grid" id="statsGrid">
+                        <!-- Stats will be populated dynamically -->
+                    </div>
+                </div>
+                
+                <div class="statistics-charts">
+                    <div class="card">
+                        <h3>年間収支推移</h3>
+                        <canvas id="yearlyTrendChart"></canvas>
+                    </div>
+                    <div class="card">
+                        <h3>カテゴリ別支出トレンド</h3>
+                        <canvas id="categoryTrendChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="statistics-analysis">
+                    <div class="card">
+                        <h3>財務分析レポート</h3>
+                        <div id="financialAnalysis">
+                            <!-- Analysis will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insights Tab -->
+            <div class="tab-content" id="ai-insights">
+                <div class="ai-assistant">
+                    <h3>🤖 AIファイナンシャルアドバイザー</h3>
+                    <div class="insights-container" id="aiInsights">
+                        <div class="insight-card">
+                            <h4>支出最適化の提案</h4>
+                            <p id="spendingAdvice">データを分析中...</p>
+                        </div>
+                        <div class="insight-card">
+                            <h4>投資戦略の推奨</h4>
+                            <p id="investmentAdvice">ポートフォリオを評価中...</p>
+                        </div>
+                        <div class="insight-card">
+                            <h4>貯蓄目標達成プラン</h4>
+                            <p id="savingsAdvice">目標を計算中...</p>
+                        </div>
+                        <div class="insight-card">
+                            <h4>リスク評価</h4>
+                            <p id="riskAssessment">リスク分析中...</p>
+                        </div>
+                    </div>
+                    <button class="btn primary" id="generateInsightsBtn">新しいアドバイスを生成</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Modals -->
+        <div class="modal" id="transactionModal">
+            <div class="modal-content">
+                <h3>取引を追加</h3>
+                <form id="transactionForm">
+                    <select id="transactionType" required>
+                        <option value="income">収入</option>
+                        <option value="expense">支出</option>
+                    </select>
+                    <input type="text" id="transactionDescription" placeholder="説明" required>
+                    <input type="number" id="transactionAmount" placeholder="金額" required>
+                    <select id="transactionCategory" required>
+                        <!-- Options will be populated dynamically -->
+                    </select>
+                    <input type="date" id="transactionDate" required>
+                    <div class="modal-buttons">
+                        <button type="submit" class="btn primary">追加</button>
+                        <button type="button" class="btn secondary" id="cancelTransactionBtn">キャンセル</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="modal" id="investmentModal">
+            <div class="modal-content">
+                <h3>投資を追加</h3>
+                <form id="investmentForm">
+                    <input type="text" id="investmentName" placeholder="銘柄名/ファンド名" required>
+                    <input type="text" id="investmentSymbol" placeholder="ティッカーシンボル" required>
+                    <input type="number" id="investmentQuantity" placeholder="数量" required>
+                    <input type="number" id="investmentPrice" placeholder="取得価格" required>
+                    <input type="date" id="investmentDate" required>
+                    <div class="modal-buttons">
+                        <button type="submit" class="btn primary">追加</button>
+                        <button type="button" class="btn secondary" id="cancelInvestmentBtn">キャンセル</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
