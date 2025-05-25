@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradeSocial - ソーシャル投資プラットフォーム</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navigation Header -->
+        <header class="main-header">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">💹</span>
+                    <h1>TradeSocial</h1>
+                </div>
+                <div class="user-info">
+                    <div class="portfolio-summary">
+                        <span class="balance">¥<span id="portfolio-value">1,000,000</span></span>
+                        <span class="profit" id="daily-pnl">+¥0 (0%)</span>
+                    </div>
+                    <div class="user-avatar">👤</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Tab Navigation -->
+        <nav class="tab-nav">
+            <button class="tab-btn active" data-tab="market">マーケット</button>
+            <button class="tab-btn" data-tab="portfolio">ポートフォリオ</button>
+            <button class="tab-btn" data-tab="social">ソーシャル</button>
+            <button class="tab-btn" data-tab="rankings">ランキング</button>
+            <button class="tab-btn" data-tab="learn">学習</button>
+        </nav>
+
+        <main class="main-content">
+            <!-- Market Tab -->
+            <div class="tab-content active" id="market">
+                <div class="market-overview">
+                    <h2>🌍 マーケット概況</h2>
+                    <div class="market-indices">
+                        <div class="index-card">
+                            <span class="index-name">日経225</span>
+                            <span class="index-value">39,245</span>
+                            <span class="index-change positive">+1.2%</span>
+                        </div>
+                        <div class="index-card">
+                            <span class="index-name">S&P 500</span>
+                            <span class="index-value">5,847</span>
+                            <span class="index-change positive">+0.8%</span>
+                        </div>
+                        <div class="index-card">
+                            <span class="index-name">Bitcoin</span>
+                            <span class="index-value">$98,432</span>
+                            <span class="index-change negative">-2.1%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="trading-section">
+                    <div class="stock-search">
+                        <h3>📈 銘柄検索</h3>
+                        <input type="text" id="search-input" placeholder="銘柄名またはシンボルを入力...">
+                        <div class="popular-stocks">
+                            <h4>人気銘柄</h4>
+                            <div class="stock-list" id="popular-stocks">
+                                <!-- Populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="trading-panel">
+                        <h3>🎯 トレード実行</h3>
+                        <div class="selected-stock" id="selected-stock">
+                            <span class="stock-symbol">AAPL</span>
+                            <span class="stock-name">Apple Inc.</span>
+                            <span class="stock-price">$191.24</span>
+                        </div>
+                        <div class="trade-form">
+                            <div class="trade-type">
+                                <button class="trade-btn buy active" data-type="buy">買い</button>
+                                <button class="trade-btn sell" data-type="sell">売り</button>
+                            </div>
+                            <div class="quantity-input">
+                                <label>数量:</label>
+                                <input type="number" id="quantity" value="1" min="1">
+                            </div>
+                            <div class="total-amount">
+                                <span>合計: ¥<span id="total-amount">26,572</span></span>
+                            </div>
+                            <button class="execute-btn" id="execute-trade">注文実行</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="market-chart">
+                    <h3>📊 チャート分析</h3>
+                    <canvas id="price-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Portfolio Tab -->
+            <div class="tab-content" id="portfolio">
+                <div class="portfolio-summary">
+                    <h2>💼 ポートフォリオ</h2>
+                    <div class="portfolio-stats">
+                        <div class="stat-card">
+                            <h4>総資産</h4>
+                            <span class="stat-value">¥<span id="total-assets">1,000,000</span></span>
+                        </div>
+                        <div class="stat-card">
+                            <h4>実現損益</h4>
+                            <span class="stat-value positive">+¥<span id="realized-pnl">12,500</span></span>
+                        </div>
+                        <div class="stat-card">
+                            <h4>含み損益</h4>
+                            <span class="stat-value negative">-¥<span id="unrealized-pnl">3,200</span></span>
+                        </div>
+                        <div class="stat-card">
+                            <h4>勝率</h4>
+                            <span class="stat-value"><span id="win-rate">68</span>%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="holdings">
+                    <h3>保有銘柄</h3>
+                    <div class="holdings-list" id="holdings-list">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="trade-history">
+                    <h3>取引履歴</h3>
+                    <div class="history-list" id="trade-history">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Social Tab -->
+            <div class="tab-content" id="social">
+                <div class="social-feed">
+                    <h2>👥 ソーシャルフィード</h2>
+                    <div class="post-composer">
+                        <textarea placeholder="投資アイデアをシェア..."></textarea>
+                        <button class="post-btn">投稿</button>
+                    </div>
+                    <div class="feed-list" id="social-feed">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="top-traders">
+                    <h3>🏆 トップトレーダー</h3>
+                    <div class="trader-list" id="top-traders">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="copy-trading">
+                    <h3>📋 コピートレード</h3>
+                    <p>優秀なトレーダーの戦略をコピーして利益を目指そう</p>
+                    <div class="copyable-traders" id="copyable-traders">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rankings Tab -->
+            <div class="tab-content" id="rankings">
+                <div class="leaderboard">
+                    <h2>🏆 リーダーボード</h2>
+                    <div class="league-selector">
+                        <button class="league-btn active" data-league="weekly">週間</button>
+                        <button class="league-btn" data-league="monthly">月間</button>
+                        <button class="league-btn" data-league="yearly">年間</button>
+                    </div>
+                    <div class="ranking-list" id="ranking-list">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="competitions">
+                    <h3>🎯 トレードコンペ</h3>
+                    <div class="competition-list" id="competition-list">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learn Tab -->
+            <div class="tab-content" id="learn">
+                <div class="learning-center">
+                    <h2>🎓 投資スクール</h2>
+                    <div class="course-categories">
+                        <div class="category-card">
+                            <h4>🔰 初心者コース</h4>
+                            <p>投資の基本から学ぼう</p>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 45%"></div>
+                            </div>
+                        </div>
+                        <div class="category-card">
+                            <h4>📊 テクニカル分析</h4>
+                            <p>チャート分析をマスター</p>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 20%"></div>
+                            </div>
+                        </div>
+                        <div class="category-card">
+                            <h4>💰 ファンダメンタルズ</h4>
+                            <p>企業分析の基礎</p>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ai-coach">
+                    <h3>🤖 AIコーチ</h3>
+                    <div class="coach-chat">
+                        <div class="chat-messages" id="coach-messages">
+                            <div class="message ai">
+                                <span class="avatar">🤖</span>
+                                <div class="content">
+                                    <p>こんにちは！今日の相場をどう見ていますか？</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat-input">
+                            <input type="text" id="coach-input" placeholder="AIコーチに質問...">
+                            <button id="send-to-coach">送信</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="market-news">
+                    <h3>📰 マーケットニュース</h3>
+                    <div class="news-list" id="market-news">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Trade Execution Modal -->
+        <div class="modal" id="trade-modal">
+            <div class="modal-content">
+                <h3>注文確認</h3>
+                <div class="order-details" id="order-details">
+                    <!-- Populated by JavaScript -->
+                </div>
+                <div class="modal-actions">
+                    <button class="confirm-btn" id="confirm-trade">確定</button>
+                    <button class="cancel-btn" id="cancel-trade">キャンセル</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievement Toast -->
+        <div class="toast" id="achievement-toast">
+            <span class="toast-icon">🏆</span>
+            <span class="toast-message"></span>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
