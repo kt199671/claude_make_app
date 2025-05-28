@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Drum Kit 🥁</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Virtual Drum Kit 🥁</h1>
+        <p class="instructions">キーボードを押すか、ドラムをクリックして演奏しよう！</p>
+        
+        <div class="drum-kit">
+            <div class="drum" data-key="65" data-sound="kick">
+                <kbd>A</kbd>
+                <span class="drum-name">Kick</span>
+            </div>
+            <div class="drum" data-key="83" data-sound="snare">
+                <kbd>S</kbd>
+                <span class="drum-name">Snare</span>
+            </div>
+            <div class="drum" data-key="68" data-sound="hihat">
+                <kbd>D</kbd>
+                <span class="drum-name">Hi-Hat</span>
+            </div>
+            <div class="drum" data-key="70" data-sound="tom1">
+                <kbd>F</kbd>
+                <span class="drum-name">Tom 1</span>
+            </div>
+            <div class="drum" data-key="71" data-sound="tom2">
+                <kbd>G</kbd>
+                <span class="drum-name">Tom 2</span>
+            </div>
+            <div class="drum" data-key="72" data-sound="crash">
+                <kbd>H</kbd>
+                <span class="drum-name">Crash</span>
+            </div>
+            <div class="drum" data-key="74" data-sound="ride">
+                <kbd>J</kbd>
+                <span class="drum-name">Ride</span>
+            </div>
+            <div class="drum" data-key="75" data-sound="openhat">
+                <kbd>K</kbd>
+                <span class="drum-name">Open Hat</span>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="record-btn" class="control-btn">録音開始</button>
+            <button id="play-btn" class="control-btn" disabled>再生</button>
+            <button id="clear-btn" class="control-btn" disabled>クリア</button>
+        </div>
+        
+        <div class="visualizer">
+            <canvas id="visualizer-canvas"></canvas>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

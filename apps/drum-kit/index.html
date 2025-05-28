@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Drum Kit - バーチャルドラムキット</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🥁 Virtual Drum Kit</h1>
+        <p class="subtitle">キーボードまたはクリックで演奏しよう！</p>
+        
+        <div class="drum-kit">
+            <div class="drum" data-key="65" data-sound="kick">
+                <span class="key">A</span>
+                <span class="sound">Kick</span>
+            </div>
+            <div class="drum" data-key="83" data-sound="snare">
+                <span class="key">S</span>
+                <span class="sound">Snare</span>
+            </div>
+            <div class="drum" data-key="68" data-sound="hihat">
+                <span class="key">D</span>
+                <span class="sound">Hi-Hat</span>
+            </div>
+            <div class="drum" data-key="70" data-sound="openhat">
+                <span class="key">F</span>
+                <span class="sound">Open Hat</span>
+            </div>
+            <div class="drum" data-key="71" data-sound="crash">
+                <span class="key">G</span>
+                <span class="sound">Crash</span>
+            </div>
+            <div class="drum" data-key="72" data-sound="ride">
+                <span class="key">H</span>
+                <span class="sound">Ride</span>
+            </div>
+            <div class="drum" data-key="74" data-sound="tom1">
+                <span class="key">J</span>
+                <span class="sound">Tom 1</span>
+            </div>
+            <div class="drum" data-key="75" data-sound="tom2">
+                <span class="key">K</span>
+                <span class="sound">Tom 2</span>
+            </div>
+            <div class="drum" data-key="76" data-sound="floor">
+                <span class="key">L</span>
+                <span class="sound">Floor</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="recordBtn" class="btn">● 録音開始</button>
+            <button id="playBtn" class="btn" disabled>▶ 再生</button>
+            <button id="clearBtn" class="btn" disabled>🗑 クリア</button>
+        </div>
+
+        <div class="recording-display" id="recordingDisplay"></div>
+
+        <div class="volume-control">
+            <label for="volume">ボリューム: </label>
+            <input type="range" id="volume" min="0" max="100" value="70">
+            <span id="volumeValue">70%</span>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

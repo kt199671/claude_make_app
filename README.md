@@ -62,6 +62,10 @@
 - **📈 AI Habit Tracker** (`apps/ai-habit-tracker/`)
   - AI搭載の習慣追跡アプリ。習慣の監視と進捗分析を実行
 
+### ソーシャル・フィンテック
+- **💹 TradeSocial** (`apps/trade-social/`)
+  - ソーシャル投資プラットフォーム。仮想資金でリスクなしに投資体験、ランキング競争、コピートレード、AIコーチング機能を搭載
+
 ## 📁 ディレクトリ構成
 
 ```
@@ -88,7 +92,8 @@ claude_make_app/
     ├── 2048-puzzle/              # 2048パズルゲーム
     ├── typing-game/              # タイピングゲーム
     ├── minecraft-clone/          # Minecraftクローン
-    └── block-breaker/            # ブロック崩しゲーム
+    ├── block-breaker/            # ブロック崩しゲーム
+    └── trade-social/             # ソーシャル投資プラットフォーム
 ```
 
 ## 🚀 使い方

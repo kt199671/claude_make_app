@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIペットバトル - 育成＆対戦ゲーム</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <!-- メインメニュー -->
+        <div class="screen" id="main-menu">
+            <h1 class="game-title">🐾 AIペットバトル 🐾</h1>
+            <div class="menu-buttons">
+                <button class="menu-btn" onclick="game.showPetSelection()">🎮 ゲームスタート</button>
+                <button class="menu-btn" onclick="game.showCollection()">📚 図鑑</button>
+                <button class="menu-btn" onclick="game.showRanking()">🏆 ランキング</button>
+            </div>
+        </div>
+
+        <!-- ペット選択画面 -->
+        <div class="screen hidden" id="pet-selection">
+            <h2>スターターペットを選ぼう！</h2>
+            <div class="starter-pets">
+                <div class="pet-card" onclick="game.selectStarter('fire')">
+                    <div class="pet-sprite">🔥</div>
+                    <h3>ファイアー</h3>
+                    <p>炎タイプ</p>
+                    <div class="stats-preview">
+                        <span>攻撃: ⭐⭐⭐⭐</span>
+                        <span>防御: ⭐⭐</span>
+                        <span>素早さ: ⭐⭐⭐</span>
+                    </div>
+                </div>
+                <div class="pet-card" onclick="game.selectStarter('water')">
+                    <div class="pet-sprite">💧</div>
+                    <h3>アクア</h3>
+                    <p>水タイプ</p>
+                    <div class="stats-preview">
+                        <span>攻撃: ⭐⭐⭐</span>
+                        <span>防御: ⭐⭐⭐</span>
+                        <span>素早さ: ⭐⭐⭐</span>
+                    </div>
+                </div>
+                <div class="pet-card" onclick="game.selectStarter('grass')">
+                    <div class="pet-sprite">🌿</div>
+                    <h3>リーフ</h3>
+                    <p>草タイプ</p>
+                    <div class="stats-preview">
+                        <span>攻撃: ⭐⭐</span>
+                        <span>防御: ⭐⭐⭐⭐</span>
+                        <span>素早さ: ⭐⭐</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ホーム画面 -->
+        <div class="screen hidden" id="home-screen">
+            <div class="header">
+                <div class="player-info">
+                    <span class="player-level">Lv.<span id="player-level">1</span></span>
+                    <span class="player-exp">EXP: <span id="player-exp">0</span>/<span id="exp-to-next">100</span></span>
+                </div>
+                <div class="currency">
+                    <span>💰 <span id="coins">0</span></span>
+                    <span>💎 <span id="gems">0</span></span>
+                </div>
+            </div>
+
+            <div class="pet-display">
+                <div class="pet-sprite-large" id="my-pet-sprite">🔥</div>
+                <div class="pet-info">
+                    <h3 id="pet-name">ファイアー</h3>
+                    <div class="pet-level">Lv.<span id="pet-level">1</span></div>
+                    <div class="exp-bar">
+                        <div class="exp-fill" id="pet-exp-bar"></div>
+                    </div>
+                    <div class="pet-stats">
+                        <div class="stat">
+                            <span class="stat-label">HP:</span>
+                            <span class="stat-value" id="pet-hp">100</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">攻撃:</span>
+                            <span class="stat-value" id="pet-attack">50</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">防御:</span>
+                            <span class="stat-value" id="pet-defense">30</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">素早さ:</span>
+                            <span class="stat-value" id="pet-speed">40</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-btn" onclick="game.startBattle()">⚔️ バトル</button>
+                <button class="action-btn" onclick="game.trainPet()">💪 トレーニング</button>
+                <button class="action-btn" onclick="game.feedPet()">🍖 エサをあげる</button>
+                <button class="action-btn" onclick="game.showEvolution()">✨ 進化</button>
+            </div>
+
+            <button class="back-btn" onclick="game.showMainMenu()">メニューに戻る</button>
+        </div>
+
+        <!-- バトル画面 -->
+        <div class="screen hidden" id="battle-screen">
+            <div class="battle-arena">
+                <div class="opponent-side">
+                    <div class="battle-pet-info">
+                        <h3 id="opponent-name">相手のペット</h3>
+                        <div class="hp-bar">
+                            <div class="hp-fill opponent" id="opponent-hp-bar"></div>
+                        </div>
+                        <span class="hp-text">HP: <span id="opponent-hp">100</span>/<span id="opponent-max-hp">100</span></span>
+                    </div>
+                    <div class="battle-pet-sprite opponent" id="opponent-sprite">🐉</div>
+                </div>
+
+                <div class="player-side">
+                    <div class="battle-pet-sprite player" id="player-sprite">🔥</div>
+                    <div class="battle-pet-info">
+                        <h3 id="player-pet-name">あなたのペット</h3>
+                        <div class="hp-bar">
+                            <div class="hp-fill player" id="player-hp-bar"></div>
+                        </div>
+                        <span class="hp-text">HP: <span id="player-hp">100</span>/<span id="player-max-hp">100</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="battle-log" id="battle-log"></div>
+
+            <div class="battle-controls">
+                <button class="battle-btn" onclick="game.useSkill('attack')">👊 こうげき</button>
+                <button class="battle-btn" onclick="game.useSkill('special')">⚡ 必殺技</button>
+                <button class="battle-btn" onclick="game.useSkill('defend')">🛡️ ぼうぎょ</button>
+                <button class="battle-btn" onclick="game.useItem()">🧪 アイテム</button>
+            </div>
+
+            <button class="ai-battle-btn" onclick="game.toggleAIBattle()">🤖 AI自動バトル: <span id="ai-status">OFF</span></button>
+        </div>
+
+        <!-- 進化画面 -->
+        <div class="screen hidden" id="evolution-screen">
+            <h2>進化の時が来た！</h2>
+            <div class="evolution-display">
+                <div class="evolution-from">
+                    <div class="evo-sprite" id="evo-from-sprite">🔥</div>
+                    <h3 id="evo-from-name">ファイアー</h3>
+                </div>
+                <div class="evolution-arrow">➡️</div>
+                <div class="evolution-to">
+                    <div class="evo-sprite" id="evo-to-sprite">🌋</div>
+                    <h3 id="evo-to-name">ブレイズ</h3>
+                </div>
+            </div>
+            <div class="evolution-requirements">
+                <p>進化条件:</p>
+                <ul id="evo-requirements">
+                    <li>レベル16以上</li>
+                    <li>炎の石 x1</li>
+                </ul>
+            </div>
+            <button class="evolve-btn" onclick="game.evolvePet()">進化させる！</button>
+            <button class="back-btn" onclick="game.showHome()">戻る</button>
+        </div>
+
+        <!-- ランキング画面 -->
+        <div class="screen hidden" id="ranking-screen">
+            <h2>🏆 グローバルランキング</h2>
+            <div class="ranking-tabs">
+                <button class="ranking-tab active" onclick="game.showRankingTab('power')">総合力</button>
+                <button class="ranking-tab" onclick="game.showRankingTab('wins')">勝利数</button>
+                <button class="ranking-tab" onclick="game.showRankingTab('collection')">図鑑完成度</button>
+            </div>
+            <div class="ranking-list" id="ranking-list">
+                <!-- ランキングデータはJavaScriptで生成 -->
+            </div>
+            <button class="back-btn" onclick="game.showMainMenu()">戻る</button>
+        </div>
+
+        <!-- 図鑑画面 -->
+        <div class="screen hidden" id="collection-screen">
+            <h2>📚 ペット図鑑</h2>
+            <div class="collection-grid" id="collection-grid">
+                <!-- 図鑑データはJavaScriptで生成 -->
+            </div>
+            <div class="collection-stats">
+                <p>発見: <span id="discovered-count">0</span>/<span id="total-pets">50</span></p>
+                <p>完成度: <span id="completion-rate">0</span>%</p>
+            </div>
+            <button class="back-btn" onclick="game.showMainMenu()">戻る</button>
+        </div>
+
+        <!-- エフェクトレイヤー -->
+        <div class="effects-layer" id="effects-layer"></div>
+
+        <!-- 通知システム -->
+        <div class="notification" id="notification"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,233 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    user-select: none;
+}
+
+.container {
+    text-align: center;
+    max-width: 1200px;
+    width: 100%;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 3em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #ff00de;
+    }
+    to {
+        text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #ff00de;
+    }
+}
+
+.subtitle {
+    font-size: 1.2em;
+    margin-bottom: 40px;
+    opacity: 0.9;
+}
+
+.drum-kit {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 800px;
+    margin: 0 auto 40px;
+}
+
+.drum {
+    background: linear-gradient(145deg, #2d2d44, #1a1a2e);
+    border-radius: 20px;
+    padding: 40px 20px;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    border: 3px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.drum::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.drum.playing::before {
+    width: 200%;
+    height: 200%;
+}
+
+.drum:hover {
+    transform: scale(1.05);
+    border-color: #ff00de;
+}
+
+.drum.playing {
+    transform: scale(0.95);
+    background: linear-gradient(145deg, #ff00de, #ff00de33);
+    border-color: #fff;
+    box-shadow: 0 0 30px #ff00de;
+}
+
+.key {
+    display: block;
+    font-size: 2.5em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #ff00de;
+    text-shadow: 0 0 10px rgba(255, 0, 222, 0.5);
+}
+
+.sound {
+    font-size: 1.1em;
+    opacity: 0.8;
+}
+
+.controls {
+    margin-bottom: 30px;
+}
+
+.btn {
+    background: linear-gradient(135deg, #ff00de 0%, #ff00de66 100%);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    margin: 0 10px;
+    border-radius: 30px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 0, 222, 0.3);
+}
+
+.btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 0, 222, 0.5);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn.recording {
+    background: linear-gradient(135deg, #ff0000 0%, #ff000066 100%);
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 20px rgba(255, 0, 0, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
+    }
+}
+
+.recording-display {
+    min-height: 50px;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+    opacity: 0.9;
+}
+
+.volume-control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    font-size: 1.1em;
+}
+
+#volume {
+    width: 200px;
+    height: 8px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(255,255,255,0.2);
+    border-radius: 4px;
+    outline: none;
+}
+
+#volume::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #ff00de;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(255, 0, 222, 0.5);
+}
+
+#volume::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #ff00de;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(255, 0, 222, 0.5);
+}
+
+@media (max-width: 768px) {
+    .drum-kit {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .drum {
+        padding: 30px 15px;
+    }
+    
+    .key {
+        font-size: 2em;
+    }
+    
+    h1 {
+        font-size: 2em;
+    }
+}
+
+@media (max-width: 480px) {
+    .drum-kit {
+        grid-template-columns: 1fr;
+    }
+    
+    .controls {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .btn {
+        margin: 0;
+        width: 100%;
+    }
+}
