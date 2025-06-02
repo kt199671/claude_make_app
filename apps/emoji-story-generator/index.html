@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>絵文字ストーリージェネレーター</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎭 絵文字ストーリージェネレーター 📖</h1>
+        
+        <div class="story-controls">
+            <div class="genre-selector">
+                <h3>ジャンルを選ぼう！</h3>
+                <div class="genre-buttons">
+                    <button class="genre-btn" data-genre="adventure">🗺️ 冒険</button>
+                    <button class="genre-btn" data-genre="romance">💕 ロマンス</button>
+                    <button class="genre-btn" data-genre="mystery">🔍 ミステリー</button>
+                    <button class="genre-btn" data-genre="comedy">😂 コメディ</button>
+                    <button class="genre-btn" data-genre="horror">👻 ホラー</button>
+                    <button class="genre-btn" data-genre="fantasy">🧙 ファンタジー</button>
+                </div>
+            </div>
+            
+            <div class="emoji-palette">
+                <h3>絵文字を選んでストーリーに追加！</h3>
+                <div class="emoji-grid">
+                    <!-- 絵文字はJavaScriptで動的に追加 -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="story-area">
+            <h3>あなたのストーリー</h3>
+            <div class="story-display">
+                <div class="story-text"></div>
+                <div class="emoji-sequence"></div>
+            </div>
+            
+            <div class="action-buttons">
+                <button id="generateBtn" class="action-btn generate">✨ ストーリー生成！</button>
+                <button id="clearBtn" class="action-btn clear">🗑️ クリア</button>
+                <button id="shareBtn" class="action-btn share">📤 シェア</button>
+                <button id="randomBtn" class="action-btn random">🎲 ランダム生成</button>
+            </div>
+        </div>
+        
+        <div class="saved-stories">
+            <h3>保存したストーリー</h3>
+            <div class="stories-list"></div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
