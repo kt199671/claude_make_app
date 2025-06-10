@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>時間逆転パズル - Time Reversal Puzzle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .time-display {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #00FFFF;
+            text-shadow: 0 0 20px #00FFFF;
+            font-family: 'Courier New', monospace;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 30px 0;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cell {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .cell:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .cell.active {
+            background: #FFD700;
+            color: #333;
+            box-shadow: 0 0 20px #FFD700;
+        }
+
+        .cell.past {
+            background: #FF6B6B;
+            color: white;
+        }
+
+        .cell.future {
+            background: #4ECDC4;
+            color: white;
+        }
+
+        .controls {
+            margin: 30px 0;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin: 0 10px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .info-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .status {
+            font-size: 1.3em;
+            margin: 15px 0;
+        }
+
+        .level-info {
+            font-size: 1.1em;
+            opacity: 0.8;
+        }
+
+        .instructions {
+            text-align: left;
+            margin: 20px 0;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        @keyframes timeWarp {
+            0% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(180deg); }
+            100% { transform: scale(1) rotate(360deg); }
+        }
+
+        .time-warp {
+            animation: timeWarp 1s ease-in-out;
+        }
+
+        @keyframes celebration {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .celebrate {
+            animation: celebration 0.5s ease-in-out 3;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>⏰ 時間逆転パズル</h1>
+        <p class="subtitle">時の流れを操り、パズルを解け！</p>
+        
+        <div class="time-display" id="timeDisplay">2024</div>
+        
+        <div class="info-panel">
+            <div class="status" id="gameStatus">ゲーム開始！時間を操作して全てのセルを揃えよう</div>
+            <div class="level-info">
+                レベル: <span id="currentLevel">1</span> | 
+                スコア: <span id="score">0</span> |
+                残り手数: <span id="movesLeft">15</span>
+            </div>
+        </div>
+
+        <div class="grid" id="gameGrid"></div>
+
+        <div class="controls">
+            <button class="btn" id="pastBtn">⏪ 過去へ</button>
+            <button class="btn" id="presentBtn">⏸️ 現在</button>
+            <button class="btn" id="futureBtn">⏩ 未来へ</button>
+        </div>
+
+        <button class="btn" id="resetBtn">🔄 リセット</button>
+
+        <div class="instructions">
+            <strong>遊び方:</strong><br>
+            • 時間ボタンで時の流れを操れます<br>
+            • 過去: 赤いセルをクリックして数字を減らす<br>
+            • 現在: 黄色いセルをクリックして変更<br>
+            • 未来: 青いセルをクリックして数字を増やす<br>
+            • 目標: 全てのセルを同じ数字に揃えよう！
+        </div>
+    </div>
+
+    <script>
+        class TimeReversalPuzzle {
+            constructor() {
+                this.currentTime = 'present';
+                this.level = 1;
+                this.score = 0;
+                this.movesLeft = 15;
+                this.grid = [];
+                this.targetNumber = 5;
+                this.gridSize = 4;
+                
+                this.initializeGame();
+                this.setupEventListeners();
+            }
+
+            initializeGame() {
+                this.generateGrid();
+                this.updateDisplay();
+                this.renderGrid();
+            }
+
+            generateGrid() {
+                this.grid = [];
+                for (let i = 0; i < this.gridSize * this.gridSize; i++) {
+                    this.grid.push(Math.floor(Math.random() * 9) + 1);
+                }
+                
+                // Ensure it's not already solved
+                while (this.checkWin()) {
+                    this.grid[Math.floor(Math.random() * this.grid.length)] = 
+                        Math.floor(Math.random() * 9) + 1;
+                }
+            }
+
+            renderGrid() {
+                const gridElement = document.getElementById('gameGrid');
+                gridElement.innerHTML = '';
+                
+                this.grid.forEach((value, index) => {
+                    const cell = document.createElement('div');
+                    cell.className = `cell ${this.currentTime}`;
+                    if (this.currentTime === 'present') cell.classList.add('active');
+                    cell.textContent = value;
+                    cell.addEventListener('click', () => this.handleCellClick(index));
+                    gridElement.appendChild(cell);
+                });
+            }
+
+            handleCellClick(index) {
+                if (this.movesLeft <= 0) return;
+
+                const oldValue = this.grid[index];
+                let newValue = oldValue;
+
+                switch (this.currentTime) {
+                    case 'past':
+                        newValue = Math.max(1, oldValue - 1);
+                        break;
+                    case 'present':
+                        newValue = this.targetNumber;
+                        break;
+                    case 'future':
+                        newValue = Math.min(9, oldValue + 1);
+                        break;
+                }
+
+                if (newValue !== oldValue) {
+                    this.grid[index] = newValue;
+                    this.movesLeft--;
+                    
+                    if (this.currentTime === 'present') {
+                        this.score += 50;
+                    } else {
+                        this.score += 25;
+                    }
+                    
+                    this.updateDisplay();
+                    this.renderGrid();
+                    
+                    if (this.checkWin()) {
+                        this.handleWin();
+                    } else if (this.movesLeft <= 0) {
+                        this.handleGameOver();
+                    }
+                }
+            }
+
+            changeTime(newTime) {
+                this.currentTime = newTime;
+                this.updateTimeDisplay();
+                this.renderGrid();
+                
+                // Add time warp animation
+                document.getElementById('timeDisplay').classList.add('time-warp');
+                setTimeout(() => {
+                    document.getElementById('timeDisplay').classList.remove('time-warp');
+                }, 1000);
+            }
+
+            updateTimeDisplay() {
+                const timeDisplay = document.getElementById('timeDisplay');
+                const currentYear = 2024;
+                
+                switch (this.currentTime) {
+                    case 'past':
+                        timeDisplay.textContent = (currentYear - 100);
+                        timeDisplay.style.color = '#FF6B6B';
+                        break;
+                    case 'present':
+                        timeDisplay.textContent = currentYear;
+                        timeDisplay.style.color = '#FFD700';
+                        break;
+                    case 'future':
+                        timeDisplay.textContent = (currentYear + 100);
+                        timeDisplay.style.color = '#4ECDC4';
+                        break;
+                }
+            }
+
+            updateDisplay() {
+                document.getElementById('currentLevel').textContent = this.level;
+                document.getElementById('score').textContent = this.score;
+                document.getElementById('movesLeft').textContent = this.movesLeft;
+            }
+
+            checkWin() {
+                return this.grid.every(value => value === this.targetNumber);
+            }
+
+            handleWin() {
+                const bonus = this.movesLeft * 100;
+                this.score += bonus;
+                
+                document.getElementById('gameStatus').textContent = 
+                    `🎉 レベル ${this.level} クリア！ボーナス: ${bonus}点`;
+                
+                // Celebration animation
+                document.querySelector('.game-container').classList.add('celebrate');
+                setTimeout(() => {
+                    document.querySelector('.game-container').classList.remove('celebrate');
+                }, 1500);
+                
+                setTimeout(() => {
+                    this.nextLevel();
+                }, 2000);
+            }
+
+            nextLevel() {
+                this.level++;
+                this.movesLeft = Math.max(10, 20 - this.level);
+                this.targetNumber = Math.floor(Math.random() * 9) + 1;
+                
+                if (this.level % 5 === 0) {
+                    this.gridSize = Math.min(6, this.gridSize + 1);
+                }
+                
+                document.getElementById('gameStatus').textContent = 
+                    `レベル ${this.level}: 目標数字は ${this.targetNumber}`;
+                
+                this.generateGrid();
+                this.updateDisplay();
+                this.renderGrid();
+                
+                // Reset time to present
+                this.currentTime = 'present';
+                this.updateTimeDisplay();
+            }
+
+            handleGameOver() {
+                document.getElementById('gameStatus').textContent = 
+                    `😢 ゲームオーバー！最終スコア: ${this.score}`;
+            }
+
+            reset() {
+                this.level = 1;
+                this.score = 0;
+                this.movesLeft = 15;
+                this.targetNumber = 5;
+                this.gridSize = 4;
+                this.currentTime = 'present';
+                
+                document.getElementById('gameStatus').textContent = 
+                    'ゲーム開始！時間を操作して全てのセルを揃えよう';
+                
+                this.initializeGame();
+            }
+
+            setupEventListeners() {
+                document.getElementById('pastBtn').addEventListener('click', () => {
+                    this.changeTime('past');
+                });
+                
+                document.getElementById('presentBtn').addEventListener('click', () => {
+                    this.changeTime('present');
+                });
+                
+                document.getElementById('futureBtn').addEventListener('click', () => {
+                    this.changeTime('future');
+                });
+                
+                document.getElementById('resetBtn').addEventListener('click', () => {
+                    if (confirm('ゲームをリセットしますか？')) {
+                        this.reset();
+                    }
+                });
+            }
+        }
+
+        // Initialize game when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            new TimeReversalPuzzle();
+        });
+    </script>
+</body>
+</html>

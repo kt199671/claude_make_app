@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>時空パラドックスパズル</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3a 50%, #2d1b69 100%);
+            color: #00ff00;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            color: #00ffff;
+            text-shadow: 0 0 20px #00ffff;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .time-display {
+            font-size: 1.5rem;
+            margin: 10px 0;
+            color: #ff6b6b;
+        }
+
+        .game-area {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+
+        .puzzle-container {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 5px;
+            height: 400px;
+            margin-bottom: 20px;
+        }
+
+        .cell {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .cell:hover {
+            background: #333;
+            transform: scale(1.05);
+        }
+
+        .cell.active {
+            background: #00ff00;
+            color: #000;
+            box-shadow: 0 0 20px #00ff00;
+        }
+
+        .cell.past {
+            background: #ff6b6b;
+            color: #fff;
+            box-shadow: 0 0 15px #ff6b6b;
+        }
+
+        .cell.future {
+            background: #4ecdc4;
+            color: #000;
+            box-shadow: 0 0 15px #4ecdc4;
+        }
+
+        .controls {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ffff;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group h3 {
+            color: #00ffff;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn.time-btn {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        }
+
+        .btn.reset-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+
+        .level-info {
+            background: rgba(0, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #1a1a1a;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00, #00ffff);
+            transition: width 0.5s ease;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #00ffff;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 3s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 1; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 0.5; }
+        }
+
+        .time-ripple {
+            position: absolute;
+            border: 2px solid #00ffff;
+            border-radius: 50%;
+            animation: ripple 1s ease-out;
+        }
+
+        @keyframes ripple {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 1;
+            }
+            100% {
+                width: 200px;
+                height: 200px;
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🌀 時空パラドックスパズル 🌀</h1>
+            <div class="time-display">現在時刻: <span id="currentTime">2025</span></div>
+        </div>
+
+        <div class="game-area">
+            <div class="puzzle-container">
+                <div class="grid" id="gameGrid"></div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <div class="level-info">
+                    <h3>レベル <span id="currentLevel">1</span></h3>
+                    <p id="levelDescription">時空の歪みを修復せよ</p>
+                    <div>目標: <span id="targetPattern">未来→現在→過去</span></div>
+                </div>
+
+                <div class="control-group">
+                    <h3>⏰ 時間操作</h3>
+                    <button class="btn time-btn" id="timeForward">⏩ 時間を進める</button>
+                    <button class="btn time-btn" id="timeBackward">⏪ 時間を戻す</button>
+                    <button class="btn time-btn" id="timeFreeze">⏸️ 時間停止</button>
+                </div>
+
+                <div class="control-group">
+                    <h3>🔧 アクション</h3>
+                    <button class="btn" id="createParadox">🌪️ パラドックス生成</button>
+                    <button class="btn" id="solvePattern">✨ パターン解決</button>
+                    <button class="btn reset-btn" id="resetLevel">🔄 レベルリセット</button>
+                </div>
+
+                <div class="control-group">
+                    <h3>📊 統計</h3>
+                    <div>解決済み: <span id="solvedCount">0</span>/10</div>
+                    <div>時間: <span id="timeElapsed">00:00</span></div>
+                    <div>スコア: <span id="score">0</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class TimeParadoxPuzzle {
+            constructor() {
+                this.grid = [];
+                this.currentTime = 2025;
+                this.level = 1;
+                this.score = 0;
+                this.solvedCount = 0;
+                this.isTimeFrozen = false;
+                this.startTime = Date.now();
+                this.targetPattern = [];
+                this.currentPattern = [];
+                
+                this.initializeGame();
+                this.setupEventListeners();
+                this.startGameLoop();
+            }
+
+            initializeGame() {
+                this.createGrid();
+                this.generateLevel();
+                this.updateDisplay();
+            }
+
+            createGrid() {
+                const gridElement = document.getElementById('gameGrid');
+                gridElement.innerHTML = '';
+                
+                for (let i = 0; i < 25; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.index = i;
+                    cell.addEventListener('click', () => this.handleCellClick(i));
+                    gridElement.appendChild(cell);
+                    
+                    this.grid[i] = {
+                        element: cell,
+                        state: 'present',
+                        value: Math.floor(Math.random() * 3),
+                        timeStamp: this.currentTime
+                    };
+                }
+                
+                this.updateGridDisplay();
+            }
+
+            generateLevel() {
+                // Generate target pattern based on level
+                this.targetPattern = [];
+                const patternLength = Math.min(3 + this.level, 8);
+                
+                for (let i = 0; i < patternLength; i++) {
+                    this.targetPattern.push(Math.floor(Math.random() * 3));
+                }
+                
+                document.getElementById('currentLevel').textContent = this.level;
+                document.getElementById('targetPattern').textContent = 
+                    this.targetPattern.map(v => ['過去', '現在', '未来'][v]).join('→');
+            }
+
+            handleCellClick(index) {
+                if (this.isTimeFrozen) return;
+                
+                const cell = this.grid[index];
+                this.createTimeRipple(cell.element);
+                
+                // Cycle through time states
+                const states = ['past', 'present', 'future'];
+                const currentIndex = states.indexOf(cell.state);
+                cell.state = states[(currentIndex + 1) % 3];
+                cell.timeStamp = this.currentTime + (currentIndex * 100);
+                
+                this.currentPattern.push(currentIndex);
+                this.updateGridDisplay();
+                this.checkPattern();
+                
+                // Add particles
+                this.createParticles(cell.element);
+            }
+
+            createTimeRipple(element) {
+                const ripple = document.createElement('div');
+                ripple.className = 'time-ripple';
+                const rect = element.getBoundingClientRect();
+                const containerRect = element.parentElement.getBoundingClientRect();
+                
+                ripple.style.left = (rect.left - containerRect.left + rect.width/2 - 100) + 'px';
+                ripple.style.top = (rect.top - containerRect.top + rect.height/2 - 100) + 'px';
+                
+                element.parentElement.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 1000);
+            }
+
+            createParticles(element) {
+                for (let i = 0; i < 5; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * element.offsetWidth + 'px';
+                    particle.style.top = Math.random() * element.offsetHeight + 'px';
+                    particle.style.animationDelay = Math.random() * 2 + 's';
+                    
+                    element.appendChild(particle);
+                    
+                    setTimeout(() => particle.remove(), 3000);
+                }
+            }
+
+            updateGridDisplay() {
+                this.grid.forEach(cell => {
+                    cell.element.className = `cell ${cell.state}`;
+                    const symbols = ['⏮️', '⏯️', '⏭️'];
+                    cell.element.textContent = symbols[['past', 'present', 'future'].indexOf(cell.state)];
+                });
+            }
+
+            checkPattern() {
+                if (this.currentPattern.length >= this.targetPattern.length) {
+                    const lastPattern = this.currentPattern.slice(-this.targetPattern.length);
+                    
+                    if (JSON.stringify(lastPattern) === JSON.stringify(this.targetPattern)) {
+                        this.solveLevel();
+                    }
+                }
+                
+                if (this.currentPattern.length > this.targetPattern.length * 2) {
+                    this.currentPattern = [];
+                }
+            }
+
+            solveLevel() {
+                this.solvedCount++;
+                this.score += this.level * 100;
+                this.level++;
+                
+                // Celebration effect
+                this.createCelebration();
+                
+                setTimeout(() => {
+                    this.currentPattern = [];
+                    this.generateLevel();
+                    this.createGrid();
+                }, 2000);
+                
+                this.updateDisplay();
+            }
+
+            createCelebration() {
+                const container = document.querySelector('.puzzle-container');
+                
+                for (let i = 0; i < 20; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.position = 'absolute';
+                    particle.style.left = Math.random() * container.offsetWidth + 'px';
+                    particle.style.top = Math.random() * container.offsetHeight + 'px';
+                    particle.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                    particle.style.animationDuration = '0.5s';
+                    
+                    container.appendChild(particle);
+                    
+                    setTimeout(() => particle.remove(), 500);
+                }
+            }
+
+            setupEventListeners() {
+                document.getElementById('timeForward').addEventListener('click', () => {
+                    this.currentTime += 10;
+                    this.updateTimeEffects();
+                });
+                
+                document.getElementById('timeBackward').addEventListener('click', () => {
+                    this.currentTime -= 10;
+                    this.updateTimeEffects();
+                });
+                
+                document.getElementById('timeFreeze').addEventListener('click', () => {
+                    this.isTimeFrozen = !this.isTimeFrozen;
+                    document.getElementById('timeFreeze').textContent = 
+                        this.isTimeFrozen ? '▶️ 時間再開' : '⏸️ 時間停止';
+                });
+                
+                document.getElementById('createParadox').addEventListener('click', () => {
+                    this.createParadox();
+                });
+                
+                document.getElementById('solvePattern').addEventListener('click', () => {
+                    this.showHint();
+                });
+                
+                document.getElementById('resetLevel').addEventListener('click', () => {
+                    this.currentPattern = [];
+                    this.createGrid();
+                });
+            }
+
+            updateTimeEffects() {
+                this.grid.forEach(cell => {
+                    const timeDiff = this.currentTime - cell.timeStamp;
+                    if (timeDiff > 50) {
+                        cell.state = 'future';
+                    } else if (timeDiff < -50) {
+                        cell.state = 'past';
+                    } else {
+                        cell.state = 'present';
+                    }
+                });
+                
+                this.updateGridDisplay();
+                this.updateDisplay();
+            }
+
+            createParadox() {
+                // Random time distortion effect
+                const randomCells = [];
+                for (let i = 0; i < 5; i++) {
+                    randomCells.push(Math.floor(Math.random() * 25));
+                }
+                
+                randomCells.forEach(index => {
+                    const cell = this.grid[index];
+                    cell.timeStamp += Math.random() * 200 - 100;
+                    this.createTimeRipple(cell.element);
+                });
+                
+                this.updateTimeEffects();
+            }
+
+            showHint() {
+                const hint = this.targetPattern.slice(0, 3);
+                alert(`ヒント: 最初の3手は ${hint.map(v => ['過去', '現在', '未来'][v]).join('→')} です！`);
+            }
+
+            updateDisplay() {
+                document.getElementById('currentTime').textContent = this.currentTime;
+                document.getElementById('solvedCount').textContent = this.solvedCount;
+                document.getElementById('score').textContent = this.score;
+                
+                const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                document.getElementById('timeElapsed').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                const progress = (this.solvedCount / 10) * 100;
+                document.getElementById('progressFill').style.width = progress + '%';
+            }
+
+            startGameLoop() {
+                setInterval(() => {
+                    if (!this.isTimeFrozen) {
+                        this.currentTime += 1;
+                        this.updateDisplay();
+                    }
+                }, 1000);
+            }
+        }
+
+        // Start the game when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new TimeParadoxPuzzle();
+        });
+    </script>
+</body>
+</html>

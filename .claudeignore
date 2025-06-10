@@ -1,0 +1,28 @@
+# 依存関係
+node_modules/
+__pycache__/
+.venv/
+venv/
+
+# ログファイル
+*.log
+*.logs
+
+# バイナリファイル
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.pdf
+*.zip
+*.tar.gz
+
+# 隠しファイル・ディレクトリ
+.git/
+.DS_Store
+.env
+
+# ビルド成果物
+dist/
+build/
+target/

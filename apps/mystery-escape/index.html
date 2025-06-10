@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ミステリー脱出ゲーム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e1e2e, #2d1b3d);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .game-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .room {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #4a4a5a 0%, #2a2a3a 100%);
+            position: relative;
+            transition: all 0.5s ease;
+        }
+
+        .room-wall {
+            position: absolute;
+            background: linear-gradient(135deg, #5a5a6a, #3a3a4a);
+            border: 2px solid #6a6a7a;
+        }
+
+        .wall-front {
+            width: 100%;
+            height: 70%;
+            bottom: 0;
+            left: 0;
+        }
+
+        .wall-left {
+            width: 15%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            background: linear-gradient(90deg, #4a4a5a, #5a5a6a);
+        }
+
+        .wall-right {
+            width: 15%;
+            height: 100%;
+            right: 0;
+            top: 0;
+            background: linear-gradient(-90deg, #4a4a5a, #5a5a6a);
+        }
+
+        .object {
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .object:hover {
+            transform: scale(1.1);
+            filter: brightness(1.2);
+        }
+
+        .door {
+            width: 120px;
+            height: 200px;
+            background: linear-gradient(180deg, #8B4513, #654321);
+            border: 3px solid #4a2c0a;
+            border-radius: 10px;
+            bottom: 0;
+            right: 40%;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .door::before {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #FFD700;
+            border-radius: 50%;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            box-shadow: 0 0 10px #FFD700;
+        }
+
+        .window {
+            width: 150px;
+            height: 100px;
+            background: linear-gradient(180deg, #87CEEB, #4682B4);
+            border: 4px solid #2F4F4F;
+            border-radius: 5px;
+            top: 15%;
+            left: 45%;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        .window::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: #2F4F4F;
+            top: 50%;
+            left: 0;
+        }
+
+        .window::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            background: #2F4F4F;
+            left: 50%;
+            top: 0;
+        }
+
+        .desk {
+            width: 200px;
+            height: 80px;
+            background: linear-gradient(180deg, #D2B48C, #A0522D);
+            border: 2px solid #8B4513;
+            border-radius: 5px;
+            bottom: 0;
+            left: 20%;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.3);
+        }
+
+        .book {
+            width: 30px;
+            height: 40px;
+            background: linear-gradient(180deg, #DC143C, #8B0000);
+            border: 1px solid #654321;
+            border-radius: 2px;
+            bottom: 80px;
+            left: 25%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .safe {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #708090, #2F4F4F);
+            border: 3px solid #1C1C1C;
+            border-radius: 5px;
+            bottom: 20px;
+            right: 10%;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .safe::before {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle, #4A4A4A, #2A2A2A);
+            border: 2px solid #1A1A1A;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .painting {
+            width: 120px;
+            height: 80px;
+            background: linear-gradient(45deg, #8B4513, #D2691E);
+            border: 4px solid #654321;
+            border-radius: 3px;
+            top: 25%;
+            right: 20%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+        }
+
+        .painting::before {
+            content: '🎨';
+            position: absolute;
+            font-size: 40px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .inventory {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.8);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #444;
+            min-width: 200px;
+        }
+
+        .inventory h3 {
+            color: #FFD700;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .item {
+            display: inline-block;
+            background: #444;
+            color: white;
+            padding: 5px 10px;
+            margin: 2px;
+            border-radius: 5px;
+            font-size: 12px;
+            border: 1px solid #666;
+        }
+
+        .message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            border: 2px solid #444;
+            max-width: 80%;
+            text-align: center;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .message.show {
+            opacity: 1;
+        }
+
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #2a2a3a, #1a1a2a);
+            padding: 30px;
+            border-radius: 15px;
+            border: 3px solid #444;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            z-index: 1000;
+            display: none;
+            text-align: center;
+            min-width: 300px;
+        }
+
+        .popup.show {
+            display: block;
+        }
+
+        .popup h2 {
+            color: #FFD700;
+            margin-bottom: 15px;
+        }
+
+        .popup input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #444;
+            border-radius: 5px;
+            background: #333;
+            color: white;
+            font-size: 16px;
+        }
+
+        .popup button {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px;
+        }
+
+        .popup button:hover {
+            background: linear-gradient(135deg, #FFA500, #FF8C00);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            z-index: 999;
+            display: none;
+        }
+
+        .overlay.show {
+            display: block;
+        }
+
+        .hint-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 100;
+        }
+
+        .hint-button:hover {
+            background: linear-gradient(135deg, #45a049, #3d8b40);
+        }
+
+        .timer {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.8);
+            color: #FFD700;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 2px solid #444;
+            font-weight: bold;
+            z-index: 100;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px #FFD700; }
+            50% { box-shadow: 0 0 20px #FFD700, 0 0 30px #FFD700; }
+        }
+
+        .glow {
+            animation: glow 2s infinite;
+        }
+
+        .victory {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #FFD700, #FFA500, #FF69B4, #00CED1);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            text-align: center;
+        }
+
+        .victory.show {
+            display: flex;
+        }
+
+        .victory-content {
+            background: rgba(0,0,0,0.8);
+            padding: 50px;
+            border-radius: 20px;
+            border: 3px solid #FFD700;
+        }
+
+        .victory h1 {
+            font-size: 48px;
+            color: #FFD700;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px #FFD700;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="timer" id="timer">時間: 05:00</div>
+        <button class="hint-button" onclick="showHint()">ヒント</button>
+        
+        <div class="room" id="room">
+            <div class="room-wall wall-front"></div>
+            <div class="room-wall wall-left"></div>
+            <div class="room-wall wall-right"></div>
+            
+            <div class="object door" onclick="checkDoor()" id="door"></div>
+            <div class="object window" onclick="examineWindow()"></div>
+            <div class="object desk" onclick="examineDesk()"></div>
+            <div class="object book" onclick="takeBook()" id="book"></div>
+            <div class="object safe" onclick="openSafe()" id="safe"></div>
+            <div class="object painting" onclick="examinePainting()" id="painting"></div>
+        </div>
+
+        <div class="inventory">
+            <h3>所持品</h3>
+            <div id="inventory-items"></div>
+        </div>
+
+        <div class="message" id="message"></div>
+        
+        <div class="overlay" id="overlay"></div>
+        
+        <div class="popup" id="safe-popup">
+            <h2>金庫の暗証番号</h2>
+            <p>4桁の数字を入力してください</p>
+            <input type="number" id="safe-code" placeholder="0000" maxlength="4">
+            <br>
+            <button onclick="trySafeCode()">開ける</button>
+            <button onclick="closePopup()">戻る</button>
+        </div>
+
+        <div class="popup" id="door-popup">
+            <h2>ドアの鍵</h2>
+            <p>鍵が必要です</p>
+            <button onclick="tryDoorKey()">鍵を使う</button>
+            <button onclick="closePopup()">戻る</button>
+        </div>
+
+        <div class="victory" id="victory">
+            <div class="victory-content">
+                <h1>🎉 脱出成功！ 🎉</h1>
+                <p>おめでとうございます！</p>
+                <p>クリア時間: <span id="clear-time"></span></p>
+                <button onclick="restartGame()">もう一度プレイ</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let gameState = {
+            inventory: [],
+            safeOpened: false,
+            bookTaken: false,
+            paintingMoved: false,
+            doorUnlocked: false,
+            gameStartTime: Date.now(),
+            timeLimit: 300000, // 5分
+            hints: [
+                "本を調べてみよう...",
+                "絵画の後ろに何かあるかも？",
+                "机の上の数字と本のページ数を関連づけてみよう",
+                "窓から見える景色にヒントがあるかも",
+                "金庫の番号は4桁の数字です"
+            ],
+            currentHint: 0
+        };
+
+        let gameTimer;
+
+        function startGame() {
+            gameTimer = setInterval(updateTimer, 1000);
+            showMessage("部屋に閉じ込められた！5分以内に脱出しよう！");
+        }
+
+        function updateTimer() {
+            const elapsed = Date.now() - gameState.gameStartTime;
+            const remaining = Math.max(0, gameState.timeLimit - elapsed);
+            
+            const minutes = Math.floor(remaining / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+            
+            document.getElementById('timer').textContent = 
+                `時間: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (remaining <= 0) {
+                gameOver();
+            }
+        }
+
+        function gameOver() {
+            clearInterval(gameTimer);
+            showMessage("時間切れ！ゲームオーバーです。");
+            setTimeout(() => {
+                if (confirm("もう一度挑戦しますか？")) {
+                    restartGame();
+                }
+            }, 2000);
+        }
+
+        function showMessage(text) {
+            const message = document.getElementById('message');
+            message.textContent = text;
+            message.classList.add('show');
+            setTimeout(() => {
+                message.classList.remove('show');
+            }, 3000);
+        }
+
+        function addToInventory(item) {
+            gameState.inventory.push(item);
+            updateInventoryDisplay();
+            showMessage(`${item}を手に入れた！`);
+        }
+
+        function updateInventoryDisplay() {
+            const container = document.getElementById('inventory-items');
+            container.innerHTML = '';
+            gameState.inventory.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.textContent = item;
+                container.appendChild(div);
+            });
+        }
+
+        function hasItem(item) {
+            return gameState.inventory.includes(item);
+        }
+
+        function takeBook() {
+            if (!gameState.bookTaken) {
+                gameState.bookTaken = true;
+                document.getElementById('book').style.display = 'none';
+                addToInventory('古い本');
+                showMessage('古い本を手に入れた。ページに「1847」と書かれている。');
+            } else {
+                showMessage('本はもうここにない。');
+            }
+        }
+
+        function examineDesk() {
+            showMessage('机の上に数字が刻まれている: 3+4=?');
+        }
+
+        function examineWindow() {
+            showMessage('窓の外に時計台が見える。時間は2時15分を指している。');
+        }
+
+        function examinePainting() {
+            if (!gameState.paintingMoved) {
+                gameState.paintingMoved = true;
+                showMessage('絵画を動かすと、後ろから小さな鍵が落ちた！');
+                addToInventory('小さな鍵');
+                document.getElementById('painting').classList.add('glow');
+            } else {
+                showMessage('絵画の後ろにはもう何もない。');
+            }
+        }
+
+        function openSafe() {
+            document.getElementById('overlay').classList.add('show');
+            document.getElementById('safe-popup').classList.add('show');
+        }
+
+        function trySafeCode() {
+            const code = document.getElementById('safe-code').value;
+            // 正解は 1847 (本のページ数) + 7 (机の計算 3+4) = 1847 または 2147 (時計の時間)
+            if (code === '1847' || code === '2147') {
+                gameState.safeOpened = true;
+                showMessage('金庫が開いた！中から大きな鍵を手に入れた！');
+                addToInventory('大きな鍵');
+                document.getElementById('safe').classList.add('glow');
+                closePopup();
+            } else {
+                showMessage('暗証番号が違います。');
+                document.getElementById('safe-code').value = '';
+            }
+        }
+
+        function checkDoor() {
+            if (hasItem('大きな鍵')) {
+                document.getElementById('overlay').classList.add('show');
+                document.getElementById('door-popup').classList.add('show');
+            } else {
+                showMessage('ドアには鍵がかかっている。大きな鍵が必要だ。');
+            }
+        }
+
+        function tryDoorKey() {
+            if (hasItem('大きな鍵')) {
+                gameState.doorUnlocked = true;
+                clearInterval(gameTimer);
+                showVictory();
+                closePopup();
+            }
+        }
+
+        function showVictory() {
+            const elapsed = Date.now() - gameState.gameStartTime;
+            const minutes = Math.floor(elapsed / 60000);
+            const seconds = Math.floor((elapsed % 60000) / 1000);
+            
+            document.getElementById('clear-time').textContent = 
+                `${minutes}分${seconds}秒`;
+            document.getElementById('victory').classList.add('show');
+        }
+
+        function closePopup() {
+            document.getElementById('overlay').classList.remove('show');
+            document.querySelectorAll('.popup').forEach(popup => {
+                popup.classList.remove('show');
+            });
+        }
+
+        function showHint() {
+            if (gameState.currentHint < gameState.hints.length) {
+                showMessage(`ヒント: ${gameState.hints[gameState.currentHint]}`);
+                gameState.currentHint++;
+            } else {
+                showMessage('もうヒントはありません。');
+            }
+        }
+
+        function restartGame() {
+            // ゲーム状態をリセット
+            gameState = {
+                inventory: [],
+                safeOpened: false,
+                bookTaken: false,
+                paintingMoved: false,
+                doorUnlocked: false,
+                gameStartTime: Date.now(),
+                timeLimit: 300000,
+                hints: [
+                    "本を調べてみよう...",
+                    "絵画の後ろに何かあるかも？",
+                    "机の上の数字と本のページ数を関連づけてみよう",
+                    "窓から見える景色にヒントがあるかも",
+                    "金庫の番号は4桁の数字です"
+                ],
+                currentHint: 0
+            };
+
+            // UIをリセット
+            document.getElementById('book').style.display = 'block';
+            document.getElementById('safe').classList.remove('glow');
+            document.getElementById('painting').classList.remove('glow');
+            document.getElementById('victory').classList.remove('show');
+            document.getElementById('safe-code').value = '';
+            updateInventoryDisplay();
+            
+            clearInterval(gameTimer);
+            startGame();
+        }
+
+        // ゲーム開始
+        window.addEventListener('load', startGame);
+
+        // クリックでポップアップを閉じる
+        document.getElementById('overlay').addEventListener('click', closePopup);
+    </script>
+</body>
+</html>

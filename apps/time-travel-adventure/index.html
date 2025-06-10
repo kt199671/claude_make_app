@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>タイムトラベル冒険記</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⏰ タイムトラベル冒険記</h1>
+            <div class="time-display" id="currentEra">現代 - 2024年</div>
+        </header>
+        
+        <div class="game-area">
+            <div class="story-panel" id="storyPanel">
+                <div class="character-avatar" id="avatar">🧑‍🚀</div>
+                <div class="story-text" id="storyText">
+                    あなたは謎の時空装置を発見しました！この装置を使って様々な時代を冒険することができます。
+                    どの時代に旅立ちますか？
+                </div>
+            </div>
+            
+            <div class="choices-panel" id="choicesPanel">
+                <button class="choice-btn" onclick="travelTo('prehistoric')">🦕 先史時代へ</button>
+                <button class="choice-btn" onclick="travelTo('ancient')">🏛️ 古代エジプトへ</button>
+                <button class="choice-btn" onclick="travelTo('medieval')">🏰 中世ヨーロッパへ</button>
+                <button class="choice-btn" onclick="travelTo('future')">🚀 未来世界へ</button>
+            </div>
+            
+            <div class="inventory-panel">
+                <h3>🎒 所持品</h3>
+                <div class="inventory" id="inventory">
+                    <div class="item">⏰ タイムマシン</div>
+                </div>
+            </div>
+            
+            <div class="stats-panel">
+                <div class="stat">
+                    <span>🌟 冒険ポイント</span>
+                    <span id="adventurePoints">0</span>
+                </div>
+                <div class="stat">
+                    <span>🕰️ 時代訪問数</span>
+                    <span id="erasVisited">0</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="control-btn" onclick="resetGame()">🔄 最初からやり直す</button>
+            <button class="control-btn" onclick="returnToPresent()">🏠 現代に戻る</button>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

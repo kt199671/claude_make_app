@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>バーチャル植物園 🌱</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌱 バーチャル植物園 🌸</h1>
+            <div class="stats">
+                <span>🪙 <span id="coins">100</span></span>
+                <span>🌟 <span id="experience">0</span> XP</span>
+            </div>
+        </header>
+
+        <main>
+            <div class="garden-area">
+                <h2>あなたの庭園</h2>
+                <div class="garden-grid" id="garden"></div>
+            </div>
+
+            <div class="shop-area">
+                <h3>🏪 種子ショップ</h3>
+                <div class="seeds-shop">
+                    <div class="seed-item" data-plant="sunflower" data-cost="20">
+                        <div class="seed-icon">🌻</div>
+                        <div class="seed-info">
+                            <div>ひまわり</div>
+                            <div class="cost">20🪙</div>
+                        </div>
+                    </div>
+                    <div class="seed-item" data-plant="rose" data-cost="30">
+                        <div class="seed-icon">🌹</div>
+                        <div class="seed-info">
+                            <div>バラ</div>
+                            <div class="cost">30🪙</div>
+                        </div>
+                    </div>
+                    <div class="seed-item" data-plant="cherry" data-cost="50">
+                        <div class="seed-icon">🌸</div>
+                        <div class="seed-info">
+                            <div>桜</div>
+                            <div class="cost">50🪙</div>
+                        </div>
+                    </div>
+                    <div class="seed-item" data-plant="tulip" data-cost="25">
+                        <div class="seed-icon">🌷</div>
+                        <div class="seed-info">
+                            <div>チューリップ</div>
+                            <div class="cost">25🪙</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="collection-area">
+                <h3>🏆 植物図鑑</h3>
+                <div class="collection-grid" id="collection"></div>
+            </div>
+        </main>
+
+        <div class="action-buttons">
+            <button id="water-all">💧 すべてに水やり</button>
+            <button id="harvest-all">✂️ すべて収穫</button>
+            <button id="fertilize-all">🧪 肥料をあげる</button>
+        </div>
+
+        <div class="notifications" id="notifications"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

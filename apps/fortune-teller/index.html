@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>魔法の水晶玉 - Fortune Teller</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">魔法の水晶玉</h1>
+        <div class="crystal-ball-container">
+            <div class="crystal-ball">
+                <div class="crystal-inner">
+                    <div class="mist"></div>
+                    <div class="fortune-text" id="fortuneText"></div>
+                </div>
+                <div class="crystal-reflection"></div>
+            </div>
+            <div class="crystal-base">
+                <div class="base-top"></div>
+                <div class="base-bottom"></div>
+            </div>
+            <div class="particles" id="particles"></div>
+        </div>
+        
+        <div class="controls">
+            <input type="text" id="nameInput" class="name-input" placeholder="あなたの名前を入力...">
+            <select id="fortuneType" class="fortune-select">
+                <option value="general">総合運</option>
+                <option value="love">恋愛運</option>
+                <option value="money">金運</option>
+                <option value="work">仕事運</option>
+                <option value="health">健康運</option>
+            </select>
+            <button id="askButton" class="ask-button">運勢を占う</button>
+        </div>
+        
+        <div class="history" id="history">
+            <h3>占い履歴</h3>
+            <div id="historyList"></div>
+        </div>
+        
+        <div class="sound-toggle">
+            <label>
+                <input type="checkbox" id="soundToggle" checked>
+                <span>サウンドON</span>
+            </label>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

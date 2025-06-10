@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Beatbox Battle</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 3em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .battle-arena {
+            display: flex;
+            justify-content: space-between;
+            margin: 40px 0;
+            gap: 20px;
+        }
+        
+        .fighter {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+        
+        .fighter h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+        
+        .beatbox-display {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            min-height: 80px;
+            font-size: 1.2em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .score {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .controls {
+            margin: 30px 0;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .round-info {
+            font-size: 1.5em;
+            margin: 20px 0;
+            color: #ffd700;
+        }
+        
+        .winner-announcement {
+            font-size: 2.5em;
+            color: #ffd700;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
+            animation: bounce 1s infinite;
+            margin: 20px 0;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎤 AI BEATBOX BATTLE 🎤</h1>
+        
+        <div class="round-info" id="roundInfo">Round 1 of 5</div>
+        
+        <div class="battle-arena">
+            <div class="fighter">
+                <h3>🤖 あなた</h3>
+                <div class="beatbox-display" id="playerBeatbox">クリックしてビートボックス！</div>
+                <div class="score" id="playerScore">0</div>
+            </div>
+            
+            <div class="fighter">
+                <h3>🎵 AI マスター</h3>
+                <div class="beatbox-display" id="aiBeatbox">...</div>
+                <div class="score" id="aiScore">0</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="beatboxBtn" onclick="playerBeatbox()">ビートボックス開始！</button>
+            <button id="newGameBtn" onclick="newGame()" style="display: none;">新しいゲーム</button>
+        </div>
+        
+        <div id="winnerText"></div>
+    </div>
+
+    <script>
+        let playerScore = 0;
+        let aiScore = 0;
+        let currentRound = 1;
+        let maxRounds = 5;
+        let gameActive = true;
+        
+        const beatboxPatterns = [
+            "ドンドンパッ ツクツクパッ",
+            "ブンブンタッ ドゥルドゥルタッ",
+            "ピッピッポッ シャカシャカポッ",
+            "ズンズンチャッ ワッワッチャッ",
+            "ドゥクドゥクダッ ツッツッダッ",
+            "ビッビッボッ クルクルボッ",
+            "ダンダンドッ フワフワドッ",
+            "ズッズッザッ ピルピルザッ"
+        ];
+        
+        const aiBeatboxPatterns = [
+            "ドロロンパッ シュルシュルパッ",
+            "ブルブルタッ ギュインギュインタッ",
+            "ピューピューポッ ザザザポッ",
+            "ゴンゴンチャッ ウィンウィンチャッ",
+            "ドシドシダッ プルプルダッ",
+            "ビリビリボッ フルフルボッ",
+            "バンバンドッ シューシューdoッ",
+            "ゾゾゾザッ ミルミルザッ"
+        ];
+        
+        function getRandomPattern(patterns) {
+            return patterns[Math.floor(Math.random() * patterns.length)];
+        }
+        
+        function playerBeatbox() {
+            if (!gameActive) return;
+            
+            const btn = document.getElementById('beatboxBtn');
+            btn.disabled = true;
+            
+            // プレイヤーのビートボックス
+            const playerPattern = getRandomPattern(beatboxPatterns);
+            const playerDisplay = document.getElementById('playerBeatbox');
+            playerDisplay.textContent = playerPattern;
+            
+            setTimeout(() => {
+                // AIの応答
+                const aiPattern = getRandomPattern(aiBeatboxPatterns);
+                const aiDisplay = document.getElementById('aiBeatbox');
+                aiDisplay.textContent = aiPattern;
+                
+                // スコア計算（ランダムに勝敗決定、少しプレイヤー有利）
+                const playerWins = Math.random() > 0.4;
+                
+                if (playerWins) {
+                    playerScore++;
+                    playerDisplay.style.background = 'rgba(0,255,0,0.3)';
+                    aiDisplay.style.background = 'rgba(255,0,0,0.3)';
+                } else {
+                    aiScore++;
+                    playerDisplay.style.background = 'rgba(255,0,0,0.3)';
+                    aiDisplay.style.background = 'rgba(0,255,0,0.3)';
+                }
+                
+                document.getElementById('playerScore').textContent = playerScore;
+                document.getElementById('aiScore').textContent = aiScore;
+                
+                currentRound++;
+                
+                setTimeout(() => {
+                    playerDisplay.style.background = 'rgba(0,0,0,0.3)';
+                    aiDisplay.style.background = 'rgba(0,0,0,0.3)';
+                    
+                    if (currentRound <= maxRounds) {
+                        document.getElementById('roundInfo').textContent = `Round ${currentRound} of ${maxRounds}`;
+                        btn.disabled = false;
+                        playerDisplay.textContent = 'クリックしてビートボックス！';
+                        aiDisplay.textContent = '...';
+                    } else {
+                        endGame();
+                    }
+                }, 2000);
+                
+            }, 1500);
+        }
+        
+        function endGame() {
+            gameActive = false;
+            const winnerText = document.getElementById('winnerText');
+            const beatboxBtn = document.getElementById('beatboxBtn');
+            const newGameBtn = document.getElementById('newGameBtn');
+            
+            if (playerScore > aiScore) {
+                winnerText.innerHTML = '<div class="winner-announcement">🏆 あなたの勝利！ 🏆</div>';
+            } else if (aiScore > playerScore) {
+                winnerText.innerHTML = '<div class="winner-announcement">🤖 AI マスターの勝利！ 🤖</div>';
+            } else {
+                winnerText.innerHTML = '<div class="winner-announcement">🤝 引き分け！ 🤝</div>';
+            }
+            
+            beatboxBtn.style.display = 'none';
+            newGameBtn.style.display = 'inline-block';
+            document.getElementById('roundInfo').textContent = 'ゲーム終了！';
+        }
+        
+        function newGame() {
+            playerScore = 0;
+            aiScore = 0;
+            currentRound = 1;
+            gameActive = true;
+            
+            document.getElementById('playerScore').textContent = '0';
+            document.getElementById('aiScore').textContent = '0';
+            document.getElementById('roundInfo').textContent = 'Round 1 of 5';
+            document.getElementById('playerBeatbox').textContent = 'クリックしてビートボックス！';
+            document.getElementById('aiBeatbox').textContent = '...';
+            document.getElementById('winnerText').innerHTML = '';
+            
+            document.getElementById('beatboxBtn').style.display = 'inline-block';
+            document.getElementById('newGameBtn').style.display = 'none';
+            document.getElementById('beatboxBtn').disabled = false;
+        }
+    </script>
+</body>
+</html>
