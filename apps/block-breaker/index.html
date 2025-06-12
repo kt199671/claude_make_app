@@ -3,64 +3,459 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ブロック崩し</title>
+    <title>🌟 ネオンブレイカー - 超進化ブロック崩し 🌟</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            background-color: #000;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', monospace;
+            background: 
+                radial-gradient(ellipse at center, rgba(138, 43, 226, 0.1) 0%, transparent 70%),
+                linear-gradient(135deg, #0a0a0a 0%, #1a0033 25%, #2d1b69 50%, #000066 75%, #001133 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+            color: #ffffff;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            font-family: Arial, sans-serif;
+            padding: 10px;
         }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.9), transparent),
+                radial-gradient(2px 2px at 160px 30px, #ddd, transparent);
+            background-repeat: repeat;
+            background-size: 200px 100px;
+            animation: twinkle 8s ease-in-out infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff00ff);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            margin-bottom: 15px;
+            animation: rainbowShift 3s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(255, 0, 255, 0.5);
+        }
+
+        @keyframes rainbowShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .game-ui {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .ui-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 15px 20px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+
+        .ui-value {
+            color: #00ffff;
+            font-size: 1.2rem;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+        }
+
+        .canvas-container {
+            position: relative;
+            border: 3px solid;
+            border-image: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff00ff) 1;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 
+                0 0 50px rgba(255, 0, 255, 0.3),
+                inset 0 0 50px rgba(0, 255, 255, 0.1);
+        }
+
         #gameCanvas {
-            border: 2px solid #fff;
+            display: block;
+            background: rgba(0, 0, 0, 0.3);
         }
-        #gameInfo {
+
+        .power-indicator {
             position: absolute;
             top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #fff;
-            font-size: 20px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid #ffd700;
+            min-width: 150px;
         }
-        #gameOver {
+
+        .power-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .power-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00);
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            font-size: 0.9rem;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 255, 255, 0.4);
+            background: linear-gradient(45deg, #00ffff, #0099ff);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: linear-gradient(45deg, #ff00ff, #8000ff);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(255, 0, 255, 0.5);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal h2 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .modal p {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 20px;
+        }
+
+        .powerup-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .powerup-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .powerup-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .combo-display {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            padding: 20px;
+            font-size: 3rem;
+            font-weight: 900;
+            color: #ffff00;
+            text-shadow: 0 0 20px rgba(255, 255, 0, 0.8);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .achievements {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
             border-radius: 10px;
-            text-align: center;
-            display: none;
+            border: 2px solid #ffd700;
+            min-width: 200px;
+            max-height: 200px;
+            overflow-y: auto;
         }
-        #restartBtn {
-            margin-top: 10px;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #4CAF50;
+
+        .achievement-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .settings-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .difficulty-select {
+            display: flex;
+            gap: 10px;
+        }
+
+        .difficulty-btn {
+            padding: 8px 15px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
             color: white;
-            border: none;
-            border-radius: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
         }
-        #restartBtn:hover {
-            background-color: #45a049;
+
+        .difficulty-btn.active {
+            background: linear-gradient(45deg, #ff00ff, #8000ff);
+            border-color: #ff00ff;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .game-ui {
+                justify-content: center;
+            }
+            
+            .ui-panel {
+                flex: 1;
+                min-width: 120px;
+                justify-content: center;
+            }
+            
+            #gameCanvas {
+                width: 100%;
+                max-width: 600px;
+                height: auto;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="gameInfo">スコア: <span id="score">0</span></div>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
-    <div id="gameOver">
-        <h2>ゲームオーバー!</h2>
-        <p>最終スコア: <span id="finalScore">0</span></p>
-        <button id="restartBtn">もう一度プレイ</button>
+    <div class="stars"></div>
+    
+    <div class="game-container">
+        <h1>🌟 ネオンブレイカー 🌟</h1>
+        
+        <div class="settings-panel">
+            <div>
+                <label style="margin-right: 10px;">難易度:</label>
+                <div class="difficulty-select">
+                    <button class="difficulty-btn" data-difficulty="easy">簡単</button>
+                    <button class="difficulty-btn active" data-difficulty="normal">普通</button>
+                    <button class="difficulty-btn" data-difficulty="hard">難しい</button>
+                    <button class="difficulty-btn" data-difficulty="extreme">極限</button>
+                </div>
+            </div>
+            <button class="control-btn" onclick="toggleMusic()">🎵 音楽</button>
+            <button class="control-btn" onclick="showInstructions()">📖 操作説明</button>
+        </div>
+        
+        <div class="game-ui">
+            <div class="ui-panel">
+                <span>スコア:</span>
+                <span class="ui-value" id="score">0</span>
+            </div>
+            <div class="ui-panel">
+                <span>レベル:</span>
+                <span class="ui-value" id="level">1</span>
+            </div>
+            <div class="ui-panel">
+                <span>ライフ:</span>
+                <span class="ui-value" id="lives">❤️❤️❤️</span>
+            </div>
+            <div class="ui-panel">
+                <span>コンボ:</span>
+                <span class="ui-value" id="combo">0</span>
+            </div>
+            <div class="ui-panel">
+                <span>時間:</span>
+                <span class="ui-value" id="time">0:00</span>
+            </div>
+        </div>
+        
+        <div class="canvas-container">
+            <canvas id="gameCanvas" width="900" height="600"></canvas>
+            
+            <div class="power-indicator">
+                <div style="color: #ffd700; font-weight: bold; font-size: 0.9rem;">スペシャルパワー</div>
+                <div class="power-bar">
+                    <div class="power-fill" id="powerFill" style="width: 0%"></div>
+                </div>
+                <div style="font-size: 0.8rem; margin-top: 5px;" id="powerText">チャージ中...</div>
+            </div>
+            
+            <div class="achievements" id="achievements">
+                <div style="color: #ffd700; font-weight: bold; margin-bottom: 10px;">🏆 実績</div>
+                <div id="achievementsList"></div>
+            </div>
+            
+            <div class="combo-display" id="comboDisplay"></div>
+        </div>
+        
+        <div class="controls">
+            <button class="control-btn" onclick="pauseGame()" id="pauseBtn">⏸️ ポーズ</button>
+            <button class="control-btn" onclick="activateSpecialPower()">⚡ スペシャル</button>
+            <button class="control-btn" onclick="resetGame()">🔄 リセット</button>
+            <button class="control-btn" onclick="showLeaderboard()">🏆 ランキング</button>
+        </div>
     </div>
+    
+    <!-- Instructions Modal -->
+    <div class="modal" id="instructionsModal">
+        <div class="modal-content">
+            <h2>🎮 操作説明</h2>
+            <p><strong>基本操作:</strong><br>
+            • マウス移動またはA/Dキーでパドル操作<br>
+            • スペースキーでゲーム開始/ポーズ<br>
+            • Enterキーでスペシャルパワー発動</p>
+            
+            <div class="powerup-info">
+                <div class="powerup-item">
+                    <div class="powerup-icon">🚀</div>
+                    <div><strong>スピードアップ</strong><br>ボール速度上昇</div>
+                </div>
+                <div class="powerup-item">
+                    <div class="powerup-icon">📏</div>
+                    <div><strong>パドル拡張</strong><br>パドルサイズ増加</div>
+                </div>
+                <div class="powerup-item">
+                    <div class="powerup-icon">⚡</div>
+                    <div><strong>レーザー</strong><br>ブロックを貫通</div>
+                </div>
+                <div class="powerup-item">
+                    <div class="powerup-icon">💥</div>
+                    <div><strong>爆弾ボール</strong><br>周囲のブロックも破壊</div>
+                </div>
+                <div class="powerup-item">
+                    <div class="powerup-icon">🌟</div>
+                    <div><strong>マルチボール</strong><br>ボールが3個に分裂</div>
+                </div>
+                <div class="powerup-item">
+                    <div class="powerup-icon">🔥</div>
+                    <div><strong>ファイアボール</strong><br>何でも貫通する炎球</div>
+                </div>
+            </div>
+            
+            <button class="control-btn" onclick="closeModal('instructionsModal')">閉じる</button>
+        </div>
+    </div>
+    
+    <!-- Game Over Modal -->
+    <div class="modal" id="gameOverModal">
+        <div class="modal-content">
+            <h2 id="gameOverTitle">ゲーム終了</h2>
+            <p>最終スコア: <span id="finalScore">0</span></p>
+            <p>達成レベル: <span id="finalLevel">1</span></p>
+            <p>プレイ時間: <span id="finalTime">0:00</span></p>
+            <p>最大コンボ: <span id="finalCombo">0</span></p>
+            <button class="control-btn" onclick="restartGame()">もう一度プレイ</button>
+            <button class="control-btn" onclick="closeModal('gameOverModal')">閉じる</button>
+        </div>
+    </div>
+    
+    <!-- Audio elements -->
+    <audio id="bgMusic" loop preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSiH0O7KdB8BJnvK7taIOwYchqft4qNSEAo+pt3rrV4ZCzGBxO7ZfygEION60eKIKQo5c8Hs7ZtJDGq11viOYxACKKHb4KdXEAtBqOOzZRcEOIDM6+PQTwYUXrDn5qNUDgc/pcXp3kEhBSd+yO3PdBwFGmzB6fGcVQwbKpvS3a1DEQo5gcnt12kbBjCE0OmIKgYEVr/h21odCCGMzejGYBYBJ3PR2aIxEwozaLzx5JdODgs3mdD73k8gBDh90eGHMwgJVrLo46pUEQoynKPGZhsEOHbK3M5LFwU8b8fmgzEjBSRxxu3eXAgCULnj3qxWExJTiuM="></source>
+    </audio>
+    
     <script src="game.js"></script>
 </body>
 </html>
