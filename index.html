@@ -151,6 +151,104 @@
             color: rgba(255,255,255,0.9);
             font-weight: 300;
             animation: fadeInUp 1s ease-out 0.2s both;
+            margin-bottom: 2rem;
+        }
+
+        /* ナビゲーションスタイル */
+        .main-nav {
+            margin-top: 2rem;
+            animation: fadeInUp 1s ease-out 0.4s both;
+        }
+
+        .nav-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .search-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 45px 12px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .search-input:focus {
+            border-color: #ff0080;
+            box-shadow: 0 0 20px rgba(255, 0, 128, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.6);
+            pointer-events: none;
+        }
+
+        .category-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            white-space: nowrap;
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #ff0080, #7928ca);
+            border-color: #ff0080;
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 0, 128, 0.4);
+        }
+
+        .app-count {
+            text-align: center;
+            margin: 2rem 0 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            font-weight: 300;
         }
 
         @keyframes fadeInUp {
@@ -409,6 +507,28 @@
             .app-card {
                 margin: 0 10px;
             }
+
+            .nav-container {
+                gap: 1rem;
+            }
+
+            .category-filters {
+                gap: 8px;
+            }
+
+            .filter-btn {
+                padding: 8px 16px;
+                font-size: 0.85rem;
+            }
+
+            .search-container {
+                max-width: 100%;
+            }
+
+            .search-input {
+                padding: 10px 40px 10px 16px;
+                font-size: 0.9rem;
+            }
         }
 
         @media (max-width: 480px) {
@@ -432,12 +552,36 @@
     <header>
         <h1 data-text="Claude作品集">Claude作品集</h1>
         <p class="subtitle">Claude AIを使って作成したゲーム・アプリのコレクション</p>
+        
+        <!-- ナビゲーションメニュー -->
+        <nav class="main-nav">
+            <div class="nav-container">
+                <!-- 検索バー -->
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="アプリを検索..." class="search-input">
+                    <span class="search-icon">🔍</span>
+                </div>
+                
+                <!-- カテゴリーフィルター -->
+                <div class="category-filters">
+                    <button class="filter-btn active" data-category="all">すべて</button>
+                    <button class="filter-btn" data-category="game">ゲーム</button>
+                    <button class="filter-btn" data-category="tool">ツール</button>
+                    <button class="filter-btn" data-category="ai">AI・分析</button>
+                    <button class="filter-btn" data-category="entertainment">エンタメ</button>
+                    <button class="filter-btn" data-category="music">音楽・アート</button>
+                    <button class="filter-btn" data-category="education">教育・科学</button>
+                    <button class="filter-btn" data-category="social">ソーシャル</button>
+                </div>
+            </div>
+        </nav>
     </header>
 
     <div class="container">
+        <div class="app-count" id="appCount">全 42 アプリ</div>
         <div class="apps-grid">
             <!-- レトロ宇宙探査ゲーム -->
-            <div class="app-card">
+            <div class="app-card" data-category="game" data-title="レトロ宇宙探査ゲーム">
                 <div class="app-image">
                     <span>🚀</span>
                 </div>
@@ -452,7 +596,7 @@
             </div>
 
             <!-- AI音楽バトル -->
-            <div class="app-card">
+            <div class="app-card" data-category="ai" data-title="AI音楽バトル">
                 <div class="app-image">
                     <span>🎵</span>
                 </div>
@@ -467,7 +611,7 @@
             </div>
 
             <!-- 性格カラー診断 -->
-            <div class="app-card">
+            <div class="app-card" data-category="ai" data-title="性格カラー診断">
                 <div class="app-image">
                     <span>🎨</span>
                 </div>
@@ -482,7 +626,7 @@
             </div>
 
             <!-- おみくじ -->
-            <div class="app-card">
+            <div class="app-card" data-category="entertainment" data-title="おみくじ">
                 <div class="app-image">
                     <span>🥠</span>
                 </div>
@@ -496,7 +640,7 @@
             </div>
 
             <!-- キャンディクラッシュ風パズル -->
-            <div class="app-card">
+            <div class="app-card" data-category="game" data-title="キャンディクラッシュ風パズル">
                 <div class="app-image">
                     <span>🍬</span>
                 </div>
@@ -511,7 +655,7 @@
             </div>
             
             <!-- 電卓 -->
-            <div class="app-card">
+            <div class="app-card" data-category="tool" data-title="電卓">
                 <div class="app-image">
                     <span>🧮</span>
                 </div>
@@ -526,7 +670,7 @@
             </div>
 
             <!-- TODOリスト -->
-            <div class="app-card">
+            <div class="app-card" data-category="tool" data-title="TODOリスト">
                 <div class="app-image">
                     <span>📋</span>
                 </div>
@@ -541,7 +685,7 @@
             </div>
 
             <!-- 天気予報 -->
-            <div class="app-card">
+            <div class="app-card" data-category="tool" data-title="天気予報">
                 <div class="app-image">
                     <span>🌦️</span>
                 </div>
@@ -556,7 +700,7 @@
             </div>
 
             <!-- メモ帳 -->
-            <div class="app-card">
+            <div class="app-card" data-category="tool" data-title="メモ帳">
                 <div class="app-image">
                     <span>📝</span>
                 </div>
@@ -571,7 +715,7 @@
             </div>
 
             <!-- ポモドーロタイマー -->
-            <div class="app-card">
+            <div class="app-card" data-category="tool" data-title="ポモドーロタイマー">
                 <div class="app-image">
                     <span>🍅</span>
                 </div>
@@ -1145,5 +1289,170 @@
     <footer class="footer">
         <p>&copy; 2025 Claude作品集. Created with Claude AI.</p>
     </footer>
+
+    <script>
+        // DOM要素の取得
+        const searchInput = document.getElementById('searchInput');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const appCards = document.querySelectorAll('.app-card');
+        const appCount = document.getElementById('appCount');
+
+        // カテゴリマッピング（data-category属性がないカードのための一時的な分類）
+        const categoryMapping = {
+            'レトロ宇宙探査ゲーム': 'game',
+            'AI音楽バトル': 'ai',
+            '性格カラー診断': 'ai',
+            'おみくじ': 'entertainment',
+            'キャンディクラッシュ風パズル': 'game',
+            '電卓': 'tool',
+            'TODOリスト': 'tool',
+            '天気予報': 'tool',
+            'メモ帳': 'tool',
+            'ポモドーロタイマー': 'tool',
+            'スネークゲーム': 'game',
+            'チェス': 'game',
+            'ブロック崩し': 'game',
+            'Minecraft Clone': 'game',
+            '2048パズル': 'game',
+            'タイピングゲーム': 'game',
+            'AI写真整理アプリ': 'ai',
+            'AI Finance Manager': 'ai',
+            'AI Habit Tracker': 'ai',
+            'Global Chat': 'social',
+            'Food Rescue': 'social',
+            'SkillConnect': 'social',
+            'MindWell': 'ai',
+            'ParkShare': 'social',
+            'デジタルペット': 'game',
+            'TradeSocial': 'social',
+            'Magic 8 Ball': 'entertainment',
+            'Virtual Drum Kit': 'music',
+            'AI Pet Battle': 'game',
+            'Color Memory': 'game',
+            '絵文字ストーリージェネレーター': 'entertainment',
+            'バーチャル万華鏡': 'music',
+            'ニューラルネットワーク可視化': 'education',
+            '量子物理学シミュレーター': 'education',
+            'DNA配列パズル': 'education',
+            '宇宙物理演算ゲーム': 'education',
+            'フラクタル探索': 'education',
+            'AIダンスバトル': 'game',
+            '音楽DNA分析': 'ai',
+            '夢日記AI解析': 'ai',
+            'タイムスケール体験': 'education',
+            'ミステリー脱出ゲーム': 'game',
+            'タイムトラベル冒険記': 'game',
+            '時空パラドックスパズル': 'game',
+            '時間逆転パズル': 'game',
+            'Neon Synth Music Studio': 'music',
+            '時空の狭間': 'game'
+        };
+
+        // アプリカードにカテゴリを設定（data-category属性がない場合）
+        appCards.forEach(card => {
+            if (!card.dataset.category) {
+                const title = card.querySelector('.app-title')?.textContent.trim();
+                if (title && categoryMapping[title]) {
+                    card.dataset.category = categoryMapping[title];
+                    card.dataset.title = title;
+                }
+            }
+        });
+
+        // 検索機能
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            filterApps(getActiveCategory(), searchTerm);
+        });
+
+        // カテゴリフィルタ機能
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // アクティブなボタンの変更
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                // フィルタリング実行
+                const category = this.dataset.category;
+                const searchTerm = searchInput.value.toLowerCase();
+                filterApps(category, searchTerm);
+            });
+        });
+
+        // アプリをフィルタリングする関数
+        function filterApps(category, searchTerm = '') {
+            let visibleCount = 0;
+            
+            appCards.forEach(card => {
+                const cardCategory = card.dataset.category;
+                const cardTitle = (card.dataset.title || card.querySelector('.app-title')?.textContent || '').toLowerCase();
+                const cardDescription = (card.querySelector('.app-description')?.textContent || '').toLowerCase();
+                
+                // カテゴリフィルタ
+                const categoryMatch = category === 'all' || cardCategory === category;
+                
+                // 検索フィルタ
+                const searchMatch = searchTerm === '' || 
+                                   cardTitle.includes(searchTerm) || 
+                                   cardDescription.includes(searchTerm);
+                
+                if (categoryMatch && searchMatch) {
+                    card.style.display = 'block';
+                    // アニメーション効果
+                    card.style.animation = `slideInUp 0.6s ease-out ${visibleCount * 0.1}s both`;
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // カウンター更新
+            updateAppCount(visibleCount, category);
+        }
+
+        // アプリカウンターを更新する関数
+        function updateAppCount(count, category) {
+            const categoryNames = {
+                'all': 'すべて',
+                'game': 'ゲーム',
+                'tool': 'ツール',
+                'ai': 'AI・分析',
+                'entertainment': 'エンターテイメント',
+                'music': '音楽・アート',
+                'education': '教育・科学',
+                'social': 'ソーシャル'
+            };
+            
+            const categoryName = categoryNames[category] || 'すべて';
+            appCount.textContent = `${categoryName} ${count} アプリ`;
+        }
+
+        // アクティブなカテゴリを取得する関数
+        function getActiveCategory() {
+            const activeButton = document.querySelector('.filter-btn.active');
+            return activeButton ? activeButton.dataset.category : 'all';
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            filterApps('all'); // 初期表示
+        });
+
+        // レスポンシブ対応：モバイルでの検索とフィルタの調整
+        function adjustForMobile() {
+            const isMobile = window.innerWidth <= 768;
+            const navContainer = document.querySelector('.nav-container');
+            
+            if (isMobile) {
+                navContainer.style.gap = '1rem';
+            } else {
+                navContainer.style.gap = '1.5rem';
+            }
+        }
+
+        // リサイズイベント
+        window.addEventListener('resize', adjustForMobile);
+        adjustForMobile(); // 初期調整
+    </script>
 </body>
 </html>
