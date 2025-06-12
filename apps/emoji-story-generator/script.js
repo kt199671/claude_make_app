@@ -43,6 +43,30 @@ const storyTemplates = {
 let selectedGenre = 'adventure';
 let selectedEmojis = [];
 let savedStories = JSON.parse(localStorage.getItem('emojiStories')) || [];
+let gameStats = JSON.parse(localStorage.getItem('gameStats')) || {
+    storyCount: 0,
+    creativityScore: 0,
+    streakCount: 0,
+    achievements: []
+};
+let challengeMode = false;
+let challengeTimer = null;
+let challengeTimeLeft = 60;
+
+const challenges = [
+    { text: '3つの異なるジャンルを使って3つのストーリーを作成してください', type: 'multi-genre', target: 3 },
+    { text: '60秒以内に5つのストーリーを生成してください', type: 'speed', target: 5 },
+    { text: 'すべてのジャンルから最低1つずつ絵文字を使ってストーリーを作成してください', type: 'variety', target: 6 },
+    { text: '同じ絵文字を2回以上使わずに3つのストーリーを作成してください', type: 'unique', target: 3 }
+];
+
+const achievements = [
+    { id: 'first_story', name: '初めてのストーリー', description: '最初のストーリーを生成', icon: '🎯', unlocked: false },
+    { id: 'story_master', name: 'ストーリーマスター', description: '10個のストーリーを生成', icon: '📚', unlocked: false },
+    { id: 'creative_genius', name: '創造の天才', description: '創造性スコア100達成', icon: '🧠', unlocked: false },
+    { id: 'speed_writer', name: 'スピードライター', description: 'チャレンジモードをクリア', icon: '⚡', unlocked: false },
+    { id: 'genre_explorer', name: 'ジャンル探検家', description: 'すべてのジャンルでストーリー生成', icon: '🗺️', unlocked: false }
+];
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -50,6 +74,9 @@ document.addEventListener('DOMContentLoaded', () => {
     updateEmojiPalette();
     setupActionButtons();
     displaySavedStories();
+    updateStats();
+    setupAchievements();
+    setupChallengeMode();
 });
 
 function setupGenreButtons() {
@@ -84,6 +111,18 @@ function addEmoji(emoji) {
     if (selectedEmojis.length < 5) {
         selectedEmojis.push(emoji);
         updateEmojiSequence();
+        playSound('clickSound');
+        
+        // Add visual feedback
+        const emojiItems = document.querySelectorAll('.emoji-item');
+        emojiItems.forEach(item => {
+            if (item.textContent === emoji) {
+                item.style.transform = 'scale(1.5)';
+                setTimeout(() => {
+                    item.style.transform = 'scale(1)';
+                }, 200);
+            }
+        });
     }
 }
 
@@ -105,6 +144,20 @@ function setupActionButtons() {
     document.getElementById('clearBtn').addEventListener('click', clearStory);
     document.getElementById('shareBtn').addEventListener('click', shareStory);
     document.getElementById('randomBtn').addEventListener('click', randomStory);
+    document.getElementById('challengeBtn').addEventListener('click', toggleChallengeMode);
+}
+
+function setupChallengeMode() {
+    document.getElementById('startChallengeBtn').addEventListener('click', startChallenge);
+    document.getElementById('exitChallengeBtn').addEventListener('click', exitChallengeMode);
+}
+
+function playSound(soundId) {
+    const sound = document.getElementById(soundId);
+    if (sound) {
+        sound.currentTime = 0;
+        sound.play().catch(() => {}); // Ignore errors if autoplay is blocked
+    }
 }
 
 function generateStory() {
@@ -127,8 +180,11 @@ function generateStory() {
         story = story.replace(`{${i}}`, randomEmoji);
     }
     
+    playSound('generateSound');
     displayStory(story);
     saveStory(story);
+    updateGameStats();
+    checkAchievements();
 }
 
 function displayStory(story) {

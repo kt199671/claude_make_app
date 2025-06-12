@@ -15,10 +15,13 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: 
+                radial-gradient(ellipse at top, rgba(120, 119, 198, 0.3) 0%, transparent 70%),
+                linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3c72 100%);
             min-height: 100vh;
             line-height: 1.6;
             overflow-x: hidden;
+            position: relative;
         }
 
         .background-pattern {
@@ -28,8 +31,40 @@
             width: 100%;
             height: 100%;
             background-image: 
-                radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 0%, transparent 50%),
-                radial-gradient(circle at 75% 75%, rgba(255,255,255,0.1) 0%, transparent 50%);
+                radial-gradient(circle at 25% 25%, rgba(138, 43, 226, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(30, 144, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(255, 20, 147, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: -1;
+            animation: float 20s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-20px) rotate(1deg); }
+            66% { transform: translateY(10px) rotate(-1deg); }
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 98px,
+                    rgba(255, 255, 255, 0.03) 100px
+                ),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 98px,
+                    rgba(255, 255, 255, 0.03) 100px
+                );
             pointer-events: none;
             z-index: -1;
         }
@@ -55,11 +90,17 @@
             top: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 100px;
+            width: 120px;
             height: 4px;
-            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);
+            background: linear-gradient(90deg, #ff0080, #7928ca, #0070f3, #00dfd8);
             border-radius: 2px;
-            animation: shimmer 2s ease-in-out infinite;
+            animation: shimmer 3s ease-in-out infinite, pulse 2s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(255, 0, 128, 0.5);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 0, 128, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(255, 0, 128, 0.8), 0 0 60px rgba(121, 40, 202, 0.3); }
         }
 
         @keyframes shimmer {
@@ -70,11 +111,39 @@
         h1 {
             font-size: 3.5rem;
             font-weight: 700;
-            color: white;
+            background: linear-gradient(135deg, #ff0080, #7928ca, #0070f3, #00dfd8);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin-bottom: 15px;
-            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            text-shadow: 0 0 50px rgba(255, 0, 128, 0.3);
             letter-spacing: -0.02em;
-            animation: fadeInUp 1s ease-out;
+            animation: fadeInUp 1s ease-out, gradientShift 4s ease-in-out infinite;
+            position: relative;
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        h1::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ff0080, #7928ca, #0070f3, #00dfd8);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: blur(10px);
+            opacity: 0.7;
+            z-index: -1;
+            animation: gradientShift 4s ease-in-out infinite;
         }
 
         .subtitle {
@@ -103,15 +172,16 @@
         }
 
         .app-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(25px);
+            border-radius: 24px;
             overflow: hidden;
             box-shadow: 
-                0 8px 32px rgba(0,0,0,0.1),
-                0 2px 8px rgba(0,0,0,0.05);
+                0 8px 32px rgba(0,0,0,0.3),
+                0 2px 8px rgba(0,0,0,0.2),
+                inset 0 1px 0 rgba(255,255,255,0.1);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.15);
             position: relative;
             animation: slideInUp 0.6s ease-out;
             animation-fill-mode: both;
@@ -164,10 +234,13 @@
         }
 
         .app-card:hover {
-            transform: translateY(-10px) scale(1.02);
+            transform: translateY(-15px) scale(1.03);
             box-shadow: 
-                0 20px 60px rgba(0,0,0,0.15),
-                0 8px 20px rgba(0,0,0,0.1);
+                0 25px 80px rgba(255, 0, 128, 0.2),
+                0 15px 40px rgba(121, 40, 202, 0.15),
+                0 8px 20px rgba(0,0,0,0.3),
+                inset 0 1px 0 rgba(255,255,255,0.2);
+            border: 1px solid rgba(255, 0, 128, 0.3);
         }
 
         .app-card:hover::before {
@@ -177,7 +250,7 @@
         .app-image {
             width: 100%;
             height: 220px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -194,8 +267,15 @@
             right: 0;
             bottom: 0;
             background: 
-                radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 50%),
-                radial-gradient(circle at 70% 70%, rgba(255,255,255,0.1) 0%, transparent 50%);
+                radial-gradient(circle at 30% 30%, rgba(255, 0, 128, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 70% 70%, rgba(0, 112, 243, 0.2) 0%, transparent 50%),
+                linear-gradient(45deg, transparent 48%, rgba(255,255,255,0.05) 50%, transparent 52%);
+            animation: shimmerImage 3s ease-in-out infinite;
+        }
+        
+        @keyframes shimmerImage {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
         }
 
         .app-image span {
@@ -217,13 +297,14 @@
         .app-title {
             font-size: 1.6rem;
             font-weight: 600;
-            color: #2c3e50;
+            color: #ffffff;
             margin-bottom: 12px;
             letter-spacing: -0.01em;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
         .app-description {
-            color: #64748b;
+            color: rgba(255, 255, 255, 0.8);
             margin-bottom: 20px;
             font-size: 0.95rem;
             line-height: 1.6;
@@ -233,7 +314,7 @@
         .app-link {
             display: inline-flex;
             align-items: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ff0080 0%, #7928ca 50%, #0070f3 100%);
             color: white;
             padding: 12px 24px;
             text-decoration: none;
@@ -241,9 +322,12 @@
             font-weight: 500;
             font-size: 0.95rem;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: 
+                0 4px 15px rgba(255, 0, 128, 0.4),
+                0 2px 8px rgba(121, 40, 202, 0.3);
             position: relative;
             overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .app-link::before {
@@ -258,8 +342,12 @@
         }
 
         .app-link:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 
+                0 8px 30px rgba(255, 0, 128, 0.6),
+                0 4px 15px rgba(121, 40, 202, 0.4),
+                0 0 20px rgba(0, 112, 243, 0.3);
+            background: linear-gradient(135deg, #ff1a8c 0%, #8b42d4 50%, #1a7bff 100%);
         }
 
         .app-link:hover::before {
@@ -272,10 +360,13 @@
             padding: 30px;
             color: rgba(255,255,255,0.8);
             font-weight: 300;
-            backdrop-filter: blur(10px);
-            background: rgba(255,255,255,0.1);
-            border-radius: 15px;
-            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(15px);
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 
+                0 8px 32px rgba(0,0,0,0.2),
+                inset 0 1px 0 rgba(255,255,255,0.1);
         }
 
         /* スクロールバーのスタイリング */
@@ -339,7 +430,7 @@
     <div class="background-pattern"></div>
     
     <header>
-        <h1>Claude作品集</h1>
+        <h1 data-text="Claude作品集">Claude作品集</h1>
         <p class="subtitle">Claude AIを使って作成したゲーム・アプリのコレクション</p>
     </header>
 
@@ -851,6 +942,21 @@
                         波形ビジュアライザー搭載。キーボードやマウスで演奏し、オリジナル楽曲を制作しよう。
                     </p>
                     <a href="apps/neon-synth-music/index.html" class="app-link">音楽を創る</a>
+                </div>
+            </div>
+
+            <!-- 時空の狭間 - 4次元パズル -->
+            <div class="app-card">
+                <div class="app-image">
+                    <span>⚡</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">時空の狭間</h2>
+                    <p class="app-description">
+                        革命的な4次元パズルゲーム！時間と空間を操り、X・Y・Z・W次元を行き来してゴールを目指せ。
+                        ポータルでワープし、時間操作で過去に戻る。全次元制覇の快感を体感しよう！
+                    </p>
+                    <a href="apps/dimensional-puzzle/index.html" class="app-link">次元に挑戦</a>
                 </div>
             </div>
         </div>

@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Beatbox Battle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Courier New', monospace;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Orbitron', monospace;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             color: white;
             margin: 0;
             padding: 20px;
@@ -15,6 +16,27 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(255,0,150,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(0,255,255,0.1) 0%, transparent 50%);
+            animation: backgroundPulse 4s ease-in-out infinite alternate;
+            z-index: -1;
+        }
+        
+        @keyframes backgroundPulse {
+            0% { opacity: 0.3; }
+            100% { opacity: 0.7; }
         }
         
         .container {
@@ -58,16 +80,31 @@
         }
         
         .beatbox-display {
-            background: rgba(0,0,0,0.3);
-            border-radius: 10px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 15px;
             padding: 20px;
             margin: 15px 0;
-            min-height: 80px;
-            font-size: 1.2em;
+            min-height: 100px;
+            font-size: 1.3em;
             font-weight: bold;
             display: flex;
             align-items: center;
             justify-content: center;
+            border: 2px solid rgba(0,255,255,0.3);
+            box-shadow: 0 0 20px rgba(0,255,255,0.2);
+            transition: all 0.3s ease;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+        
+        .beatbox-display.active {
+            border-color: rgba(255,0,150,0.8);
+            box-shadow: 0 0 30px rgba(255,0,150,0.5);
+            animation: beatboxGlow 0.5s ease-in-out;
+        }
+        
+        @keyframes beatboxGlow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
         
         .score {
@@ -82,17 +119,36 @@
         }
         
         button {
-            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
-            border: none;
+            background: linear-gradient(45deg, #ff0080, #8000ff);
+            border: 2px solid rgba(255,255,255,0.3);
             color: white;
             padding: 15px 30px;
             font-size: 1.1em;
-            border-radius: 25px;
+            border-radius: 30px;
             cursor: pointer;
             margin: 10px;
             transition: all 0.3s ease;
             font-weight: bold;
             text-transform: uppercase;
+            font-family: 'Orbitron', monospace;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        button:hover::before {
+            left: 100%;
         }
         
         button:hover {
@@ -125,11 +181,136 @@
             40% { transform: translateY(-10px); }
             60% { transform: translateY(-5px); }
         }
+        
+        .combo-counter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            padding: 15px 20px;
+            border-radius: 15px;
+            border: 2px solid #ffd700;
+            box-shadow: 0 0 20px rgba(255,215,0,0.3);
+        }
+        
+        .combo-text {
+            font-size: 1.2em;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255,215,0,0.8);
+        }
+        
+        .battle-effects {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .sound-wave {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border: 2px solid #00ffff;
+            border-radius: 50%;
+            animation: soundWave 1s ease-out forwards;
+        }
+        
+        @keyframes soundWave {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(20);
+                opacity: 0;
+            }
+        }
+        
+        .difficulty-selector {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .difficulty-btn {
+            padding: 10px 20px;
+            font-size: 0.9em;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .difficulty-btn.active {
+            background: linear-gradient(45deg, #00ff80, #0080ff);
+            border-color: #00ffff;
+        }
+        
+        .stats-panel {
+            background: rgba(0,0,0,0.5);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            border: 2px solid rgba(0,255,255,0.3);
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+        
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #00ffff;
+            text-shadow: 0 0 10px rgba(0,255,255,0.8);
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            .battle-arena {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .combo-counter {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 0 auto 20px;
+                display: inline-block;
+            }
+            
+            .stats-panel {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🎤 AI BEATBOX BATTLE 🎤</h1>
+        
+        <div class="combo-counter">
+            <div class="combo-text">コンボ: <span id="comboCount">0</span></div>
+        </div>
+        
+        <div class="difficulty-selector">
+            <button class="difficulty-btn active" data-difficulty="easy">初級</button>
+            <button class="difficulty-btn" data-difficulty="medium">中級</button>
+            <button class="difficulty-btn" data-difficulty="hard">上級</button>
+            <button class="difficulty-btn" data-difficulty="master">マスター</button>
+        </div>
         
         <div class="round-info" id="roundInfo">Round 1 of 5</div>
         
@@ -153,6 +334,27 @@
         </div>
         
         <div id="winnerText"></div>
+        
+        <div class="stats-panel">
+            <div class="stat-item">
+                <div class="stat-value" id="totalWins">0</div>
+                <div class="stat-label">総勝利数</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="maxCombo">0</div>
+                <div class="stat-label">最大コンボ</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="accuracy">0%</div>
+                <div class="stat-label">勝率</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalGames">0</div>
+                <div class="stat-label">総ゲーム数</div>
+            </div>
+        </div>
+        
+        <div class="battle-effects" id="battleEffects"></div>
     </div>
 
     <script>
@@ -161,6 +363,15 @@
         let currentRound = 1;
         let maxRounds = 5;
         let gameActive = true;
+        let currentCombo = 0;
+        let difficulty = 'easy';
+        let gameStats = JSON.parse(localStorage.getItem('beatboxStats')) || {
+            totalWins: 0,
+            totalGames: 0,
+            maxCombo: 0,
+            totalRounds: 0,
+            roundsWon: 0
+        };
         
         const beatboxPatterns = [
             "ドンドンパッ ツクツクパッ",
@@ -180,12 +391,54 @@
             "ゴンゴンチャッ ウィンウィンチャッ",
             "ドシドシダッ プルプルダッ",
             "ビリビリボッ フルフルボッ",
-            "バンバンドッ シューシューdoッ",
+            "バンバンドッ シューシュードッ",
             "ゾゾゾザッ ミルミルザッ"
         ];
         
         function getRandomPattern(patterns) {
             return patterns[Math.floor(Math.random() * patterns.length)];
+        }
+        
+        function getDifficultyMultiplier() {
+            const multipliers = {
+                easy: 0.7,
+                medium: 0.5,
+                hard: 0.3,
+                master: 0.15
+            };
+            return multipliers[difficulty] || 0.5;
+        }
+        
+        function createSoundWave(x, y) {
+            const wave = document.createElement('div');
+            wave.className = 'sound-wave';
+            wave.style.left = x + 'px';
+            wave.style.top = y + 'px';
+            document.getElementById('battleEffects').appendChild(wave);
+            
+            setTimeout(() => {
+                wave.remove();
+            }, 1000);
+        }
+        
+        function updateStats() {
+            document.getElementById('totalWins').textContent = gameStats.totalWins;
+            document.getElementById('maxCombo').textContent = gameStats.maxCombo;
+            document.getElementById('totalGames').textContent = gameStats.totalGames;
+            const accuracy = gameStats.totalGames > 0 ? Math.round((gameStats.roundsWon / gameStats.totalRounds) * 100) : 0;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+        }
+        
+        function updateCombo(won) {
+            if (won) {
+                currentCombo++;
+                if (currentCombo > gameStats.maxCombo) {
+                    gameStats.maxCombo = currentCombo;
+                }
+            } else {
+                currentCombo = 0;
+            }
+            document.getElementById('comboCount').textContent = currentCombo;
         }
         
         function playerBeatbox() {
@@ -205,18 +458,31 @@
                 const aiDisplay = document.getElementById('aiBeatbox');
                 aiDisplay.textContent = aiPattern;
                 
-                // スコア計算（ランダムに勝敗決定、少しプレイヤー有利）
-                const playerWins = Math.random() > 0.4;
+                // スコア計算（難易度に応じた勝率）
+                const playerWins = Math.random() > getDifficultyMultiplier();
+                gameStats.totalRounds++;
                 
                 if (playerWins) {
                     playerScore++;
-                    playerDisplay.style.background = 'rgba(0,255,0,0.3)';
-                    aiDisplay.style.background = 'rgba(255,0,0,0.3)';
+                    gameStats.roundsWon++;
+                    playerDisplay.style.background = 'rgba(0,255,0,0.4)';
+                    playerDisplay.style.borderColor = '#00ff00';
+                    aiDisplay.style.background = 'rgba(255,0,0,0.4)';
+                    aiDisplay.style.borderColor = '#ff0000';
+                    updateCombo(true);
+                    createSoundWave(Math.random() * 400 + 200, Math.random() * 300 + 200);
                 } else {
                     aiScore++;
-                    playerDisplay.style.background = 'rgba(255,0,0,0.3)';
-                    aiDisplay.style.background = 'rgba(0,255,0,0.3)';
+                    playerDisplay.style.background = 'rgba(255,0,0,0.4)';
+                    playerDisplay.style.borderColor = '#ff0000';
+                    aiDisplay.style.background = 'rgba(0,255,0,0.4)';
+                    aiDisplay.style.borderColor = '#00ff00';
+                    updateCombo(false);
                 }
+                
+                // Add active effect
+                playerDisplay.classList.add('active');
+                aiDisplay.classList.add('active');
                 
                 document.getElementById('playerScore').textContent = playerScore;
                 document.getElementById('aiScore').textContent = aiScore;
@@ -224,8 +490,12 @@
                 currentRound++;
                 
                 setTimeout(() => {
-                    playerDisplay.style.background = 'rgba(0,0,0,0.3)';
-                    aiDisplay.style.background = 'rgba(0,0,0,0.3)';
+                    playerDisplay.style.background = 'rgba(0,0,0,0.5)';
+                    playerDisplay.style.borderColor = 'rgba(0,255,255,0.3)';
+                    aiDisplay.style.background = 'rgba(0,0,0,0.5)';
+                    aiDisplay.style.borderColor = 'rgba(0,255,255,0.3)';
+                    playerDisplay.classList.remove('active');
+                    aiDisplay.classList.remove('active');
                     
                     if (currentRound <= maxRounds) {
                         document.getElementById('roundInfo').textContent = `Round ${currentRound} of ${maxRounds}`;
@@ -242,17 +512,23 @@
         
         function endGame() {
             gameActive = false;
+            gameStats.totalGames++;
+            
             const winnerText = document.getElementById('winnerText');
             const beatboxBtn = document.getElementById('beatboxBtn');
             const newGameBtn = document.getElementById('newGameBtn');
             
             if (playerScore > aiScore) {
+                gameStats.totalWins++;
                 winnerText.innerHTML = '<div class="winner-announcement">🏆 あなたの勝利！ 🏆</div>';
             } else if (aiScore > playerScore) {
                 winnerText.innerHTML = '<div class="winner-announcement">🤖 AI マスターの勝利！ 🤖</div>';
             } else {
                 winnerText.innerHTML = '<div class="winner-announcement">🤝 引き分け！ 🤝</div>';
             }
+            
+            localStorage.setItem('beatboxStats', JSON.stringify(gameStats));
+            updateStats();
             
             beatboxBtn.style.display = 'none';
             newGameBtn.style.display = 'inline-block';
@@ -263,10 +539,12 @@
             playerScore = 0;
             aiScore = 0;
             currentRound = 1;
+            currentCombo = 0;
             gameActive = true;
             
             document.getElementById('playerScore').textContent = '0';
             document.getElementById('aiScore').textContent = '0';
+            document.getElementById('comboCount').textContent = '0';
             document.getElementById('roundInfo').textContent = 'Round 1 of 5';
             document.getElementById('playerBeatbox').textContent = 'クリックしてビートボックス！';
             document.getElementById('aiBeatbox').textContent = '...';
@@ -276,6 +554,31 @@
             document.getElementById('newGameBtn').style.display = 'none';
             document.getElementById('beatboxBtn').disabled = false;
         }
+        
+        // Initialize difficulty selector
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStats();
+            
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    difficulty = this.dataset.difficulty;
+                });
+            });
+        });
+        
+        // Add sound effects (placeholder - would need actual audio files)
+        function playSound(type) {
+            // Placeholder for sound effects
+            // In a real implementation, you'd load and play audio files
+            console.log(`Playing ${type} sound`);
+        }
     </script>
+    
+    <!-- Audio elements for sound effects -->
+    <audio id="winSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSiH0O7KdB8BJnvK7taIOwYchqft4qNSEAo+pt3rrV4ZCzGBxO7ZfygEION60eKIKQo5c8Hs7ZtJDGq11viOYxACKKHb4KdXEAtBqOOzZRcEOIDM6+PQTwYUXrDn5qNUDgc/pcXp3kEhBSd+yO3PdBwFGmzB6fGcVQwbKpvS3a1DEQo5gcnt12kbBjCE0OmIKgYEVr/h21odCCGMzejGYBYBJ3PR2aIxEwozaLzx5JdODgs3mdD73k8gBDh90eGHMwgJVrLo46pUEQoynKPGZhsEOHbK3M5LFwU8b8fmgzEjBSRxxu3eXAgCULnj3qxWExJTiuM="></source>
+    </audio>
 </body>
 </html>

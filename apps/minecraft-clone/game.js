@@ -8,87 +8,48 @@ const PLAYER_HEIGHT = 1.6;
 const PLAYER_SPEED = 10;
 const MOUSE_SENSITIVITY = 0.002;
 
-// テクスチャローダー
-const textureLoader = new THREE.TextureLoader();
-
 // ブロックタイプ
 const BLOCK_TYPES = {
-    air: { textured: false },
+    air: { solid: false },
     grass: { 
-        textured: true,
-        textures: {
-            top: 'grass_top.png',
-            bottom: 'dirt.png',
-            sides: 'grass_side.png'
-        }
+        solid: true,
+        color: 0x4CAF50
     },
     dirt: { 
-        textured: true,
-        textures: {
-            all: 'dirt.png'
-        }
+        solid: true,
+        color: 0x8B4513
     },
     stone: { 
-        textured: true,
-        textures: {
-            all: 'stone.png'
-        }
+        solid: true,
+        color: 0x808080
     },
     wood: { 
-        textured: true,
-        textures: {
-            top: 'log_top.png',
-            bottom: 'log_top.png',
-            sides: 'log_side.png'
-        }
+        solid: true,
+        color: 0xD2691E
     },
     sand: { 
-        textured: true,
-        textures: {
-            all: 'sand.png'
-        }
+        solid: true,
+        color: 0xF4A460
     },
     water: {
-        textured: true,
-        textures: {
-            all: 'water.png'
-        },
+        solid: true,
+        color: 0x4682B4,
         transparent: true,
         opacity: 0.8
     },
     leaves: {
-        textured: true,
-        textures: {
-            all: 'leaves.png'
-        },
-        transparent: true
+        solid: true,
+        color: 0x228B22,
+        transparent: true,
+        opacity: 0.9
     },
     glass: {
-        textured: true,
-        textures: {
-            all: 'glass.png'
-        },
-        transparent: true
+        solid: true,
+        color: 0xE0E0E0,
+        transparent: true,
+        opacity: 0.3
     }
 };
-
-// テクスチャキャッシュ
-const textureCache = {};
-
-// テクスチャURL
-function getTextureUrl(textureName) {
-    return `https://raw.githubusercontent.com/kennethmuy/minecraft-textures/main/${textureName}`;
-}
-
-// テクスチャ読み込み
-function loadTexture(textureName) {
-    if (!textureCache[textureName]) {
-        textureCache[textureName] = textureLoader.load(getTextureUrl(textureName));
-        textureCache[textureName].magFilter = THREE.NearestFilter;
-        textureCache[textureName].minFilter = THREE.NearestFilter;
-    }
-    return textureCache[textureName];
-}
 
 // Three.js初期化
 const scene = new THREE.Scene();
@@ -97,27 +58,8 @@ const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('game
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 
-// スカイボックス
-const skyTexturePaths = [
-    'sky_right.png',   // 右
-    'sky_left.png',    // 左
-    'sky_top.png',     // 上
-    'sky_bottom.png',  // 下
-    'sky_front.png',   // 前
-    'sky_back.png'     // 後
-];
-
-const skyboxMaterials = skyTexturePaths.map(path => {
-    const texture = textureLoader.load(getTextureUrl(path));
-    return new THREE.MeshBasicMaterial({
-        map: texture,
-        side: THREE.BackSide
-    });
-});
-
-const skyboxGeometry = new THREE.BoxGeometry(1000, 1000, 1000);
-const skybox = new THREE.Mesh(skyboxGeometry, skyboxMaterials);
-scene.add(skybox);
+// 背景設定
+scene.background = new THREE.Color(0x87CEEB);
 
 // 霧を設定
 scene.fog = new THREE.Fog(0xadd8e6, 10, 500);
@@ -165,41 +107,18 @@ const world = {};
 // ブロック作成
 function createBlock(x, y, z, type) {
     const blockType = BLOCK_TYPES[type];
-    const geometry = new THREE.BoxGeometry(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-    let materials;
-
-    if (blockType.textured) {
-        // テクスチャ設定
-        if (blockType.textures.all) {
-            // 全面同じテクスチャ
-            const texture = loadTexture(blockType.textures.all);
-            const material = new THREE.MeshLambertMaterial({ 
-                map: texture,
-                transparent: !!blockType.transparent,
-                opacity: blockType.opacity || 1.0
-            });
-            materials = [material, material, material, material, material, material];
-        } else {
-            // 異なるテクスチャ（上・下・側面）
-            const topTexture = loadTexture(blockType.textures.top);
-            const bottomTexture = loadTexture(blockType.textures.bottom);
-            const sideTexture = loadTexture(blockType.textures.sides);
-            
-            materials = [
-                new THREE.MeshLambertMaterial({ map: sideTexture }), // 右
-                new THREE.MeshLambertMaterial({ map: sideTexture }), // 左
-                new THREE.MeshLambertMaterial({ map: topTexture }),  // 上
-                new THREE.MeshLambertMaterial({ map: bottomTexture }), // 下
-                new THREE.MeshLambertMaterial({ map: sideTexture }), // 前
-                new THREE.MeshLambertMaterial({ map: sideTexture })  // 後
-            ];
-        }
-    } else {
-        // ブロックタイプが無効または「air」の場合
+    if (!blockType || !blockType.solid) {
         return null;
     }
+    
+    const geometry = new THREE.BoxGeometry(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+    const material = new THREE.MeshLambertMaterial({
+        color: blockType.color,
+        transparent: !!blockType.transparent,
+        opacity: blockType.opacity || 1.0
+    });
 
-    const block = new THREE.Mesh(geometry, materials);
+    const block = new THREE.Mesh(geometry, material);
     block.position.set(x, y, z);
     block.castShadow = true;
     block.receiveShadow = true;
@@ -535,8 +454,6 @@ function gameLoop(currentTime) {
         update(deltaTime);
     }
     
-    // スカイボックスをカメラと共に移動
-    skybox.position.copy(camera.position);
     
     renderer.render(scene, camera);
     requestAnimationFrame(gameLoop);

@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>時空の狭間 - 4次元パズル</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', monospace;
+            background: 
+                radial-gradient(ellipse at center, rgba(138, 43, 226, 0.1) 0%, transparent 70%),
+                linear-gradient(135deg, #0a0a0a 0%, #1a0033 25%, #2d1b69 50%, #000066 75%, #001133 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+            color: #ffffff;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.9), transparent),
+                radial-gradient(2px 2px at 160px 30px, #ddd, transparent);
+            background-repeat: repeat;
+            background-size: 200px 100px;
+            animation: twinkle 10s ease-in-out infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff00ff);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            margin-bottom: 10px;
+            animation: rainbowShift 3s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(255, 0, 255, 0.5);
+        }
+
+        @keyframes rainbowShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 400;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid rgba(255, 0, 255, 0.3);
+            box-shadow: 0 0 50px rgba(255, 0, 255, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .info-item {
+            background: rgba(0, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .dimension-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .dimension-btn {
+            background: linear-gradient(45deg, #ff00ff, #8000ff);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .dimension-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(255, 0, 255, 0.5);
+        }
+
+        .dimension-btn.active {
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            border-color: rgba(0, 255, 255, 0.5);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 80px);
+            grid-template-rows: repeat(4, 80px);
+            gap: 5px;
+            justify-content: center;
+            margin-bottom: 20px;
+            perspective: 1000px;
+        }
+
+        .cell {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cell::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.5s ease;
+        }
+
+        .cell:hover::before {
+            transform: translateX(100%);
+        }
+
+        .cell:hover {
+            transform: rotateY(15deg) scale(1.1);
+            border-color: rgba(0, 255, 255, 0.8);
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.3);
+        }
+
+        .cell.active {
+            background: linear-gradient(45deg, #ff00ff, #8000ff);
+            border-color: rgba(255, 0, 255, 0.8);
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.6);
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .cell.target {
+            background: linear-gradient(45deg, #00ff00, #00ff80);
+            border-color: rgba(0, 255, 0, 0.8);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.6);
+        }
+
+        .cell.portal {
+            background: linear-gradient(45deg, #ffff00, #ff8000);
+            border-color: rgba(255, 255, 0, 0.8);
+            box-shadow: 0 0 30px rgba(255, 255, 0, 0.6);
+            animation: rotate 2s linear infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            border: none;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            font-size: 1rem;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 255, 255, 0.4);
+            background: linear-gradient(45deg, #00ffff, #0099ff);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .instructions h3 {
+            color: #00ffff;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .instructions p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .victory-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .victory-content {
+            background: linear-gradient(45deg, #ff00ff, #8000ff);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(255, 0, 255, 0.5);
+            animation: celebrate 1s ease-in-out;
+        }
+
+        @keyframes celebrate {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .victory-content h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .victory-content p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .game-grid {
+                grid-template-columns: repeat(4, 60px);
+                grid-template-rows: repeat(4, 60px);
+            }
+            
+            .cell {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars"></div>
+    
+    <div class="container">
+        <h1>時空の狭間</h1>
+        <p class="subtitle">4次元パズルゲーム - 時間と空間を操り、全次元でゴールを目指せ！</p>
+        
+        <div class="game-container">
+            <div class="game-info">
+                <div class="info-item">レベル: <span id="level">1</span></div>
+                <div class="info-item">次元: <span id="current-dimension">X</span></div>
+                <div class="info-item">移動数: <span id="moves">0</span></div>
+                <div class="info-item">時間: <span id="time">00:00</span></div>
+            </div>
+            
+            <div class="dimension-selector">
+                <button class="dimension-btn active" data-dimension="x">X次元</button>
+                <button class="dimension-btn" data-dimension="y">Y次元</button>
+                <button class="dimension-btn" data-dimension="z">Z次元</button>
+                <button class="dimension-btn" data-dimension="w">W次元</button>
+            </div>
+            
+            <div class="game-grid" id="gameGrid"></div>
+            
+            <div class="controls">
+                <button class="control-btn" onclick="movePlayer('up')">↑</button>
+                <button class="control-btn" onclick="movePlayer('down')">↓</button>
+                <button class="control-btn" onclick="movePlayer('left')">←</button>
+                <button class="control-btn" onclick="movePlayer('right')">→</button>
+                <button class="control-btn" onclick="timeShift()">時間操作</button>
+                <button class="control-btn" onclick="resetLevel()">リセット</button>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>🎮 遊び方</h3>
+            <p><strong>目標：</strong> 全ての次元でゴール（緑）に到達せよ！</p>
+            <p><strong>操作：</strong> 矢印キーまたはボタンで移動。次元ボタンで視点切り替え。</p>
+            <p><strong>特殊要素：</strong> 黄色のポータルは次元間移動、時間操作で過去の状態に戻れる。</p>
+            <p><strong>戦略：</strong> 各次元での位置を考慮し、4次元空間全体を把握して攻略しよう！</p>
+        </div>
+    </div>
+    
+    <div class="victory-modal" id="victoryModal">
+        <div class="victory-content">
+            <h2>🎉 次元制覇！</h2>
+            <p>全次元でゴールに到達しました！</p>
+            <p>移動数: <span id="final-moves"></span> | 時間: <span id="final-time"></span></p>
+            <button class="control-btn" onclick="nextLevel()">次のレベル</button>
+            <button class="control-btn" onclick="closeVictory()">閉じる</button>
+        </div>
+    </div>
+
+    <script>
+        class DimensionalPuzzle {
+            constructor() {
+                this.dimensions = ['x', 'y', 'z', 'w'];
+                this.currentDimension = 'x';
+                this.level = 1;
+                this.moves = 0;
+                this.startTime = Date.now();
+                this.gameState = {};
+                this.history = [];
+                
+                this.initializeGame();
+                this.setupEventListeners();
+                this.startTimer();
+            }
+            
+            initializeGame() {
+                // 各次元での初期状態を設定
+                this.gameState = {
+                    x: { player: {x: 0, y: 0}, goal: {x: 3, y: 3}, portals: [{x: 1, y: 1}] },
+                    y: { player: {x: 1, y: 0}, goal: {x: 2, y: 3}, portals: [{x: 0, y: 2}] },
+                    z: { player: {x: 0, y: 1}, goal: {x: 3, y: 2}, portals: [{x: 2, y: 0}] },
+                    w: { player: {x: 2, y: 0}, goal: {x: 1, y: 3}, portals: [{x: 3, y: 1}] }
+                };
+                
+                this.renderGame();
+                this.updateUI();
+            }
+            
+            setupEventListeners() {
+                // 次元切り替えボタン
+                document.querySelectorAll('.dimension-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        this.switchDimension(e.target.dataset.dimension);
+                    });
+                });
+                
+                // キーボード操作
+                document.addEventListener('keydown', (e) => {
+                    switch(e.key) {
+                        case 'ArrowUp': this.movePlayer('up'); break;
+                        case 'ArrowDown': this.movePlayer('down'); break;
+                        case 'ArrowLeft': this.movePlayer('left'); break;
+                        case 'ArrowRight': this.movePlayer('right'); break;
+                        case ' ': this.timeShift(); break;
+                        case 'r': this.resetLevel(); break;
+                    }
+                });
+            }
+            
+            switchDimension(dimension) {
+                this.currentDimension = dimension;
+                document.querySelectorAll('.dimension-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-dimension="${dimension}"]`).classList.add('active');
+                this.renderGame();
+                this.updateUI();
+            }
+            
+            movePlayer(direction) {
+                const state = this.gameState[this.currentDimension];
+                const newPos = {...state.player};
+                
+                switch(direction) {
+                    case 'up': newPos.y = Math.max(0, newPos.y - 1); break;
+                    case 'down': newPos.y = Math.min(3, newPos.y + 1); break;
+                    case 'left': newPos.x = Math.max(0, newPos.x - 1); break;
+                    case 'right': newPos.x = Math.min(3, newPos.x + 1); break;
+                }
+                
+                // 移動が実際に発生した場合
+                if (newPos.x !== state.player.x || newPos.y !== state.player.y) {
+                    this.history.push(JSON.parse(JSON.stringify(this.gameState)));
+                    state.player = newPos;
+                    this.moves++;
+                    
+                    // ポータルチェック
+                    this.checkPortal();
+                    
+                    this.renderGame();
+                    this.updateUI();
+                    this.checkVictory();
+                }
+            }
+            
+            checkPortal() {
+                const state = this.gameState[this.currentDimension];
+                const playerPos = state.player;
+                
+                state.portals.forEach(portal => {
+                    if (playerPos.x === portal.x && playerPos.y === portal.y) {
+                        // ランダムな次元に移動
+                        const availableDimensions = this.dimensions.filter(d => d !== this.currentDimension);
+                        const targetDimension = availableDimensions[Math.floor(Math.random() * availableDimensions.length)];
+                        
+                        // 次元間でプレイヤー位置を同期
+                        this.gameState[targetDimension].player = {...playerPos};
+                        
+                        // 視点を移動先次元に切り替え
+                        this.switchDimension(targetDimension);
+                        
+                        // エフェクト
+                        this.showPortalEffect();
+                    }
+                });
+            }
+            
+            showPortalEffect() {
+                const grid = document.getElementById('gameGrid');
+                grid.style.transform = 'rotateY(360deg)';
+                setTimeout(() => {
+                    grid.style.transform = '';
+                }, 500);
+            }
+            
+            timeShift() {
+                if (this.history.length > 0) {
+                    this.gameState = this.history.pop();
+                    this.moves = Math.max(0, this.moves - 1);
+                    this.renderGame();
+                    this.updateUI();
+                }
+            }
+            
+            resetLevel() {
+                this.moves = 0;
+                this.startTime = Date.now();
+                this.history = [];
+                this.initializeGame();
+            }
+            
+            renderGame() {
+                const grid = document.getElementById('gameGrid');
+                grid.innerHTML = '';
+                
+                const state = this.gameState[this.currentDimension];
+                
+                for (let y = 0; y < 4; y++) {
+                    for (let x = 0; x < 4; x++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'cell';
+                        
+                        // プレイヤー位置
+                        if (state.player.x === x && state.player.y === y) {
+                            cell.classList.add('active');
+                            cell.textContent = '👤';
+                        }
+                        
+                        // ゴール位置
+                        if (state.goal.x === x && state.goal.y === y) {
+                            cell.classList.add('target');
+                            cell.textContent = '🎯';
+                        }
+                        
+                        // ポータル位置
+                        state.portals.forEach(portal => {
+                            if (portal.x === x && portal.y === y) {
+                                cell.classList.add('portal');
+                                cell.textContent = '🌀';
+                            }
+                        });
+                        
+                        grid.appendChild(cell);
+                    }
+                }
+            }
+            
+            updateUI() {
+                document.getElementById('level').textContent = this.level;
+                document.getElementById('current-dimension').textContent = this.currentDimension.toUpperCase();
+                document.getElementById('moves').textContent = this.moves;
+            }
+            
+            startTimer() {
+                setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+                    const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                    const seconds = (elapsed % 60).toString().padStart(2, '0');
+                    document.getElementById('time').textContent = `${minutes}:${seconds}`;
+                }, 1000);
+            }
+            
+            checkVictory() {
+                // 全ての次元でゴールに到達しているかチェック
+                const allReached = this.dimensions.every(dim => {
+                    const state = this.gameState[dim];
+                    return state.player.x === state.goal.x && state.player.y === state.goal.y;
+                });
+                
+                if (allReached) {
+                    this.showVictory();
+                }
+            }
+            
+            showVictory() {
+                const modal = document.getElementById('victoryModal');
+                const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                const seconds = (elapsed % 60).toString().padStart(2, '0');
+                
+                document.getElementById('final-moves').textContent = this.moves;
+                document.getElementById('final-time').textContent = `${minutes}:${seconds}`;
+                
+                modal.style.display = 'flex';
+            }
+            
+            nextLevel() {
+                this.level++;
+                this.closeVictory();
+                this.generateRandomLevel();
+                this.resetLevel();
+            }
+            
+            generateRandomLevel() {
+                // ランダムなレベル生成
+                this.dimensions.forEach(dim => {
+                    this.gameState[dim] = {
+                        player: {
+                            x: Math.floor(Math.random() * 4),
+                            y: Math.floor(Math.random() * 4)
+                        },
+                        goal: {
+                            x: Math.floor(Math.random() * 4),
+                            y: Math.floor(Math.random() * 4)
+                        },
+                        portals: [{
+                            x: Math.floor(Math.random() * 4),
+                            y: Math.floor(Math.random() * 4)
+                        }]
+                    };
+                });
+            }
+            
+            closeVictory() {
+                document.getElementById('victoryModal').style.display = 'none';
+            }
+        }
+        
+        // グローバル関数（HTML内のonclick用）
+        let game;
+        
+        function movePlayer(direction) {
+            game.movePlayer(direction);
+        }
+        
+        function timeShift() {
+            game.timeShift();
+        }
+        
+        function resetLevel() {
+            game.resetLevel();
+        }
+        
+        function nextLevel() {
+            game.nextLevel();
+        }
+        
+        function closeVictory() {
+            game.closeVictory();
+        }
+        
+        // ゲーム開始
+        window.addEventListener('load', () => {
+            game = new DimensionalPuzzle();
+        });
+    </script>
+</body>
+</html>

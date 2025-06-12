@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>絵文字ストーリージェネレーター</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
@@ -38,20 +39,64 @@
                 <div class="emoji-sequence"></div>
             </div>
             
+            <div class="story-stats">
+                <div class="stat-item">
+                    <span class="stat-value" id="storyCount">0</span>
+                    <span class="stat-label">生成した話数</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="creativityScore">0</span>
+                    <span class="stat-label">創造性スコア</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="streakCount">0</span>
+                    <span class="stat-label">連続生成</span>
+                </div>
+            </div>
+
             <div class="action-buttons">
                 <button id="generateBtn" class="action-btn generate">✨ ストーリー生成！</button>
                 <button id="clearBtn" class="action-btn clear">🗑️ クリア</button>
                 <button id="shareBtn" class="action-btn share">📤 シェア</button>
                 <button id="randomBtn" class="action-btn random">🎲 ランダム生成</button>
+                <button id="challengeBtn" class="action-btn challenge">🏆 チャレンジモード</button>
             </div>
         </div>
         
+        <div class="challenge-mode" id="challengeMode" style="display: none;">
+            <h3>🏆 チャレンジモード</h3>
+            <div class="challenge-info">
+                <div class="challenge-text" id="challengeText"></div>
+                <div class="challenge-timer">
+                    <span>残り時間: </span>
+                    <span id="timer" class="timer-display">60</span>
+                    <span>秒</span>
+                </div>
+                <div class="challenge-buttons">
+                    <button id="startChallengeBtn" class="action-btn generate">チャレンジ開始！</button>
+                    <button id="exitChallengeBtn" class="action-btn clear">終了</button>
+                </div>
+            </div>
+        </div>
+
         <div class="saved-stories">
             <h3>保存したストーリー</h3>
             <div class="stories-list"></div>
         </div>
+
+        <div class="achievements">
+            <h3>🏅 実績</h3>
+            <div class="achievements-grid" id="achievementsGrid"></div>
+        </div>
     </div>
     
+    <!-- Sound effect elements -->
+    <audio id="clickSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSiH0O7KdB8BJnvK7taIOwYchqft4qNSEAo+pt3rrV4ZCzGBxO7ZfygEION60eKIKQo5c8Hs7ZtJDGq11viOYxACKKHb4KdXEAtBqOOzZRcEOIDM6+PQTwYUXrDn5qNUDgc/pcXp3kEhBSd+yO3PdBwFGmzB6fGcVQwbKpvS3a1DEQo5gcnt12kbBjCE0OmIKgYEVr/h21odCCGMzejGYBYBJ3PR2aIxEwozaLzx5JdODgs3mdD73k8gBDh90eGHMwgJVrLo46pUEQoynKPGZhsEOHbK3M5LFwU8b8fmgzEjBSRxxu3eXAgCULnj3qxWExJTiuMPgBGbW6EGx/EBAAAAAQAAADaR3xm6dgAAIFJPTkQsBABAY8wRQPRuDAAA"></source>
+    </audio>
+    <audio id="generateSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSiH0O7KdB8BJnvK7taIOwYchqft4qNSEAo+pt3rrV4ZCzGBxO7ZfygEION60eKIKQo5c8Hs7ZtJDGq11viOYxACKKHb4KdXEAtBqOOzZRcEOIDM6+PQTwYUXrDn5qNUDgc/pcXp3kEhBSd+yO3PdBwFGmzB6fGcVQwbKpvS3a1DEQo5gcnt12kbBjCE0OmIKgYEVr/h21odCCGMzejGYBYBJ3PR2aIxEwozaLzx5JdODgs3mdD73k8gBDh90eGHMwgJVrLo46pUEQoynKPGZhsEOHbK3M5LFwU8b8fmgzEjBSRxxu3eXAgCULnj3qxWExJTiuMPgBGbW6EGx/EBAAAAAQAAADaR3xm6dgAAIFJPTkQsBAAAY8wRQPRuDAAA"></source>
+    </audio>
     <script src="script.js"></script>
 </body>
 </html>
