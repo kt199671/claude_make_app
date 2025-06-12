@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>レトロ宇宙探査ゲーム</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', monospace;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #00ffff;
+            overflow: hidden;
+        }
+
+        .game-container {
+            position: relative;
+            border: 3px solid #00ffff;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 
+                0 0 30px #00ffff,
+                inset 0 0 30px rgba(0, 255, 255, 0.1);
+            background: #000011;
+        }
+
+        #gameCanvas {
+            display: block;
+            background: #000011;
+        }
+
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 15px;
+            background: linear-gradient(180deg, rgba(0, 255, 255, 0.2) 0%, transparent 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .score, .level, .lives {
+            font-weight: 700;
+            font-size: 1.2rem;
+            text-shadow: 0 0 10px #00ffff;
+            color: #00ffff;
+        }
+
+        .start-screen, .game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 17, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            z-index: 20;
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite, glow 2s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 20px #00ffff; }
+            50% { text-shadow: 0 0 40px #ff00ff, 0 0 60px #ffff00; }
+        }
+
+        .instructions {
+            margin: 30px 0;
+            line-height: 1.8;
+            font-size: 1.1rem;
+            color: #ccccff;
+        }
+
+        button {
+            background: linear-gradient(45deg, #00ffff, #0066ff);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.3rem;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            margin: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
+            background: linear-gradient(45deg, #00ccff, #0044cc);
+        }
+
+        .controls {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #999999;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .game-container {
+                width: 95vw;
+                height: 70vh;
+            }
+            
+            #gameCanvas {
+                width: 100%;
+                height: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        
+        <div class="ui-overlay">
+            <div class="score">スコア: <span id="scoreValue">0</span></div>
+            <div class="level">レベル: <span id="levelValue">1</span></div>
+            <div class="lives">残機: <span id="livesValue">3</span></div>
+        </div>
+
+        <div class="start-screen" id="startScreen">
+            <h1 class="title">🚀 RETRO SPACE EXPLORER 🚀</h1>
+            <div class="instructions">
+                🌟 宇宙船を操縦して宝石を集めよう！<br>
+                💎 宝石を集めてスコアを上げる<br>
+                ☄️ 小惑星を避けて生き残れ<br>
+                🎯 高得点を目指して銀河の果てへ！
+            </div>
+            <button onclick="startGame()">ゲーム開始</button>
+            <div class="controls">
+                マウス移動 または 矢印キー で操縦
+            </div>
+        </div>
+
+        <div class="game-over-screen" id="gameOverScreen" style="display: none;">
+            <h1 class="title">GAME OVER</h1>
+            <div id="finalScore"></div>
+            <button onclick="restartGame()">もう一度プレイ</button>
+            <button onclick="backToMenu()">メニューに戻る</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // ゲーム状態
+        let gameState = 'menu'; // menu, playing, gameOver
+        let score = 0;
+        let level = 1;
+        let lives = 3;
+        let gameSpeed = 2;
+
+        // プレイヤー
+        const player = {
+            x: canvas.width / 2 - 20,
+            y: canvas.height - 80,
+            width: 40,
+            height: 40,
+            speed: 6,
+            trail: []
+        };
+
+        // ゲームオブジェクト配列
+        const stars = [];
+        const asteroids = [];
+        const gems = [];
+        const particles = [];
+        const explosions = [];
+
+        // サウンド効果（Web Audio API）
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function createSound(frequency, duration, type = 'sine') {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            oscillator.type = type;
+            
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        // 星の背景を初期化
+        function initStars() {
+            for (let i = 0; i < 100; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 3 + 1,
+                    speed: Math.random() * 2 + 1
+                });
+            }
+        }
+
+        // 小惑星を生成
+        function createAsteroid() {
+            asteroids.push({
+                x: Math.random() * (canvas.width - 40),
+                y: -40,
+                width: 30 + Math.random() * 20,
+                height: 30 + Math.random() * 20,
+                speed: gameSpeed + Math.random() * 2,
+                rotation: 0,
+                rotationSpeed: Math.random() * 0.2 - 0.1
+            });
+        }
+
+        // 宝石を生成
+        function createGem() {
+            gems.push({
+                x: Math.random() * (canvas.width - 20),
+                y: -20,
+                width: 20,
+                height: 20,
+                speed: gameSpeed,
+                pulse: 0,
+                value: 100 + level * 50
+            });
+        }
+
+        // パーティクルを生成
+        function createParticles(x, y, color, count = 10) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: (Math.random() - 0.5) * 10,
+                    life: 30,
+                    maxLife: 30,
+                    size: Math.random() * 4 + 2,
+                    color: color
+                });
+            }
+        }
+
+        // 爆発エフェクト
+        function createExplosion(x, y, size = 1) {
+            explosions.push({
+                x: x,
+                y: y,
+                size: 0,
+                maxSize: 50 * size,
+                life: 20,
+                maxLife: 20
+            });
+        }
+
+        // プレイヤーを描画
+        function drawPlayer() {
+            ctx.save();
+            ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
+            
+            // 宇宙船の軌跡
+            player.trail.push({ x: player.x + player.width / 2, y: player.y + player.height });
+            if (player.trail.length > 10) {
+                player.trail.shift();
+            }
+            
+            ctx.globalAlpha = 0.6;
+            for (let i = 0; i < player.trail.length; i++) {
+                const alpha = i / player.trail.length;
+                ctx.globalAlpha = alpha * 0.6;
+                ctx.fillStyle = '#00aaff';
+                ctx.fillRect(player.trail[i].x - 2, player.trail[i].y, 4, 8);
+            }
+            ctx.globalAlpha = 1;
+            
+            // 宇宙船本体
+            ctx.fillStyle = '#00ffff';
+            ctx.fillRect(-player.width / 2, -player.height / 2, player.width, player.height);
+            
+            // 宇宙船の詳細
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(-15, -15, 30, 5);
+            ctx.fillRect(-10, -5, 20, 15);
+            
+            // エンジンの炎
+            ctx.fillStyle = '#ff4400';
+            ctx.fillRect(-8, 15, 6, 10 + Math.random() * 5);
+            ctx.fillRect(2, 15, 6, 10 + Math.random() * 5);
+            
+            ctx.restore();
+        }
+
+        // 星を描画
+        function drawStars() {
+            ctx.fillStyle = '#ffffff';
+            stars.forEach(star => {
+                ctx.globalAlpha = Math.random() * 0.8 + 0.2;
+                ctx.fillRect(star.x, star.y, star.size, star.size);
+            });
+            ctx.globalAlpha = 1;
+        }
+
+        // 小惑星を描画
+        function drawAsteroids() {
+            asteroids.forEach(asteroid => {
+                ctx.save();
+                ctx.translate(asteroid.x + asteroid.width / 2, asteroid.y + asteroid.height / 2);
+                ctx.rotate(asteroid.rotation);
+                
+                ctx.fillStyle = '#8B4513';
+                ctx.fillRect(-asteroid.width / 2, -asteroid.height / 2, asteroid.width, asteroid.height);
+                
+                ctx.strokeStyle = '#A0522D';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(-asteroid.width / 2, -asteroid.height / 2, asteroid.width, asteroid.height);
+                
+                ctx.restore();
+            });
+        }
+
+        // 宝石を描画
+        function drawGems() {
+            gems.forEach(gem => {
+                const pulse = Math.sin(gem.pulse) * 0.3 + 1;
+                ctx.save();
+                ctx.translate(gem.x + gem.width / 2, gem.y + gem.height / 2);
+                ctx.scale(pulse, pulse);
+                
+                // ダイヤモンド形状
+                ctx.fillStyle = '#ff00ff';
+                ctx.beginPath();
+                ctx.moveTo(0, -gem.height / 2);
+                ctx.lineTo(gem.width / 2, 0);
+                ctx.lineTo(0, gem.height / 2);
+                ctx.lineTo(-gem.width / 2, 0);
+                ctx.closePath();
+                ctx.fill();
+                
+                ctx.strokeStyle = '#ffff00';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                ctx.restore();
+            });
+        }
+
+        // パーティクルを描画
+        function drawParticles() {
+            particles.forEach(particle => {
+                const alpha = particle.life / particle.maxLife;
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = particle.color;
+                ctx.fillRect(particle.x, particle.y, particle.size, particle.size);
+            });
+            ctx.globalAlpha = 1;
+        }
+
+        // 爆発を描画
+        function drawExplosions() {
+            explosions.forEach(explosion => {
+                const alpha = explosion.life / explosion.maxLife;
+                const size = explosion.size;
+                
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                ctx.strokeStyle = '#ff4400';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(explosion.x, explosion.y, size, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                ctx.strokeStyle = '#ffff00';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.arc(explosion.x, explosion.y, size * 0.7, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                ctx.restore();
+            });
+        }
+
+        // 衝突判定
+        function checkCollisions() {
+            // プレイヤーと小惑星
+            asteroids.forEach((asteroid, index) => {
+                if (player.x < asteroid.x + asteroid.width &&
+                    player.x + player.width > asteroid.x &&
+                    player.y < asteroid.y + asteroid.height &&
+                    player.y + player.height > asteroid.y) {
+                    
+                    createExplosion(player.x + player.width / 2, player.y + player.height / 2);
+                    createParticles(player.x + player.width / 2, player.y + player.height / 2, '#ff4400', 15);
+                    createSound(150, 0.5, 'sawtooth');
+                    
+                    lives--;
+                    asteroids.splice(index, 1);
+                    
+                    if (lives <= 0) {
+                        gameState = 'gameOver';
+                        document.getElementById('gameOverScreen').style.display = 'flex';
+                        document.getElementById('finalScore').textContent = `最終スコア: ${score}`;
+                    }
+                }
+            });
+            
+            // プレイヤーと宝石
+            gems.forEach((gem, index) => {
+                if (player.x < gem.x + gem.width &&
+                    player.x + player.width > gem.x &&
+                    player.y < gem.y + gem.height &&
+                    player.y + player.height > gem.y) {
+                    
+                    score += gem.value;
+                    createParticles(gem.x + gem.width / 2, gem.y + gem.height / 2, '#ff00ff', 10);
+                    createSound(800, 0.3);
+                    
+                    gems.splice(index, 1);
+                    
+                    // レベルアップ
+                    if (score > level * 1000) {
+                        level++;
+                        gameSpeed += 0.5;
+                        createSound(1200, 0.5);
+                    }
+                }
+            });
+        }
+
+        // ゲームオブジェクトを更新
+        function updateGame() {
+            // 星を移動
+            stars.forEach(star => {
+                star.y += star.speed;
+                if (star.y > canvas.height) {
+                    star.y = -5;
+                    star.x = Math.random() * canvas.width;
+                }
+            });
+            
+            // 小惑星を移動
+            asteroids.forEach((asteroid, index) => {
+                asteroid.y += asteroid.speed;
+                asteroid.rotation += asteroid.rotationSpeed;
+                if (asteroid.y > canvas.height) {
+                    asteroids.splice(index, 1);
+                }
+            });
+            
+            // 宝石を移動
+            gems.forEach((gem, index) => {
+                gem.y += gem.speed;
+                gem.pulse += 0.2;
+                if (gem.y > canvas.height) {
+                    gems.splice(index, 1);
+                }
+            });
+            
+            // パーティクルを更新
+            particles.forEach((particle, index) => {
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.vx *= 0.98;
+                particle.vy *= 0.98;
+                particle.life--;
+                if (particle.life <= 0) {
+                    particles.splice(index, 1);
+                }
+            });
+            
+            // 爆発を更新
+            explosions.forEach((explosion, index) => {
+                explosion.size += explosion.maxSize / explosion.maxLife;
+                explosion.life--;
+                if (explosion.life <= 0) {
+                    explosions.splice(index, 1);
+                }
+            });
+            
+            // 小惑星とGEMをランダムに生成
+            if (Math.random() < 0.02 + level * 0.005) {
+                createAsteroid();
+            }
+            if (Math.random() < 0.01) {
+                createGem();
+            }
+        }
+
+        // 描画
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            drawStars();
+            drawAsteroids();
+            drawGems();
+            drawParticles();
+            drawExplosions();
+            drawPlayer();
+        }
+
+        // ゲームループ
+        function gameLoop() {
+            if (gameState === 'playing') {
+                updateGame();
+                checkCollisions();
+                draw();
+                
+                // UI更新
+                document.getElementById('scoreValue').textContent = score;
+                document.getElementById('levelValue').textContent = level;
+                document.getElementById('livesValue').textContent = lives;
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        // コントロール
+        let keys = {};
+        
+        document.addEventListener('keydown', (e) => {
+            keys[e.code] = true;
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            keys[e.code] = false;
+        });
+        
+        let mouseX = 0;
+        let mouseY = 0;
+        
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+        });
+        
+        function updatePlayerPosition() {
+            if (gameState !== 'playing') return;
+            
+            // キーボード操作
+            if (keys['ArrowLeft'] && player.x > 0) {
+                player.x -= player.speed;
+            }
+            if (keys['ArrowRight'] && player.x < canvas.width - player.width) {
+                player.x += player.speed;
+            }
+            if (keys['ArrowUp'] && player.y > 0) {
+                player.y -= player.speed;
+            }
+            if (keys['ArrowDown'] && player.y < canvas.height - player.height) {
+                player.y += player.speed;
+            }
+            
+            // マウス操作
+            if (mouseX > 0 && mouseY > 0) {
+                const targetX = mouseX - player.width / 2;
+                const targetY = mouseY - player.height / 2;
+                
+                player.x += (targetX - player.x) * 0.1;
+                player.y += (targetY - player.y) * 0.1;
+                
+                // 画面内に収める
+                player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+                player.y = Math.max(0, Math.min(canvas.height - player.height, player.y));
+            }
+        }
+
+        // ゲーム開始
+        function startGame() {
+            gameState = 'playing';
+            document.getElementById('startScreen').style.display = 'none';
+            score = 0;
+            level = 1;
+            lives = 3;
+            gameSpeed = 2;
+            
+            // 配列をクリア
+            asteroids.length = 0;
+            gems.length = 0;
+            particles.length = 0;
+            explosions.length = 0;
+            
+            // プレイヤー位置をリセット
+            player.x = canvas.width / 2 - 20;
+            player.y = canvas.height - 80;
+            player.trail = [];
+        }
+
+        // ゲームリスタート
+        function restartGame() {
+            document.getElementById('gameOverScreen').style.display = 'none';
+            startGame();
+        }
+
+        // メニューに戻る
+        function backToMenu() {
+            gameState = 'menu';
+            document.getElementById('gameOverScreen').style.display = 'none';
+            document.getElementById('startScreen').style.display = 'flex';
+        }
+
+        // 初期化
+        initStars();
+        
+        // ゲームループ開始
+        setInterval(updatePlayerPosition, 16);
+        gameLoop();
+    </script>
+</body>
+</html>
