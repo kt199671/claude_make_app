@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💡 ネオンパズル</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .circuit-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(255, 0, 255, 0.1) 0%, transparent 50%),
+                linear-gradient(90deg, transparent 48%, rgba(0, 255, 255, 0.03) 50%, transparent 52%),
+                linear-gradient(0deg, transparent 48%, rgba(255, 0, 255, 0.03) 50%, transparent 52%);
+            animation: circuitPulse 4s ease-in-out infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes circuitPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 3rem;
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00, #00ff00);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: neonGlow 3s ease-in-out infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes neonGlow {
+            0%, 100% { 
+                background-position: 0% 50%;
+                filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.8));
+            }
+            50% { 
+                background-position: 100% 50%;
+                filter: drop-shadow(0 0 30px rgba(255, 0, 255, 0.8));
+            }
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .level-info {
+            font-size: 1.2rem;
+            color: #00ffff;
+            font-weight: 600;
+        }
+
+        .score {
+            font-size: 1.2rem;
+            color: #ffff00;
+            font-weight: 600;
+        }
+
+        .timer {
+            font-size: 1.2rem;
+            color: #ff00ff;
+            font-weight: 600;
+        }
+
+        .puzzle-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 3px;
+            max-width: 600px;
+            margin: 0 auto 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            box-shadow: 
+                0 0 30px rgba(0, 255, 255, 0.2),
+                inset 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .grid-cell {
+            aspect-ratio: 1;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .grid-cell:hover {
+            border-color: rgba(0, 255, 255, 0.5);
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+
+        .grid-cell.source {
+            background: radial-gradient(circle, #00ff00, #00aa00);
+            border-color: #00ff00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+            animation: sourcePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes sourcePulse {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 30px rgba(0, 255, 0, 1);
+                transform: scale(1.05);
+            }
+        }
+
+        .grid-cell.target {
+            background: radial-gradient(circle, #ff0080, #aa0055);
+            border-color: #ff0080;
+            box-shadow: 0 0 20px rgba(255, 0, 128, 0.8);
+            animation: targetPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes targetPulse {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(255, 0, 128, 0.8);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 30px rgba(255, 0, 128, 1);
+                transform: scale(1.05);
+            }
+        }
+
+        .grid-cell.wire {
+            background: linear-gradient(var(--wire-direction), #00ffff, #0099cc);
+            border-color: #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
+        }
+
+        .grid-cell.wire.powered {
+            background: linear-gradient(var(--wire-direction), #ffff00, #ffcc00);
+            border-color: #ffff00;
+            box-shadow: 0 0 25px rgba(255, 255, 0, 1);
+            animation: powerFlow 1s linear infinite;
+        }
+
+        @keyframes powerFlow {
+            0% { 
+                box-shadow: 0 0 25px rgba(255, 255, 0, 1);
+                filter: brightness(1);
+            }
+            50% { 
+                box-shadow: 0 0 35px rgba(255, 255, 0, 1.2);
+                filter: brightness(1.2);
+            }
+            100% { 
+                box-shadow: 0 0 25px rgba(255, 255, 0, 1);
+                filter: brightness(1);
+            }
+        }
+
+        .wire-horizontal {
+            --wire-direction: 90deg;
+        }
+
+        .wire-vertical {
+            --wire-direction: 0deg;
+        }
+
+        .wire-corner-tr {
+            --wire-direction: 135deg;
+        }
+
+        .wire-corner-tl {
+            --wire-direction: 45deg;
+        }
+
+        .wire-corner-br {
+            --wire-direction: 225deg;
+        }
+
+        .wire-corner-bl {
+            --wire-direction: 315deg;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 15px 25px;
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            border-radius: 25px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #00ffff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            text-transform: uppercase;
+            font-size: 1rem;
+        }
+
+        .control-btn:hover {
+            background: rgba(0, 255, 255, 0.2);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+            transform: translateY(-3px);
+        }
+
+        .control-btn.active {
+            background: rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 25px rgba(0, 255, 255, 1);
+        }
+
+        .wire-types {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .wire-type {
+            width: 50px;
+            height: 50px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            position: relative;
+        }
+
+        .wire-type:hover {
+            border-color: #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+            transform: scale(1.1);
+        }
+
+        .wire-type.selected {
+            border-color: #ffff00;
+            background: rgba(255, 255, 0, 0.2);
+            box-shadow: 0 0 20px rgba(255, 255, 0, 0.8);
+        }
+
+        .success-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            border: 2px solid rgba(0, 255, 0, 0.8);
+            backdrop-filter: blur(20px);
+            display: none;
+            z-index: 1000;
+        }
+
+        .success-message h2 {
+            color: #00ff00;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+        }
+
+        .success-message p {
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .next-level-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(45deg, #00ff00, #00cc00);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 255, 0, 0.4);
+            text-transform: uppercase;
+        }
+
+        .next-level-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 255, 0, 0.6);
+        }
+
+        .instructions {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .puzzle-grid {
+                grid-template-columns: repeat(6, 1fr);
+                max-width: 100%;
+                padding: 15px;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            
+            .wire-type {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="circuit-bg"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="title">💡 ネオンパズル</h1>
+            <p class="subtitle">光る回路を完成させよう</p>
+        </div>
+        
+        <div class="game-info">
+            <div class="level-info">レベル <span id="levelDisplay">1</span></div>
+            <div class="score">スコア: <span id="scoreDisplay">0</span></div>
+            <div class="timer">時間: <span id="timerDisplay">0:00</span></div>
+        </div>
+        
+        <div class="wire-types" id="wireTypes">
+            <div class="wire-type selected" data-type="horizontal" title="水平配線">━</div>
+            <div class="wire-type" data-type="vertical" title="垂直配線">┃</div>
+            <div class="wire-type" data-type="corner-tr" title="右上コーナー">┓</div>
+            <div class="wire-type" data-type="corner-tl" title="左上コーナー">┏</div>
+            <div class="wire-type" data-type="corner-br" title="右下コーナー">┛</div>
+            <div class="wire-type" data-type="corner-bl" title="左下コーナー">┗</div>
+            <div class="wire-type" data-type="delete" title="削除">🗑️</div>
+        </div>
+        
+        <div class="puzzle-grid" id="puzzleGrid"></div>
+        
+        <div class="controls">
+            <button class="control-btn" id="newGameBtn">🎮 新しいゲーム</button>
+            <button class="control-btn" id="hintBtn">💡 ヒント</button>
+            <button class="control-btn" id="resetBtn">🔄 リセット</button>
+            <button class="control-btn" id="checkBtn">✅ 確認</button>
+        </div>
+        
+        <div class="instructions">
+            電源（緑）から目標（ピンク）まで配線を繋げよう<br>
+            配線タイプを選んでセルをクリック | 全ての目標に電気を通せばクリア！
+        </div>
+    </div>
+    
+    <div class="success-message" id="successMessage">
+        <h2>🎉 レベルクリア！</h2>
+        <p id="clearMessage"></p>
+        <button class="next-level-btn" onclick="nextLevel()">次のレベル</button>
+    </div>
+
+    <script>
+        class NeonCircuitPuzzle {
+            constructor() {
+                this.gridSize = 8;
+                this.level = 1;
+                this.score = 0;
+                this.timer = 0;
+                this.timerInterval = null;
+                this.selectedWireType = 'horizontal';
+                this.grid = [];
+                this.sources = [];
+                this.targets = [];
+                
+                this.init();
+            }
+            
+            init() {
+                this.createGrid();
+                this.setupEventListeners();
+                this.generateLevel();
+                this.startTimer();
+            }
+            
+            createGrid() {
+                const gridElement = document.getElementById('puzzleGrid');
+                gridElement.innerHTML = '';
+                
+                if (window.innerWidth <= 768) {
+                    this.gridSize = 6;
+                    gridElement.style.gridTemplateColumns = `repeat(${this.gridSize}, 1fr)`;
+                }
+                
+                this.grid = Array(this.gridSize).fill().map(() => Array(this.gridSize).fill(null));
+                
+                for (let row = 0; row < this.gridSize; row++) {
+                    for (let col = 0; col < this.gridSize; col++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'grid-cell';
+                        cell.dataset.row = row;
+                        cell.dataset.col = col;
+                        cell.addEventListener('click', () => this.handleCellClick(row, col));
+                        gridElement.appendChild(cell);
+                    }
+                }
+            }
+            
+            setupEventListeners() {
+                // 配線タイプ選択
+                document.querySelectorAll('.wire-type').forEach(type => {
+                    type.addEventListener('click', () => {
+                        document.querySelectorAll('.wire-type').forEach(t => t.classList.remove('selected'));
+                        type.classList.add('selected');
+                        this.selectedWireType = type.dataset.type;
+                    });
+                });
+                
+                // コントロールボタン
+                document.getElementById('newGameBtn').addEventListener('click', () => this.newGame());
+                document.getElementById('hintBtn').addEventListener('click', () => this.showHint());
+                document.getElementById('resetBtn').addEventListener('click', () => this.resetLevel());
+                document.getElementById('checkBtn').addEventListener('click', () => this.checkSolution());
+            }
+            
+            generateLevel() {
+                this.clearGrid();
+                
+                // レベルに応じた難易度調整
+                const numSources = Math.min(1 + Math.floor(this.level / 3), 3);
+                const numTargets = Math.min(2 + Math.floor(this.level / 2), 5);
+                
+                // 電源の配置
+                this.sources = [];
+                for (let i = 0; i < numSources; i++) {
+                    let row, col;
+                    do {
+                        row = Math.floor(Math.random() * this.gridSize);
+                        col = Math.floor(Math.random() * this.gridSize);
+                    } while (this.grid[row][col] !== null);
+                    
+                    this.grid[row][col] = { type: 'source' };
+                    this.sources.push({ row, col });
+                }
+                
+                // 目標の配置
+                this.targets = [];
+                for (let i = 0; i < numTargets; i++) {
+                    let row, col;
+                    do {
+                        row = Math.floor(Math.random() * this.gridSize);
+                        col = Math.floor(Math.random() * this.gridSize);
+                    } while (this.grid[row][col] !== null);
+                    
+                    this.grid[row][col] = { type: 'target' };
+                    this.targets.push({ row, col });
+                }
+                
+                this.renderGrid();
+                this.updateDisplay();
+            }
+            
+            clearGrid() {
+                this.grid = Array(this.gridSize).fill().map(() => Array(this.gridSize).fill(null));
+            }
+            
+            handleCellClick(row, col) {
+                const cell = this.grid[row][col];
+                
+                // 電源や目標は変更不可
+                if (cell && (cell.type === 'source' || cell.type === 'target')) {
+                    return;
+                }
+                
+                if (this.selectedWireType === 'delete') {
+                    this.grid[row][col] = null;
+                } else {
+                    this.grid[row][col] = {
+                        type: 'wire',
+                        wireType: this.selectedWireType
+                    };
+                }
+                
+                this.renderGrid();
+                this.checkPowerFlow();
+            }
+            
+            renderGrid() {
+                const gridElement = document.getElementById('puzzleGrid');
+                const cells = gridElement.children;
+                
+                for (let row = 0; row < this.gridSize; row++) {
+                    for (let col = 0; col < this.gridSize; col++) {
+                        const cellIndex = row * this.gridSize + col;
+                        const cell = cells[cellIndex];
+                        const gridCell = this.grid[row][col];
+                        
+                        // クラスをリセット
+                        cell.className = 'grid-cell';
+                        
+                        if (gridCell) {
+                            cell.classList.add(gridCell.type);
+                            
+                            if (gridCell.type === 'wire') {
+                                cell.classList.add(`wire-${gridCell.wireType}`);
+                                if (gridCell.powered) {
+                                    cell.classList.add('powered');
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            checkPowerFlow() {
+                // 全ての配線の電力状態をリセット
+                for (let row = 0; row < this.gridSize; row++) {
+                    for (let col = 0; col < this.gridSize; col++) {
+                        const cell = this.grid[row][col];
+                        if (cell && cell.type === 'wire') {
+                            cell.powered = false;
+                        }
+                    }
+                }
+                
+                // 各電源から電力を流す
+                this.sources.forEach(source => {
+                    this.propagatePower(source.row, source.col, new Set());
+                });
+                
+                this.renderGrid();
+            }
+            
+            propagatePower(row, col, visited) {
+                const key = `${row},${col}`;
+                if (visited.has(key)) return;
+                visited.add(key);
+                
+                const cell = this.grid[row][col];
+                if (!cell) return;
+                
+                if (cell.type === 'wire') {
+                    cell.powered = true;
+                }
+                
+                // 隣接セルに電力を伝播
+                const connections = this.getConnections(row, col);
+                connections.forEach(([nextRow, nextCol]) => {
+                    if (this.isValidPosition(nextRow, nextCol)) {
+                        const nextCell = this.grid[nextRow][nextCol];
+                        if (nextCell && this.canConnectCells(row, col, nextRow, nextCol)) {
+                            this.propagatePower(nextRow, nextCol, visited);
+                        }
+                    }
+                });
+            }
+            
+            getConnections(row, col) {
+                const cell = this.grid[row][col];
+                if (!cell) return [];
+                
+                let connections = [];
+                
+                if (cell.type === 'source' || cell.type === 'target') {
+                    // 電源と目標は全方向に接続可能
+                    connections = [
+                        [row - 1, col], // 上
+                        [row + 1, col], // 下
+                        [row, col - 1], // 左
+                        [row, col + 1]  // 右
+                    ];
+                } else if (cell.type === 'wire') {
+                    switch (cell.wireType) {
+                        case 'horizontal':
+                            connections = [[row, col - 1], [row, col + 1]];
+                            break;
+                        case 'vertical':
+                            connections = [[row - 1, col], [row + 1, col]];
+                            break;
+                        case 'corner-tr':
+                            connections = [[row - 1, col], [row, col + 1]];
+                            break;
+                        case 'corner-tl':
+                            connections = [[row - 1, col], [row, col - 1]];
+                            break;
+                        case 'corner-br':
+                            connections = [[row + 1, col], [row, col + 1]];
+                            break;
+                        case 'corner-bl':
+                            connections = [[row + 1, col], [row, col - 1]];
+                            break;
+                    }
+                }
+                
+                return connections;
+            }
+            
+            canConnectCells(row1, col1, row2, col2) {
+                const cell1Connections = this.getConnections(row1, col1);
+                const cell2Connections = this.getConnections(row2, col2);
+                
+                return cell1Connections.some(([r, c]) => r === row2 && c === col2) &&
+                       cell2Connections.some(([r, c]) => r === row1 && c === col1);
+            }
+            
+            isValidPosition(row, col) {
+                return row >= 0 && row < this.gridSize && col >= 0 && col < this.gridSize;
+            }
+            
+            checkSolution() {
+                let allTargetsPowered = true;
+                
+                this.targets.forEach(target => {
+                    const cell = this.grid[target.row][target.col];
+                    
+                    // 目標に電力が届いているかチェック
+                    const adjacentCells = [
+                        [target.row - 1, target.col],
+                        [target.row + 1, target.col],
+                        [target.row, target.col - 1],
+                        [target.row, target.col + 1]
+                    ];
+                    
+                    let isPowered = false;
+                    adjacentCells.forEach(([row, col]) => {
+                        if (this.isValidPosition(row, col)) {
+                            const adjacentCell = this.grid[row][col];
+                            if (adjacentCell && adjacentCell.powered && 
+                                this.canConnectCells(target.row, target.col, row, col)) {
+                                isPowered = true;
+                            }
+                        }
+                    });
+                    
+                    if (!isPowered) {
+                        allTargetsPowered = false;
+                    }
+                });
+                
+                if (allTargetsPowered) {
+                    this.levelComplete();
+                } else {
+                    this.showMessage('まだ電力が届いていない目標があります！', 'warning');
+                }
+            }
+            
+            levelComplete() {
+                this.stopTimer();
+                const timeBonus = Math.max(0, 300 - this.timer) * 10;
+                const levelBonus = this.level * 100;
+                const totalScore = timeBonus + levelBonus + 500;
+                
+                this.score += totalScore;
+                
+                document.getElementById('clearMessage').innerHTML = `
+                    <p>レベル ${this.level} クリア！</p>
+                    <p>クリア時間: ${this.formatTime(this.timer)}</p>
+                    <p>獲得スコア: ${totalScore.toLocaleString()}</p>
+                `;
+                
+                document.getElementById('successMessage').style.display = 'block';
+                this.updateDisplay();
+            }
+            
+            nextLevel() {
+                this.level++;
+                document.getElementById('successMessage').style.display = 'none';
+                this.generateLevel();
+                this.resetTimer();
+                this.startTimer();
+            }
+            
+            newGame() {
+                this.level = 1;
+                this.score = 0;
+                this.resetTimer();
+                this.generateLevel();
+                this.startTimer();
+            }
+            
+            resetLevel() {
+                this.generateLevel();
+                this.resetTimer();
+                this.startTimer();
+            }
+            
+            showHint() {
+                // 簡単なヒント表示
+                const hints = [
+                    '電源から目標まで途切れない配線を作りましょう',
+                    'コーナー配線を使って方向を変えられます',
+                    '全ての目標に電力を届ける必要があります',
+                    '配線の向きに注意して接続しましょう'
+                ];
+                
+                const hint = hints[Math.floor(Math.random() * hints.length)];
+                this.showMessage(hint, 'info');
+            }
+            
+            showMessage(message, type) {
+                // 簡単なメッセージ表示（実装簡略化）
+                alert(message);
+            }
+            
+            startTimer() {
+                this.timerInterval = setInterval(() => {
+                    this.timer++;
+                    this.updateDisplay();
+                }, 1000);
+            }
+            
+            stopTimer() {
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+            }
+            
+            resetTimer() {
+                this.stopTimer();
+                this.timer = 0;
+                this.updateDisplay();
+            }
+            
+            formatTime(seconds) {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return `${mins}:${secs.toString().padStart(2, '0')}`;
+            }
+            
+            updateDisplay() {
+                document.getElementById('levelDisplay').textContent = this.level;
+                document.getElementById('scoreDisplay').textContent = this.score.toLocaleString();
+                document.getElementById('timerDisplay').textContent = this.formatTime(this.timer);
+            }
+        }
+        
+        function nextLevel() {
+            window.neonPuzzle.nextLevel();
+        }
+        
+        // ゲーム開始
+        window.addEventListener('load', () => {
+            window.neonPuzzle = new NeonCircuitPuzzle();
+        });
+    </script>
+</body>
+</html> 

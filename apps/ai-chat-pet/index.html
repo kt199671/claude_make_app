@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 AIチャットペット</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            position: relative;
+        }
+
+        .floating-hearts {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .heart {
+            position: absolute;
+            color: rgba(255, 182, 193, 0.6);
+            font-size: 20px;
+            animation: floatUp 6s linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .pet-container {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .pet-header {
+            margin-bottom: 30px;
+        }
+
+        .pet-title {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
+        }
+
+        .pet-subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+        }
+
+        .pet-display {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pet-avatar {
+            font-size: 8rem;
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: bounce 2s ease-in-out infinite;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .pet-avatar:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .pet-name {
+            font-size: 1.8rem;
+            color: #ff6b6b;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .pet-mood {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+        }
+
+        .pet-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 5px;
+        }
+
+        .stat-bar {
+            width: 60px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .stat-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .chat-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            height: 300px;
+            overflow-y: auto;
+        }
+
+        .chat-messages {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            padding: 12px 18px;
+            border-radius: 18px;
+            max-width: 80%;
+            word-wrap: break-word;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            align-self: flex-end;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .pet-message {
+            background: linear-gradient(135deg, #ff6b6b, #feca57);
+            color: white;
+            align-self: flex-start;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .chat-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .chat-input:focus {
+            border-color: #ff6b6b;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .send-btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+        }
+
+        .care-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .care-btn {
+            padding: 12px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            font-size: 1rem;
+        }
+
+        .care-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #4ecdc4;
+            box-shadow: 0 0 15px rgba(78, 205, 196, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .pet-thought {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 10px 15px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            max-width: 200px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .pet-thought::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid rgba(255, 255, 255, 0.9);
+        }
+
+        .pet-thought.show {
+            opacity: 1;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 5px;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            align-self: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            animation: typingPulse 1.4s ease-in-out infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingPulse {
+            0%, 60%, 100% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+            30% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .pet-container {
+                padding: 20px;
+                width: 95%;
+            }
+            
+            .pet-title {
+                font-size: 2rem;
+            }
+            
+            .pet-avatar {
+                font-size: 6rem;
+            }
+            
+            .pet-stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .care-buttons {
+                gap: 10px;
+            }
+            
+            .care-btn {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-hearts" id="heartsContainer"></div>
+    
+    <div class="pet-container">
+        <div class="pet-header">
+            <h1 class="pet-title">🤖 AIチャットペット</h1>
+            <p class="pet-subtitle">あなただけのバーチャルフレンド</p>
+        </div>
+        
+        <div class="pet-display">
+            <div class="pet-thought" id="petThought"></div>
+            <div class="pet-avatar" id="petAvatar" onclick="petInteraction()">🐱</div>
+            <div class="pet-name" id="petName">ミコ</div>
+            <div class="pet-mood" id="petMood">😊 ハッピー</div>
+            
+            <div class="pet-stats">
+                <div class="stat">
+                    <div class="stat-label">元気度</div>
+                    <div class="stat-bar">
+                        <div class="stat-fill" id="energyBar" style="width: 80%;"></div>
+                    </div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">満腹度</div>
+                    <div class="stat-bar">
+                        <div class="stat-fill" id="hungerBar" style="width: 60%;"></div>
+                    </div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">幸福度</div>
+                    <div class="stat-bar">
+                        <div class="stat-fill" id="happinessBar" style="width: 90%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <div class="message pet-message">
+                    こんにちは！私はミコよ 🐱 一緒にお話ししましょう！
+                </div>
+            </div>
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        </div>
+        
+        <div class="input-container">
+            <input type="text" class="chat-input" id="chatInput" placeholder="メッセージを入力...">
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()">送信</button>
+        </div>
+        
+        <div class="care-buttons">
+            <button class="care-btn" onclick="feedPet()">🍎 エサをあげる</button>
+            <button class="care-btn" onclick="playWithPet()">🎾 遊ぶ</button>
+            <button class="care-btn" onclick="petPet()">✋ なでなで</button>
+            <button class="care-btn" onclick="sleepPet()">😴 お休み</button>
+        </div>
+    </div>
+
+    <script>
+        class AIChatPet {
+            constructor() {
+                this.name = 'ミコ';
+                this.stats = {
+                    energy: 80,
+                    hunger: 60,
+                    happiness: 90
+                };
+                this.mood = 'happy';
+                this.personality = 'friendly';
+                this.conversations = [];
+                this.responses = this.initializeResponses();
+                this.currentAvatar = '🐱';
+                this.avatars = ['🐱', '🐶', '🐰', '🐧', '🦊', '🐨'];
+                this.currentAvatarIndex = 0;
+                
+                this.setupEventListeners();
+                this.startHeartAnimation();
+                this.updatePetDisplay();
+                this.scheduleStatDecrease();
+            }
+            
+            initializeResponses() {
+                return {
+                    greetings: [
+                        'こんにちは！元気？ 😊',
+                        'やっほー！今日も一緒にいられて嬉しいな 💕',
+                        'おはよう！今日は何して遊ぶ？ 🌟',
+                        'お帰りなさい！待ってたよ～ 😄'
+                    ],
+                    happy: [
+                        'とっても嬉しい！ありがとう 😊',
+                        'わーい！楽しいね 🎉',
+                        'あなたと一緒にいると幸せだよ 💕',
+                        'もっとお話ししよう！ ✨'
+                    ],
+                    sad: [
+                        'なんだか寂しいな... 😢',
+                        'お腹空いてるよ... 🥺',
+                        '疲れちゃった... 😴',
+                        'もう少し優しくして... 💭'
+                    ],
+                    questions: [
+                        'あなたの好きなことは何？ 🤔',
+                        '今日はどんな一日だった？ 📝',
+                        '一緒に何かゲームしない？ 🎮',
+                        'お気に入りの食べ物は何？ 🍕'
+                    ],
+                    compliments: [
+                        'あなたって本当に優しいね 💕',
+                        '一緒にいると安心するよ 😌',
+                        'あなたは私の最高の友達だよ 👯',
+                        'いつもありがとう！ 🌈'
+                    ],
+                    jokes: [
+                        'なんで猫はパソコンが好きなの？マウスがあるからにゃ〜 😹',
+                        '私の特技は寝ることだよ〜 💤',
+                        'お腹が空くと「ニャーニャー」言っちゃう！ 🐱',
+                        '今日も可愛いでしょ？ウィンク 😉'
+                    ]
+                };
+            }
+            
+            setupEventListeners() {
+                const chatInput = document.getElementById('chatInput');
+                const sendBtn = document.getElementById('sendBtn');
+                
+                chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.sendMessage();
+                    }
+                });
+                
+                sendBtn.addEventListener('click', () => this.sendMessage());
+            }
+            
+            sendMessage() {
+                const input = document.getElementById('chatInput');
+                const message = input.value.trim();
+                
+                if (!message) return;
+                
+                this.addMessage('user', message);
+                input.value = '';
+                
+                // AI応答の準備
+                setTimeout(() => {
+                    this.showTypingIndicator();
+                    setTimeout(() => {
+                        this.hideTypingIndicator();
+                        this.generateResponse(message);
+                    }, Math.random() * 2000 + 1000);
+                }, 300);
+            }
+            
+            generateResponse(userMessage) {
+                let response;
+                const lowerMessage = userMessage.toLowerCase();
+                
+                // キーワード基準で応答を決定
+                if (lowerMessage.includes('こんにちは') || lowerMessage.includes('おはよう') || lowerMessage.includes('はじめまして')) {
+                    response = this.getRandomResponse('greetings');
+                } else if (lowerMessage.includes('ありがとう') || lowerMessage.includes('嬉しい') || lowerMessage.includes('楽しい')) {
+                    response = this.getRandomResponse('happy');
+                    this.adjustStats(0, 0, 5);
+                } else if (lowerMessage.includes('悲しい') || lowerMessage.includes('疲れ') || lowerMessage.includes('つらい')) {
+                    response = this.getRandomResponse('sad');
+                } else if (lowerMessage.includes('？') || lowerMessage.includes('どう') || lowerMessage.includes('何')) {
+                    response = this.getRandomResponse('questions');
+                } else if (lowerMessage.includes('かわいい') || lowerMessage.includes('すごい') || lowerMessage.includes('上手')) {
+                    response = this.getRandomResponse('compliments');
+                    this.adjustStats(0, 0, 10);
+                } else if (lowerMessage.includes('面白い') || lowerMessage.includes('笑') || lowerMessage.includes('ジョーク')) {
+                    response = this.getRandomResponse('jokes');
+                } else {
+                    // 一般的な応答
+                    const generalResponses = [
+                        'そうなんだ！もっと教えて 😊',
+                        'なるほど〜興味深いね 🤔',
+                        'それは素敵だね！ ✨',
+                        'うんうん、わかるよ 😌',
+                        'へぇ〜そうなのか！ 😄',
+                        '一緒にお話しできて楽しいよ 💕'
+                    ];
+                    response = generalResponses[Math.floor(Math.random() * generalResponses.length)];
+                }
+                
+                this.addMessage('pet', response);
+                this.showThought();
+            }
+            
+            getRandomResponse(category) {
+                const responses = this.responses[category];
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+            
+            addMessage(sender, message) {
+                const chatMessages = document.getElementById('chatMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}-message`;
+                messageDiv.textContent = message;
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // 統計更新
+                if (sender === 'user') {
+                    this.adjustStats(1, 0, 2);
+                }
+            }
+            
+            showTypingIndicator() {
+                document.getElementById('typingIndicator').style.display = 'flex';
+                const chatMessages = document.getElementById('chatMessages');
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            hideTypingIndicator() {
+                document.getElementById('typingIndicator').style.display = 'none';
+            }
+            
+            showThought() {
+                const thoughts = [
+                    '楽しいな♪',
+                    'もっとお話ししたい',
+                    'あなたが好き',
+                    'いい天気だね',
+                    '何して遊ぼうかな',
+                    'お腹すいたかも',
+                    '今度は何を話そう？'
+                ];
+                
+                const thoughtElement = document.getElementById('petThought');
+                thoughtElement.textContent = thoughts[Math.floor(Math.random() * thoughts.length)];
+                thoughtElement.classList.add('show');
+                
+                setTimeout(() => {
+                    thoughtElement.classList.remove('show');
+                }, 3000);
+            }
+            
+            feedPet() {
+                this.adjustStats(5, 25, 10);
+                this.addMessage('pet', 'もぐもぐ... 美味しい！ありがとう 🍎😋');
+                this.createHearts();
+            }
+            
+            playWithPet() {
+                this.adjustStats(-5, -5, 20);
+                this.addMessage('pet', 'わーい！遊ぼう遊ぼう！楽しいね 🎾😄');
+                this.bounceAvatar();
+                this.createHearts();
+            }
+            
+            petPet() {
+                this.adjustStats(3, 0, 15);
+                this.addMessage('pet', 'にゃ〜ん♪ 気持ちいいよ〜 ✋😸');
+                this.createHearts();
+            }
+            
+            sleepPet() {
+                this.adjustStats(30, -3, 5);
+                this.addMessage('pet', 'zzz... おやすみなさい 😴💤');
+                this.changeAvatar('😴');
+                setTimeout(() => this.changeAvatar('🐱'), 3000);
+            }
+            
+            adjustStats(energy, hunger, happiness) {
+                this.stats.energy = Math.max(0, Math.min(100, this.stats.energy + energy));
+                this.stats.hunger = Math.max(0, Math.min(100, this.stats.hunger + hunger));
+                this.stats.happiness = Math.max(0, Math.min(100, this.stats.happiness + happiness));
+                
+                this.updatePetDisplay();
+            }
+            
+            updatePetDisplay() {
+                // ステータスバーの更新
+                document.getElementById('energyBar').style.width = this.stats.energy + '%';
+                document.getElementById('hungerBar').style.width = this.stats.hunger + '%';
+                document.getElementById('happinessBar').style.width = this.stats.happiness + '%';
+                
+                // 気分の更新
+                this.updateMood();
+            }
+            
+            updateMood() {
+                const avgStats = (this.stats.energy + this.stats.hunger + this.stats.happiness) / 3;
+                let mood, emoji;
+                
+                if (avgStats >= 80) {
+                    mood = 'とても幸せ';
+                    emoji = '😊';
+                } else if (avgStats >= 60) {
+                    mood = 'ハッピー';
+                    emoji = '😊';
+                } else if (avgStats >= 40) {
+                    mood = '普通';
+                    emoji = '😐';
+                } else if (avgStats >= 20) {
+                    mood = '少し疲れ気味';
+                    emoji = '😔';
+                } else {
+                    mood = 'とても疲れている';
+                    emoji = '😢';
+                }
+                
+                document.getElementById('petMood').textContent = `${emoji} ${mood}`;
+            }
+            
+            changeAvatar(newAvatar) {
+                document.getElementById('petAvatar').textContent = newAvatar;
+            }
+            
+            bounceAvatar() {
+                const avatar = document.getElementById('petAvatar');
+                avatar.style.animation = 'none';
+                setTimeout(() => {
+                    avatar.style.animation = 'bounce 0.5s ease-in-out 3';
+                }, 10);
+            }
+            
+            createHearts() {
+                const container = document.getElementById('heartsContainer');
+                
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const heart = document.createElement('div');
+                        heart.className = 'heart';
+                        heart.textContent = '💕';
+                        heart.style.left = Math.random() * 100 + '%';
+                        heart.style.animationDelay = Math.random() * 2 + 's';
+                        
+                        container.appendChild(heart);
+                        
+                        setTimeout(() => {
+                            heart.remove();
+                        }, 6000);
+                    }, i * 200);
+                }
+            }
+            
+            startHeartAnimation() {
+                setInterval(() => {
+                    if (this.stats.happiness > 70) {
+                        this.createHearts();
+                    }
+                }, 10000);
+            }
+            
+            scheduleStatDecrease() {
+                setInterval(() => {
+                    this.adjustStats(-1, -2, -1);
+                    
+                    // 低ステータス時の自動メッセージ
+                    if (this.stats.hunger < 20 && Math.random() < 0.3) {
+                        this.addMessage('pet', 'お腹空いたよ〜 🥺🍎');
+                    } else if (this.stats.energy < 20 && Math.random() < 0.3) {
+                        this.addMessage('pet', '疲れちゃった... 😴💤');
+                    } else if (this.stats.happiness < 30 && Math.random() < 0.3) {
+                        this.addMessage('pet', '寂しいな... 一緒に遊ぼう？ 🥺💭');
+                    }
+                }, 30000); // 30秒ごと
+            }
+        }
+        
+        // ペットとのインタラクション
+        function petInteraction() {
+            window.aiPet.createHearts();
+            window.aiPet.showThought();
+            window.aiPet.bounceAvatar();
+        }
+        
+        function sendMessage() {
+            window.aiPet.sendMessage();
+        }
+        
+        function feedPet() {
+            window.aiPet.feedPet();
+        }
+        
+        function playWithPet() {
+            window.aiPet.playWithPet();
+        }
+        
+        function petPet() {
+            window.aiPet.petPet();
+        }
+        
+        function sleepPet() {
+            window.aiPet.sleepPet();
+        }
+        
+        // アプリケーション初期化
+        window.addEventListener('load', () => {
+            window.aiPet = new AIChatPet();
+        });
+    </script>
+</body>
+</html> 

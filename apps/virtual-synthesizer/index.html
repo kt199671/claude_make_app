@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎹 バーチャルシンセサイザー</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2c1810 0%, #3d2817 25%, #4a2c16 50%, #5e3e2a 75%, #6f4832 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .sound-waves {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 140, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 69, 0, 0.05) 0%, transparent 50%);
+            animation: waveAnimation 8s ease-in-out infinite;
+        }
+
+        @keyframes waveAnimation {
+            0%, 100% { 
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0.8;
+            }
+            33% { 
+                transform: translateY(-10px) rotate(1deg);
+                opacity: 1;
+            }
+            66% { 
+                transform: translateY(5px) rotate(-1deg);
+                opacity: 0.9;
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 3rem;
+            background: linear-gradient(45deg, #ffd700, #ff8c00, #ff4500, #dc143c);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: synthGlow 4s ease-in-out infinite;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        }
+
+        @keyframes synthGlow {
+            0%, 100% { 
+                background-position: 0% 50%;
+                filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));
+            }
+            50% { 
+                background-position: 100% 50%;
+                filter: drop-shadow(0 0 30px rgba(255, 140, 0, 0.8));
+            }
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .control-panel {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls-row {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-label {
+            font-size: 0.9rem;
+            color: #ffd700;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .control-knob {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: 
+                radial-gradient(circle at 30% 30%, #444, #222),
+                linear-gradient(45deg, #333, #111);
+            border: 3px solid #ffd700;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 4px 8px rgba(0, 0, 0, 0.5),
+                inset 0 2px 4px rgba(255, 255, 255, 0.1);
+        }
+
+        .control-knob:hover {
+            border-color: #ff8c00;
+            box-shadow: 
+                0 6px 12px rgba(0, 0, 0, 0.6),
+                0 0 15px rgba(255, 215, 0, 0.5);
+            transform: scale(1.05);
+        }
+
+        .knob-indicator {
+            position: absolute;
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 20px;
+            background: #ffd700;
+            border-radius: 2px;
+            transform-origin: center 25px;
+            transition: transform 0.1s ease;
+        }
+
+        .wave-selector {
+            display: flex;
+            gap: 10px;
+        }
+
+        .wave-btn {
+            padding: 8px 16px;
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            border-radius: 12px;
+            background: rgba(255, 215, 0, 0.1);
+            color: #ffd700;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .wave-btn:hover {
+            background: rgba(255, 215, 0, 0.2);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .wave-btn.active {
+            background: rgba(255, 215, 0, 0.3);
+            border-color: #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+        }
+
+        .keyboard {
+            background: linear-gradient(to bottom, #444, #222);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 3px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.5),
+                inset 0 5px 10px rgba(255, 255, 255, 0.05);
+        }
+
+        .keys-container {
+            display: flex;
+            justify-content: center;
+            position: relative;
+            height: 200px;
+            max-width: 100%;
+            overflow-x: auto;
+            padding: 10px;
+        }
+
+        .key {
+            border-radius: 0 0 8px 8px;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            user-select: none;
+            position: relative;
+        }
+
+        .white-key {
+            width: 50px;
+            height: 180px;
+            background: linear-gradient(to bottom, #fafafa, #e0e0e0);
+            border: 2px solid #ccc;
+            margin-right: 2px;
+            color: #333;
+            z-index: 1;
+        }
+
+        .white-key:hover {
+            background: linear-gradient(to bottom, #f0f0f0, #d0d0d0);
+            transform: translateY(2px);
+        }
+
+        .white-key.active {
+            background: linear-gradient(to bottom, #ffd700, #ff8c00);
+            color: white;
+            transform: translateY(4px);
+            box-shadow: 
+                0 2px 10px rgba(255, 215, 0, 0.8),
+                inset 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .black-key {
+            width: 30px;
+            height: 120px;
+            background: linear-gradient(to bottom, #333, #111);
+            border: 2px solid #000;
+            color: white;
+            position: absolute;
+            z-index: 2;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+        }
+
+        .black-key:hover {
+            background: linear-gradient(to bottom, #444, #222);
+            transform: translateY(2px);
+        }
+
+        .black-key.active {
+            background: linear-gradient(to bottom, #ffd700, #ff8c00);
+            transform: translateY(4px);
+            box-shadow: 
+                0 2px 10px rgba(255, 215, 0, 0.8),
+                inset 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .visualizer {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .frequency-bars {
+            display: flex;
+            align-items: flex-end;
+            height: 100%;
+            gap: 3px;
+            justify-content: space-around;
+        }
+
+        .freq-bar {
+            background: linear-gradient(to top, #ff4500, #ffd700);
+            width: 8px;
+            border-radius: 4px 4px 0 0;
+            transition: height 0.1s ease;
+            min-height: 2px;
+        }
+
+        .recording-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .record-btn {
+            padding: 15px 30px;
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            border-radius: 25px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #ffd700;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            text-transform: uppercase;
+            font-size: 1rem;
+            letter-spacing: 1px;
+        }
+
+        .record-btn:hover {
+            background: rgba(255, 215, 0, 0.2);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+            transform: translateY(-3px);
+        }
+
+        .record-btn.recording {
+            background: rgba(220, 20, 60, 0.3);
+            border-color: #dc143c;
+            color: #dc143c;
+            animation: recordPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes recordPulse {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(220, 20, 60, 0.6);
+            }
+            50% { 
+                box-shadow: 0 0 30px rgba(220, 20, 60, 1);
+            }
+        }
+
+        .presets {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .preset-btn {
+            padding: 12px 20px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 20px;
+            background: rgba(255, 215, 0, 0.1);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .preset-btn:hover {
+            background: rgba(255, 215, 0, 0.2);
+            border-color: #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .volume-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 20px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .volume-level {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(to top, #00ff00, #ffff00, #ff0000);
+            border-radius: 0 0 10px 10px;
+            transition: height 0.1s ease;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .controls-row {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .white-key {
+                width: 40px;
+                height: 140px;
+            }
+            
+            .black-key {
+                width: 25px;
+                height: 90px;
+            }
+            
+            .visualizer {
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sound-waves"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🎹 バーチャルシンセサイザー</h1>
+            <p class="subtitle">プロフェッショナル音楽制作スタジオ</p>
+        </div>
+        
+        <div class="control-panel">
+            <div class="controls-row">
+                <div class="control-group">
+                    <div class="control-label">音色</div>
+                    <div class="wave-selector" id="waveSelector">
+                        <button class="wave-btn active" data-wave="sine">サイン</button>
+                        <button class="wave-btn" data-wave="square">スクエア</button>
+                        <button class="wave-btn" data-wave="sawtooth">ソー</button>
+                        <button class="wave-btn" data-wave="triangle">三角</button>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">音量</div>
+                    <div class="control-knob" id="volumeKnob">
+                        <div class="knob-indicator"></div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">フィルター</div>
+                    <div class="control-knob" id="filterKnob">
+                        <div class="knob-indicator"></div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">リバーブ</div>
+                    <div class="control-knob" id="reverbKnob">
+                        <div class="knob-indicator"></div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">ディストーション</div>
+                    <div class="control-knob" id="distortionKnob">
+                        <div class="knob-indicator"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="keyboard" id="keyboard">
+            <div class="keys-container" id="keysContainer">
+                <!-- キーは動的に生成 -->
+            </div>
+        </div>
+        
+        <div class="visualizer" id="visualizer">
+            <div class="frequency-bars" id="frequencyBars">
+                <!-- 周波数バーは動的に生成 -->
+            </div>
+            <div class="volume-indicator">
+                <div class="volume-level" id="volumeLevel"></div>
+            </div>
+        </div>
+        
+        <div class="recording-controls">
+            <button class="record-btn" id="recordBtn">🎙️ 録音開始</button>
+            <button class="record-btn" id="playBtn" disabled>▶️ 再生</button>
+            <button class="record-btn" id="stopBtn" disabled>⏹️ 停止</button>
+            <button class="record-btn" id="clearBtn">🗑️ クリア</button>
+        </div>
+        
+        <div class="presets">
+            <button class="preset-btn" onclick="loadPreset('piano')">🎹 ピアノ</button>
+            <button class="preset-btn" onclick="loadPreset('organ')">🎺 オルガン</button>
+            <button class="preset-btn" onclick="loadPreset('synth')">🎵 シンセ</button>
+            <button class="preset-btn" onclick="loadPreset('bass')">🎸 ベース</button>
+            <button class="preset-btn" onclick="loadPreset('lead')">⚡ リード</button>
+        </div>
+    </div>
+
+    <script>
+        class VirtualSynthesizer {
+            constructor() {
+                this.audioContext = null;
+                this.oscillators = {};
+                this.isRecording = false;
+                this.recordedNotes = [];
+                this.playbackTimeout = null;
+                
+                this.settings = {
+                    waveType: 'sine',
+                    volume: 0.3,
+                    filter: 1000,
+                    reverb: 0,
+                    distortion: 0
+                };
+                
+                this.noteFrequencies = {
+                    'C4': 261.63, 'C#4': 277.18, 'D4': 293.66, 'D#4': 311.13,
+                    'E4': 329.63, 'F4': 349.23, 'F#4': 369.99, 'G4': 392.00,
+                    'G#4': 415.30, 'A4': 440.00, 'A#4': 466.16, 'B4': 493.88,
+                    'C5': 523.25, 'C#5': 554.37, 'D5': 587.33, 'D#5': 622.25,
+                    'E5': 659.25, 'F5': 698.46, 'F#5': 739.99, 'G5': 783.99,
+                    'G#5': 830.61, 'A5': 880.00, 'A#5': 932.33, 'B5': 987.77
+                };
+                
+                this.init();
+            }
+            
+            async init() {
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    await this.audioContext.resume();
+                    
+                    this.setupKeyboard();
+                    this.setupControls();
+                    this.setupVisualizer();
+                    this.setupRecording();
+                    
+                } catch (error) {
+                    console.error('Audio initialization failed:', error);
+                }
+            }
+            
+            setupKeyboard() {
+                const keysContainer = document.getElementById('keysContainer');
+                keysContainer.innerHTML = '';
+                
+                const whiteKeys = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5', 'E5', 'F5', 'G5', 'A5', 'B5'];
+                const blackKeys = ['C#4', 'D#4', 'F#4', 'G#4', 'A#4', 'C#5', 'D#5', 'F#5', 'G#5', 'A#5'];
+                
+                // 白鍵を作成
+                whiteKeys.forEach((note, index) => {
+                    const key = document.createElement('div');
+                    key.className = 'key white-key';
+                    key.dataset.note = note;
+                    key.textContent = note;
+                    
+                    key.addEventListener('mousedown', () => this.playNote(note));
+                    key.addEventListener('mouseup', () => this.stopNote(note));
+                    key.addEventListener('mouseleave', () => this.stopNote(note));
+                    
+                    // タッチイベント
+                    key.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        this.playNote(note);
+                    });
+                    key.addEventListener('touchend', (e) => {
+                        e.preventDefault();
+                        this.stopNote(note);
+                    });
+                    
+                    keysContainer.appendChild(key);
+                });
+                
+                // 黒鍵を作成
+                blackKeys.forEach((note) => {
+                    const key = document.createElement('div');
+                    key.className = 'key black-key';
+                    key.dataset.note = note;
+                    key.textContent = note;
+                    
+                    key.addEventListener('mousedown', () => this.playNote(note));
+                    key.addEventListener('mouseup', () => this.stopNote(note));
+                    key.addEventListener('mouseleave', () => this.stopNote(note));
+                    
+                    key.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        this.playNote(note);
+                    });
+                    key.addEventListener('touchend', (e) => {
+                        e.preventDefault();
+                        this.stopNote(note);
+                    });
+                    
+                    // 黒鍵の位置調整
+                    const whiteKeyIndex = this.getWhiteKeyIndex(note);
+                    key.style.left = `${whiteKeyIndex * 52 - 15}px`;
+                    
+                    keysContainer.appendChild(key);
+                });
+            }
+            
+            getWhiteKeyIndex(blackNote) {
+                const positions = {
+                    'C#4': 0.5, 'D#4': 1.5, 'F#4': 3.5, 'G#4': 4.5, 'A#4': 5.5,
+                    'C#5': 7.5, 'D#5': 8.5, 'F#5': 10.5, 'G#5': 11.5, 'A#5': 12.5
+                };
+                return positions[blackNote] || 0;
+            }
+            
+            setupControls() {
+                // 音色選択
+                document.querySelectorAll('.wave-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.wave-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.settings.waveType = btn.dataset.wave;
+                    });
+                });
+                
+                // ノブコントロール
+                this.setupKnob('volumeKnob', 'volume', 0, 1, 0.3);
+                this.setupKnob('filterKnob', 'filter', 100, 5000, 1000);
+                this.setupKnob('reverbKnob', 'reverb', 0, 1, 0);
+                this.setupKnob('distortionKnob', 'distortion', 0, 100, 0);
+                
+                // キーボードショートカット
+                document.addEventListener('keydown', (e) => {
+                    const keyMap = {
+                        'a': 'C4', 'w': 'C#4', 's': 'D4', 'e': 'D#4', 'd': 'E4',
+                        'f': 'F4', 't': 'F#4', 'g': 'G4', 'y': 'G#4', 'h': 'A4',
+                        'u': 'A#4', 'j': 'B4', 'k': 'C5', 'o': 'C#5', 'l': 'D5'
+                    };
+                    
+                    const note = keyMap[e.key.toLowerCase()];
+                    if (note && !e.repeat) {
+                        this.playNote(note);
+                    }
+                });
+                
+                document.addEventListener('keyup', (e) => {
+                    const keyMap = {
+                        'a': 'C4', 'w': 'C#4', 's': 'D4', 'e': 'D#4', 'd': 'E4',
+                        'f': 'F4', 't': 'F#4', 'g': 'G4', 'y': 'G#4', 'h': 'A4',
+                        'u': 'A#4', 'j': 'B4', 'k': 'C5', 'o': 'C#5', 'l': 'D5'
+                    };
+                    
+                    const note = keyMap[e.key.toLowerCase()];
+                    if (note) {
+                        this.stopNote(note);
+                    }
+                });
+            }
+            
+            setupKnob(knobId, setting, min, max, initial) {
+                const knob = document.getElementById(knobId);
+                const indicator = knob.querySelector('.knob-indicator');
+                
+                let isDragging = false;
+                let startY = 0;
+                let startValue = initial;
+                
+                const updateKnob = (value) => {
+                    const percentage = (value - min) / (max - min);
+                    const rotation = percentage * 270 - 135; // -135度から135度
+                    indicator.style.transform = `translateX(-50%) rotate(${rotation}deg)`;
+                    this.settings[setting] = value;
+                };
+                
+                updateKnob(initial);
+                
+                knob.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    startY = e.clientY;
+                    startValue = this.settings[setting];
+                });
+                
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    
+                    const deltaY = startY - e.clientY;
+                    const deltaValue = (deltaY / 100) * (max - min);
+                    const newValue = Math.max(min, Math.min(max, startValue + deltaValue));
+                    
+                    updateKnob(newValue);
+                });
+                
+                document.addEventListener('mouseup', () => {
+                    isDragging = false;
+                });
+            }
+            
+            setupVisualizer() {
+                const frequencyBars = document.getElementById('frequencyBars');
+                frequencyBars.innerHTML = '';
+                
+                for (let i = 0; i < 32; i++) {
+                    const bar = document.createElement('div');
+                    bar.className = 'freq-bar';
+                    bar.style.height = '2px';
+                    frequencyBars.appendChild(bar);
+                }
+            }
+            
+            setupRecording() {
+                document.getElementById('recordBtn').addEventListener('click', () => {
+                    if (!this.isRecording) {
+                        this.startRecording();
+                    } else {
+                        this.stopRecording();
+                    }
+                });
+                
+                document.getElementById('playBtn').addEventListener('click', () => {
+                    this.playRecording();
+                });
+                
+                document.getElementById('stopBtn').addEventListener('click', () => {
+                    this.stopPlayback();
+                });
+                
+                document.getElementById('clearBtn').addEventListener('click', () => {
+                    this.clearRecording();
+                });
+            }
+            
+            playNote(note) {
+                if (!this.audioContext || this.oscillators[note]) return;
+                
+                const frequency = this.noteFrequencies[note];
+                if (!frequency) return;
+                
+                // オシレーター作成
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                const filterNode = this.audioContext.createBiquadFilter();
+                
+                oscillator.type = this.settings.waveType;
+                oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
+                
+                // フィルター設定
+                filterNode.type = 'lowpass';
+                filterNode.frequency.setValueAtTime(this.settings.filter, this.audioContext.currentTime);
+                
+                // ゲイン設定
+                gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(this.settings.volume, this.audioContext.currentTime + 0.01);
+                
+                // 接続
+                oscillator.connect(filterNode);
+                filterNode.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                
+                oscillator.start();
+                
+                this.oscillators[note] = { oscillator, gainNode, filterNode };
+                
+                // 視覚的フィードバック
+                const keyElement = document.querySelector(`[data-note="${note}"]`);
+                if (keyElement) {
+                    keyElement.classList.add('active');
+                }
+                
+                // 録音中の場合、ノートを記録
+                if (this.isRecording) {
+                    this.recordedNotes.push({
+                        note,
+                        time: Date.now(),
+                        type: 'start'
+                    });
+                }
+                
+                // ビジュアライザー更新
+                this.updateVisualizer();
+            }
+            
+            stopNote(note) {
+                if (!this.oscillators[note]) return;
+                
+                const { oscillator, gainNode } = this.oscillators[note];
+                
+                // フェードアウト
+                gainNode.gain.setValueAtTime(gainNode.gain.value, this.audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.1);
+                
+                setTimeout(() => {
+                    oscillator.stop();
+                    delete this.oscillators[note];
+                }, 100);
+                
+                // 視覚的フィードバック
+                const keyElement = document.querySelector(`[data-note="${note}"]`);
+                if (keyElement) {
+                    keyElement.classList.remove('active');
+                }
+                
+                // 録音中の場合、ノート終了を記録
+                if (this.isRecording) {
+                    this.recordedNotes.push({
+                        note,
+                        time: Date.now(),
+                        type: 'stop'
+                    });
+                }
+            }
+            
+            updateVisualizer() {
+                const bars = document.querySelectorAll('.freq-bar');
+                const volumeLevel = document.getElementById('volumeLevel');
+                
+                // 現在再生中の音の数に基づいてビジュアライザーを更新
+                const activeNotes = Object.keys(this.oscillators).length;
+                const maxVolume = Math.min(activeNotes * 20, 100);
+                
+                bars.forEach((bar, index) => {
+                    const height = Math.random() * maxVolume + 10;
+                    bar.style.height = `${height}%`;
+                });
+                
+                volumeLevel.style.height = `${maxVolume}%`;
+                
+                if (activeNotes > 0) {
+                    requestAnimationFrame(() => this.updateVisualizer());
+                }
+            }
+            
+            startRecording() {
+                this.isRecording = true;
+                this.recordedNotes = [];
+                this.recordStartTime = Date.now();
+                
+                const recordBtn = document.getElementById('recordBtn');
+                recordBtn.classList.add('recording');
+                recordBtn.textContent = '⏹️ 録音停止';
+            }
+            
+            stopRecording() {
+                this.isRecording = false;
+                
+                const recordBtn = document.getElementById('recordBtn');
+                recordBtn.classList.remove('recording');
+                recordBtn.textContent = '🎙️ 録音開始';
+                
+                if (this.recordedNotes.length > 0) {
+                    document.getElementById('playBtn').disabled = false;
+                }
+            }
+            
+            playRecording() {
+                if (this.recordedNotes.length === 0) return;
+                
+                const playBtn = document.getElementById('playBtn');
+                const stopBtn = document.getElementById('stopBtn');
+                
+                playBtn.disabled = true;
+                stopBtn.disabled = false;
+                
+                const startTime = Date.now();
+                const firstNoteTime = this.recordedNotes[0].time;
+                
+                this.recordedNotes.forEach(noteEvent => {
+                    const delay = noteEvent.time - firstNoteTime;
+                    
+                    this.playbackTimeout = setTimeout(() => {
+                        if (noteEvent.type === 'start') {
+                            this.playNote(noteEvent.note);
+                        } else {
+                            this.stopNote(noteEvent.note);
+                        }
+                    }, delay);
+                });
+                
+                // 再生終了後のリセット
+                const totalDuration = this.recordedNotes[this.recordedNotes.length - 1].time - firstNoteTime + 1000;
+                this.playbackTimeout = setTimeout(() => {
+                    playBtn.disabled = false;
+                    stopBtn.disabled = true;
+                }, totalDuration);
+            }
+            
+            stopPlayback() {
+                if (this.playbackTimeout) {
+                    clearTimeout(this.playbackTimeout);
+                    this.playbackTimeout = null;
+                }
+                
+                // 全ての音を停止
+                Object.keys(this.oscillators).forEach(note => {
+                    this.stopNote(note);
+                });
+                
+                document.getElementById('playBtn').disabled = false;
+                document.getElementById('stopBtn').disabled = true;
+            }
+            
+            clearRecording() {
+                this.recordedNotes = [];
+                document.getElementById('playBtn').disabled = true;
+            }
+        }
+        
+        // プリセット機能
+        const presets = {
+            piano: { waveType: 'sine', volume: 0.3, filter: 2000, reverb: 0.2, distortion: 0 },
+            organ: { waveType: 'square', volume: 0.4, filter: 1500, reverb: 0.3, distortion: 0 },
+            synth: { waveType: 'sawtooth', volume: 0.3, filter: 1000, reverb: 0.1, distortion: 10 },
+            bass: { waveType: 'square', volume: 0.5, filter: 800, reverb: 0, distortion: 20 },
+            lead: { waveType: 'sawtooth', volume: 0.4, filter: 3000, reverb: 0.2, distortion: 30 }
+        };
+        
+        function loadPreset(presetName) {
+            if (!window.synthesizer || !presets[presetName]) return;
+            
+            const preset = presets[presetName];
+            
+            // 設定を適用
+            Object.assign(window.synthesizer.settings, preset);
+            
+            // UI更新
+            document.querySelectorAll('.wave-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.wave === preset.waveType);
+            });
+            
+            // ノブの見た目も更新（実装簡略化）
+            console.log(`Preset loaded: ${presetName}`, preset);
+        }
+        
+        // アプリケーション初期化
+        window.addEventListener('load', () => {
+            window.synthesizer = new VirtualSynthesizer();
+        });
+    </script>
+</body>
+</html> 
