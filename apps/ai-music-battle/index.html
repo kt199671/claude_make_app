@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI音楽バトル</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(255, 0, 150, 0.3) 0%, transparent 70%),
+                radial-gradient(circle at 80% 80%, rgba(0, 255, 255, 0.3) 0%, transparent 70%),
+                linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #e94560 75%, #f38ba8 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 0;
+            margin-bottom: 3rem;
+        }
+
+        .title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #ff0080, #ff8c00, #ffc107, #00ff88);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titlePulse 4s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(255, 0, 128, 0.5);
+            margin-bottom: 10px;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 300;
+        }
+
+        .battle-arena {
+            display: grid;
+            grid-template-columns: 1fr 200px 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+            align-items: center;
+        }
+
+        .contestant {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contestant::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .contestant:hover::before {
+            transform: translateX(100%);
+        }
+
+        .contestant.ai {
+            border-color: #ff0080;
+            box-shadow: 0 10px 40px rgba(255, 0, 128, 0.3);
+        }
+
+        .contestant.human {
+            border-color: #00ff88;
+            box-shadow: 0 10px 40px rgba(0, 255, 136, 0.3);
+        }
+
+        .contestant-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .contestant.ai .contestant-title {
+            color: #ff0080;
+        }
+
+        .contestant.human .contestant-title {
+            color: #00ff88;
+        }
+
+        .music-player {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .play-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .play-btn.ai {
+            background: linear-gradient(45deg, #ff0080, #ff4081);
+            color: white;
+        }
+
+        .play-btn.human {
+            background: linear-gradient(45deg, #00ff88, #26c6da);
+            color: white;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+        }
+
+        .play-btn:active {
+            transform: scale(0.95);
+        }
+
+        .vs-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .vs-text {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #ff0080, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: vsGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes vsGlow {
+            0% { text-shadow: 0 0 20px rgba(255, 0, 128, 0.5); }
+            100% { text-shadow: 0 0 40px rgba(0, 255, 136, 0.5); }
+        }
+
+        .score-display {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .score {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 5px 0;
+        }
+
+        .score.ai { color: #ff0080; }
+        .score.human { color: #00ff88; }
+
+        .vote-section {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .vote-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .vote-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vote-btn.ai {
+            background: linear-gradient(45deg, #ff0080, #ff4081);
+            color: white;
+        }
+
+        .vote-btn.human {
+            background: linear-gradient(45deg, #00ff88, #26c6da);
+            color: white;
+        }
+
+        .vote-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
+        }
+
+        .music-creator {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 40px 0;
+            border: 2px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .creator-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .instrument-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .instrument {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .instrument h3 {
+            color: #00ff88;
+            margin-bottom: 15px;
+        }
+
+        .key-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .key, .drum-pad {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #333, #555);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .key:hover, .drum-pad:hover {
+            background: linear-gradient(45deg, #00ff88, #26c6da);
+            transform: scale(1.1);
+        }
+
+        .key:active, .drum-pad:active {
+            transform: scale(0.9);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .control-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 20px;
+            background: linear-gradient(45deg, #ff8c00, #ffc107);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 140, 0, 0.4);
+        }
+
+        .genre-selector {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .genre-btn {
+            margin: 5px;
+            padding: 10px 20px;
+            border: 2px solid #ff0080;
+            border-radius: 20px;
+            background: transparent;
+            color: #ff0080;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .genre-btn.active,
+        .genre-btn:hover {
+            background: #ff0080;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #ff0080, #00ff88);
+            border-radius: 3px;
+            transition: width 0.1s ease;
+        }
+
+        @media (max-width: 768px) {
+            .battle-arena {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .title {
+                font-size: 2.5rem;
+            }
+            
+            .vote-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .key-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="title">🎵 AI MUSIC BATTLE 🎵</h1>
+            <p class="subtitle">AIと人間の音楽対決！どちらの音楽が優れているか投票しよう</p>
+        </header>
+
+        <div class="battle-arena">
+            <div class="contestant ai">
+                <h2 class="contestant-title">🤖 AI COMPOSER</h2>
+                <div class="music-player">
+                    <button class="play-btn ai" id="aiPlayBtn">▶️</button>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="aiProgress"></div>
+                    </div>
+                </div>
+                <p id="aiStatus">AIが音楽を生成中...</p>
+            </div>
+
+            <div class="vs-section">
+                <div class="vs-text">VS</div>
+                <div class="score-display">
+                    <div class="score ai" id="aiScore">AI: 0</div>
+                    <div class="score human" id="humanScore">人間: 0</div>
+                </div>
+            </div>
+
+            <div class="contestant human">
+                <h2 class="contestant-title">👤 HUMAN COMPOSER</h2>
+                <div class="music-player">
+                    <button class="play-btn human" id="humanPlayBtn">▶️</button>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="humanProgress"></div>
+                    </div>
+                </div>
+                <p id="humanStatus">あなたの音楽を作成してください</p>
+            </div>
+        </div>
+
+        <div class="vote-section">
+            <h2>どちらの音楽が良いですか？</h2>
+            <div class="vote-buttons">
+                <button class="vote-btn ai" onclick="vote('ai')">🤖 AIに投票</button>
+                <button class="vote-btn human" onclick="vote('human')">👤 人間に投票</button>
+            </div>
+        </div>
+
+        <div class="genre-selector">
+            <h3>音楽ジャンルを選択:</h3>
+            <button class="genre-btn active" data-genre="electronic">エレクトロニック</button>
+            <button class="genre-btn" data-genre="jazz">ジャズ</button>
+            <button class="genre-btn" data-genre="rock">ロック</button>
+            <button class="genre-btn" data-genre="ambient">アンビエント</button>
+        </div>
+
+        <div class="music-creator">
+            <h2 class="creator-title">🎹 あなたの音楽を作成</h2>
+            
+            <div class="instrument-grid">
+                <div class="instrument">
+                    <h3>🎹 シンセサイザー</h3>
+                    <div class="key-grid">
+                        <button class="key" data-note="C4">C</button>
+                        <button class="key" data-note="D4">D</button>
+                        <button class="key" data-note="E4">E</button>
+                        <button class="key" data-note="F4">F</button>
+                        <button class="key" data-note="G4">G</button>
+                        <button class="key" data-note="A4">A</button>
+                        <button class="key" data-note="B4">B</button>
+                        <button class="key" data-note="C5">C5</button>
+                    </div>
+                </div>
+
+                <div class="instrument">
+                    <h3>🥁 ドラム</h3>
+                    <div class="key-grid">
+                        <button class="drum-pad" data-drum="kick">🦵</button>
+                        <button class="drum-pad" data-drum="snare">🥁</button>
+                        <button class="drum-pad" data-drum="hihat">🎩</button>
+                        <button class="drum-pad" data-drum="crash">💥</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="control-btn" onclick="startRecording()">🔴 録音開始</button>
+                <button class="control-btn" onclick="stopRecording()">⏹️ 録音停止</button>
+                <button class="control-btn" onclick="clearRecording()">🗑️ クリア</button>
+                <button class="control-btn" onclick="generateNewAI()">🔄 新しいAI音楽</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Audio Context
+        let audioContext = null;
+        let isRecording = false;
+        let recordedNotes = [];
+        let currentGenre = 'electronic';
+        let aiMusicData = [];
+        let humanMusicData = [];
+        
+        // スコア
+        let scores = { ai: 0, human: 0 };
+
+        // Audio Context初期化
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
+
+        // 音符の周波数マッピング
+        const noteFrequencies = {
+            'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23,
+            'G4': 392.00, 'A4': 440.00, 'B4': 493.88, 'C5': 523.25
+        };
+
+        // 音を再生
+        function playNote(frequency, duration = 0.5, type = 'sine') {
+            if (!audioContext) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            oscillator.type = type;
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        // ドラム音を再生
+        function playDrum(type) {
+            if (!audioContext) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            const filter = audioContext.createBiquadFilter();
+            
+            oscillator.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            let frequency, filterFreq;
+            switch (type) {
+                case 'kick':
+                    frequency = 60;
+                    filterFreq = 100;
+                    oscillator.type = 'sine';
+                    break;
+                case 'snare':
+                    frequency = 200;
+                    filterFreq = 1000;
+                    oscillator.type = 'sawtooth';
+                    break;
+                case 'hihat':
+                    frequency = 800;
+                    filterFreq = 8000;
+                    oscillator.type = 'square';
+                    break;
+                case 'crash':
+                    frequency = 400;
+                    filterFreq = 4000;
+                    oscillator.type = 'sawtooth';
+                    break;
+            }
+            
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            filter.frequency.setValueAtTime(filterFreq, audioContext.currentTime);
+            
+            gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+
+        // AI音楽生成
+        function generateAIMusic(genre) {
+            const scales = {
+                electronic: [261.63, 293.66, 329.63, 392.00, 440.00, 523.25],
+                jazz: [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88],
+                rock: [261.63, 277.18, 311.13, 349.23, 392.00, 415.30, 466.16],
+                ambient: [261.63, 293.66, 329.63, 392.00, 440.00]
+            };
+            
+            const notes = scales[genre] || scales.electronic;
+            const sequence = [];
+            
+            // メロディー生成（マルコフ連鎖風）
+            for (let i = 0; i < 16; i++) {
+                const noteIndex = Math.floor(Math.random() * notes.length);
+                const duration = Math.random() > 0.7 ? 0.8 : 0.4;
+                sequence.push({
+                    frequency: notes[noteIndex],
+                    duration: duration,
+                    delay: i * 0.5
+                });
+            }
+            
+            return sequence;
+        }
+
+        // AI音楽を再生
+        function playAIMusic() {
+            initAudioContext();
+            
+            if (aiMusicData.length === 0) {
+                aiMusicData = generateAIMusic(currentGenre);
+            }
+            
+            const playBtn = document.getElementById('aiPlayBtn');
+            const progress = document.getElementById('aiProgress');
+            const status = document.getElementById('aiStatus');
+            
+            playBtn.textContent = '⏸️';
+            status.textContent = 'AI音楽を再生中...';
+            
+            let currentTime = 0;
+            const totalDuration = 8; // 8秒
+            
+            // 音楽再生
+            aiMusicData.forEach(note => {
+                setTimeout(() => {
+                    playNote(note.frequency, note.duration, 'sawtooth');
+                }, note.delay * 1000);
+            });
+            
+            // プログレスバー更新
+            const progressInterval = setInterval(() => {
+                currentTime += 0.1;
+                const progressPercent = (currentTime / totalDuration) * 100;
+                progress.style.width = Math.min(progressPercent, 100) + '%';
+                
+                if (currentTime >= totalDuration) {
+                    clearInterval(progressInterval);
+                    playBtn.textContent = '▶️';
+                    status.textContent = 'AI音楽生成完了';
+                    progress.style.width = '0%';
+                }
+            }, 100);
+        }
+
+        // 人間の音楽を再生
+        function playHumanMusic() {
+            if (humanMusicData.length === 0) {
+                alert('まずは音楽を録音してください！');
+                return;
+            }
+            
+            initAudioContext();
+            
+            const playBtn = document.getElementById('humanPlayBtn');
+            const progress = document.getElementById('humanProgress');
+            const status = document.getElementById('humanStatus');
+            
+            playBtn.textContent = '⏸️';
+            status.textContent = 'あなたの音楽を再生中...';
+            
+            let currentTime = 0;
+            const totalDuration = humanMusicData.length * 0.5;
+            
+            // 録音した音楽を再生
+            humanMusicData.forEach((note, index) => {
+                setTimeout(() => {
+                    if (note.type === 'note') {
+                        playNote(note.frequency, note.duration);
+                    } else if (note.type === 'drum') {
+                        playDrum(note.drum);
+                    }
+                }, index * 500);
+            });
+            
+            // プログレスバー更新
+            const progressInterval = setInterval(() => {
+                currentTime += 0.1;
+                const progressPercent = (currentTime / totalDuration) * 100;
+                progress.style.width = Math.min(progressPercent, 100) + '%';
+                
+                if (currentTime >= totalDuration) {
+                    clearInterval(progressInterval);
+                    playBtn.textContent = '▶️';
+                    status.textContent = 'あなたの音楽再生完了';
+                    progress.style.width = '0%';
+                }
+            }, 100);
+        }
+
+        // 録音開始
+        function startRecording() {
+            initAudioContext();
+            isRecording = true;
+            recordedNotes = [];
+            
+            document.getElementById('humanStatus').textContent = '録音中... 楽器を演奏してください';
+            
+            // 8秒後に自動停止
+            setTimeout(() => {
+                if (isRecording) {
+                    stopRecording();
+                }
+            }, 8000);
+        }
+
+        // 録音停止
+        function stopRecording() {
+            isRecording = false;
+            humanMusicData = [...recordedNotes];
+            
+            document.getElementById('humanStatus').textContent = 
+                `録音完了！${recordedNotes.length}個の音を録音しました`;
+        }
+
+        // 録音クリア
+        function clearRecording() {
+            recordedNotes = [];
+            humanMusicData = [];
+            document.getElementById('humanStatus').textContent = 'あなたの音楽を作成してください';
+        }
+
+        // 新しいAI音楽生成
+        function generateNewAI() {
+            aiMusicData = generateAIMusic(currentGenre);
+            document.getElementById('aiStatus').textContent = '新しいAI音楽を生成しました！';
+        }
+
+        // 投票
+        function vote(winner) {
+            scores[winner]++;
+            document.getElementById('aiScore').textContent = `AI: ${scores.ai}`;
+            document.getElementById('humanScore').textContent = `人間: ${scores.human}`;
+            
+            // 投票エフェクト
+            const message = winner === 'ai' ? 'AIに投票しました！' : '人間に投票しました！';
+            alert(message);
+            
+            // 新しいラウンド
+            generateNewAI();
+            clearRecording();
+        }
+
+        // イベントリスナー
+        document.getElementById('aiPlayBtn').addEventListener('click', playAIMusic);
+        document.getElementById('humanPlayBtn').addEventListener('click', playHumanMusic);
+
+        // キーボード楽器
+        document.querySelectorAll('.key').forEach(key => {
+            key.addEventListener('click', () => {
+                initAudioContext();
+                const note = key.dataset.note;
+                const frequency = noteFrequencies[note];
+                playNote(frequency);
+                
+                if (isRecording) {
+                    recordedNotes.push({
+                        type: 'note',
+                        frequency: frequency,
+                        duration: 0.5,
+                        timestamp: Date.now()
+                    });
+                }
+            });
+        });
+
+        // ドラム
+        document.querySelectorAll('.drum-pad').forEach(pad => {
+            pad.addEventListener('click', () => {
+                initAudioContext();
+                const drumType = pad.dataset.drum;
+                playDrum(drumType);
+                
+                if (isRecording) {
+                    recordedNotes.push({
+                        type: 'drum',
+                        drum: drumType,
+                        timestamp: Date.now()
+                    });
+                }
+            });
+        });
+
+        // ジャンル選択
+        document.querySelectorAll('.genre-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.genre-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentGenre = btn.dataset.genre;
+                generateNewAI();
+            });
+        });
+
+        // 初期化
+        window.addEventListener('load', () => {
+            generateNewAI();
+        });
+    </script>
+</body>
+</html>

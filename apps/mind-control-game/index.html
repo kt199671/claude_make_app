@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>脳波ハック - マインドコントロールゲーム</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a, #1a0033, #000822, #1a0066);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 背景エフェクト */
+        .brain-waves {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(138, 43, 226, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 20, 147, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(0, 255, 255, 0.1) 0%, transparent 70%);
+            z-index: -2;
+            animation: brainPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes brainPulse {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+
+        /* パーティクルシステム */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: #00ffff;
+            border-radius: 50%;
+            opacity: 0.7;
+            animation: float 6s linear infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .title {
+            font-family: 'Orbitron', monospace;
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #ff0080, #00ffff, #8a2be2, #ff1493);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 0, 128, 0.5);
+            animation: gradientShift 3s ease-in-out infinite, textGlow 2s ease-in-out infinite alternate;
+            margin-bottom: 10px;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes textGlow {
+            0% { text-shadow: 0 0 30px rgba(255, 0, 128, 0.5); }
+            100% { text-shadow: 0 0 50px rgba(0, 255, 255, 0.8), 0 0 70px rgba(138, 43, 226, 0.6); }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        /* ゲーム画面 */
+        .game-container {
+            width: 90%;
+            max-width: 800px;
+            height: 500px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #00ffff;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 0 50px rgba(0, 255, 255, 0.3),
+                inset 0 0 50px rgba(138, 43, 226, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .game-area {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            cursor: crosshair;
+        }
+
+        /* 操作可能オブジェクト */
+        .mind-object {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ff0080, #8a2be2);
+            box-shadow: 0 0 20px rgba(255, 0, 128, 0.8);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            cursor: pointer;
+            animation: objectFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes objectFloat {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-10px) scale(1.1); }
+        }
+
+        .mind-object.controlled {
+            background: radial-gradient(circle, #00ffff, #0080ff);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 1);
+            animation: controlledPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes controlledPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* ターゲットゾーン */
+        .target-zone {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border: 3px dashed #00ff00;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 255, 0, 0.1), transparent);
+            animation: targetPulse 2s ease-in-out infinite;
+            right: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        @keyframes targetPulse {
+            0%, 100% { opacity: 0.5; transform: translateY(-50%) scale(1); }
+            50% { opacity: 1; transform: translateY(-50%) scale(1.1); }
+        }
+
+        /* コントロールパネル */
+        .control-panel {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: linear-gradient(135deg, #8a2be2, #ff1493);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 20, 147, 0.6);
+            background: linear-gradient(135deg, #9932cc, #ff69b4);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        /* ステータス表示 */
+        .status-panel {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            width: 90%;
+            max-width: 800px;
+        }
+
+        .status-item {
+            text-align: center;
+            color: white;
+        }
+
+        .status-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-value {
+            font-family: 'Orbitron', monospace;
+            font-size: 24px;
+            font-weight: 700;
+            color: #00ffff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        /* 脳波レベル表示 */
+        .brainwave-meter {
+            width: 200px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            border: 2px solid #00ffff;
+            overflow: hidden;
+            margin: 10px auto;
+        }
+
+        .brainwave-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff0080, #00ffff);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        /* インストラクション */
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            max-width: 800px;
+            text-align: center;
+        }
+
+        .instructions h3 {
+            font-family: 'Orbitron', monospace;
+            color: #00ffff;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .instructions p {
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .game-container {
+                height: 400px;
+                width: 95%;
+            }
+            
+            .control-panel {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .status-panel {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="brain-waves"></div>
+    <div class="particles" id="particles"></div>
+
+    <header>
+        <h1 class="title">🧠 脳波ハック</h1>
+        <p class="subtitle">マインドコントロールゲーム - 集中力で世界を操れ</p>
+    </header>
+
+    <div class="status-panel">
+        <div class="status-item">
+            <div class="status-label">スコア</div>
+            <div class="status-value" id="score">0</div>
+        </div>
+        <div class="status-item">
+            <div class="status-label">脳波レベル</div>
+            <div class="status-value" id="brainwaveLevel">0</div>
+            <div class="brainwave-meter">
+                <div class="brainwave-fill" id="brainwaveFill"></div>
+            </div>
+        </div>
+        <div class="status-item">
+            <div class="status-label">時間</div>
+            <div class="status-value" id="timeLeft">60</div>
+        </div>
+        <div class="status-item">
+            <div class="status-label">連続成功</div>
+            <div class="status-value" id="combo">0</div>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <div class="game-area" id="gameArea">
+            <div class="target-zone" id="targetZone"></div>
+        </div>
+    </div>
+
+    <div class="control-panel">
+        <button class="control-btn" id="startBtn">ゲーム開始</button>
+        <button class="control-btn" id="focusBtn">集中モード</button>
+        <button class="control-btn" id="resetBtn">リセット</button>
+        <button class="control-btn" id="helpBtn">操作説明</button>
+    </div>
+
+    <div class="instructions" id="instructions">
+        <h3>🎮 ゲームの遊び方</h3>
+        <p><strong>🧠 集中力でオブジェクトを操作！</strong></p>
+        <p>1. 「ゲーム開始」でスタート</p>
+        <p>2. 青い球をクリックして「集中」</p>
+        <p>3. マウスを動かして球を緑のターゲットに誘導</p>
+        <p>4. 「集中モード」で脳波レベルを上げて操作力アップ</p>
+        <p>5. 60秒以内により多くの球をターゲットに送り込め！</p>
+        <p><em>💡 ヒント: 連続で成功させるとコンボボーナス！</em></p>
+    </div>
+
+    <script>
+        class MindControlGame {
+            constructor() {
+                this.score = 0;
+                this.brainwaveLevel = 0;
+                this.timeLeft = 60;
+                this.combo = 0;
+                this.gameActive = false;
+                this.focusMode = false;
+                this.objects = [];
+                this.controlledObject = null;
+                this.gameTimer = null;
+                this.spawnTimer = null;
+                
+                this.initializeElements();
+                this.attachEventListeners();
+                this.createParticles();
+                this.spawnInitialObjects();
+            }
+
+            initializeElements() {
+                this.gameArea = document.getElementById('gameArea');
+                this.targetZone = document.getElementById('targetZone');
+                this.scoreElement = document.getElementById('score');
+                this.brainwaveLevelElement = document.getElementById('brainwaveLevel');
+                this.brainwaveFillElement = document.getElementById('brainwaveFill');
+                this.timeLeftElement = document.getElementById('timeLeft');
+                this.comboElement = document.getElementById('combo');
+                this.startBtn = document.getElementById('startBtn');
+                this.focusBtn = document.getElementById('focusBtn');
+                this.resetBtn = document.getElementById('resetBtn');
+                this.helpBtn = document.getElementById('helpBtn');
+                this.instructions = document.getElementById('instructions');
+            }
+
+            attachEventListeners() {
+                this.startBtn.addEventListener('click', () => this.startGame());
+                this.focusBtn.addEventListener('click', () => this.toggleFocusMode());
+                this.resetBtn.addEventListener('click', () => this.resetGame());
+                this.helpBtn.addEventListener('click', () => this.toggleInstructions());
+                
+                // マウス追跡
+                this.gameArea.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+                this.gameArea.addEventListener('click', (e) => this.handleClick(e));
+            }
+
+            createParticles() {
+                const particlesContainer = document.getElementById('particles');
+                for (let i = 0; i < 50; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 6 + 's';
+                    particle.style.animationDuration = (4 + Math.random() * 4) + 's';
+                    particlesContainer.appendChild(particle);
+                }
+            }
+
+            spawnInitialObjects() {
+                for (let i = 0; i < 3; i++) {
+                    this.spawnObject();
+                }
+            }
+
+            spawnObject() {
+                const object = document.createElement('div');
+                object.className = 'mind-object';
+                object.style.left = Math.random() * (this.gameArea.offsetWidth - 40) + 'px';
+                object.style.top = Math.random() * (this.gameArea.offsetHeight - 40) + 'px';
+                
+                object.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.selectObject(object);
+                });
+                
+                this.gameArea.appendChild(object);
+                this.objects.push(object);
+            }
+
+            selectObject(object) {
+                if (!this.gameActive) return;
+                
+                // 前の選択を解除
+                if (this.controlledObject) {
+                    this.controlledObject.classList.remove('controlled');
+                }
+                
+                // 新しいオブジェクトを選択
+                this.controlledObject = object;
+                object.classList.add('controlled');
+                
+                // 脳波レベル上昇
+                this.increaseBrainwaveLevel(10);
+            }
+
+            handleMouseMove(e) {
+                if (!this.controlledObject || !this.gameActive) return;
+                
+                const rect = this.gameArea.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                // 脳波レベルに応じて追従速度を調整
+                const followSpeed = 0.1 + (this.brainwaveLevel / 1000);
+                const currentX = parseInt(this.controlledObject.style.left);
+                const currentY = parseInt(this.controlledObject.style.top);
+                
+                const newX = currentX + (mouseX - currentX - 20) * followSpeed;
+                const newY = currentY + (mouseY - currentY - 20) * followSpeed;
+                
+                // 境界内に制限
+                const maxX = this.gameArea.offsetWidth - 40;
+                const maxY = this.gameArea.offsetHeight - 40;
+                
+                this.controlledObject.style.left = Math.max(0, Math.min(maxX, newX)) + 'px';
+                this.controlledObject.style.top = Math.max(0, Math.min(maxY, newY)) + 'px';
+                
+                // ターゲットとの衝突判定
+                this.checkTargetCollision();
+            }
+
+            handleClick(e) {
+                if (e.target === this.gameArea && this.gameActive) {
+                    // 空のエリアをクリック = 集中力アップ
+                    this.increaseBrainwaveLevel(5);
+                }
+            }
+
+            checkTargetCollision() {
+                if (!this.controlledObject) return;
+                
+                const objRect = this.controlledObject.getBoundingClientRect();
+                const targetRect = this.targetZone.getBoundingClientRect();
+                
+                const objCenterX = objRect.left + objRect.width / 2;
+                const objCenterY = objRect.top + objRect.height / 2;
+                const targetCenterX = targetRect.left + targetRect.width / 2;
+                const targetCenterY = targetRect.top + targetRect.height / 2;
+                
+                const distance = Math.sqrt(
+                    Math.pow(objCenterX - targetCenterX, 2) + 
+                    Math.pow(objCenterY - targetCenterY, 2)
+                );
+                
+                if (distance < 50) {
+                    this.hitTarget();
+                }
+            }
+
+            hitTarget() {
+                if (!this.controlledObject) return;
+                
+                // スコア計算
+                const baseScore = 100;
+                const comboBonus = this.combo * 20;
+                const brainwaveBonus = Math.floor(this.brainwaveLevel / 10);
+                const totalScore = baseScore + comboBonus + brainwaveBonus;
+                
+                this.score += totalScore;
+                this.combo++;
+                this.increaseBrainwaveLevel(20);
+                
+                // オブジェクトを削除
+                const objectIndex = this.objects.indexOf(this.controlledObject);
+                if (objectIndex > -1) {
+                    this.objects.splice(objectIndex, 1);
+                }
+                this.controlledObject.remove();
+                this.controlledObject = null;
+                
+                // 新しいオブジェクトをスポーン
+                this.spawnObject();
+                
+                // エフェクト
+                this.showHitEffect();
+                this.updateDisplay();
+            }
+
+            showHitEffect() {
+                const effect = document.createElement('div');
+                effect.style.position = 'absolute';
+                effect.style.left = '50%';
+                effect.style.top = '50%';
+                effect.style.transform = 'translate(-50%, -50%)';
+                effect.style.color = '#00ff00';
+                effect.style.fontSize = '2rem';
+                effect.style.fontWeight = 'bold';
+                effect.style.pointerEvents = 'none';
+                effect.style.zIndex = '1000';
+                effect.style.animation = 'fadeOut 1s ease-out forwards';
+                effect.textContent = `+${100 + this.combo * 20}`;
+                
+                this.targetZone.appendChild(effect);
+                setTimeout(() => effect.remove(), 1000);
+            }
+
+            increaseBrainwaveLevel(amount) {
+                this.brainwaveLevel = Math.min(1000, this.brainwaveLevel + amount);
+                this.updateDisplay();
+                
+                // 自然減衰
+                setTimeout(() => {
+                    this.brainwaveLevel = Math.max(0, this.brainwaveLevel - amount / 2);
+                    this.updateDisplay();
+                }, 2000);
+            }
+
+            toggleFocusMode() {
+                if (!this.gameActive) return;
+                
+                this.focusMode = !this.focusMode;
+                
+                if (this.focusMode) {
+                    this.focusBtn.textContent = '通常モード';
+                    this.focusBtn.style.background = 'linear-gradient(135deg, #00ff00, #00ffff)';
+                    this.increaseBrainwaveLevel(50);
+                    
+                    // フォーカスモード効果（3秒間）
+                    document.body.style.filter = 'contrast(1.2) saturate(1.5)';
+                    setTimeout(() => {
+                        this.focusMode = false;
+                        this.focusBtn.textContent = '集中モード';
+                        this.focusBtn.style.background = 'linear-gradient(135deg, #8a2be2, #ff1493)';
+                        document.body.style.filter = 'none';
+                    }, 3000);
+                }
+            }
+
+            startGame() {
+                if (this.gameActive) return;
+                
+                this.gameActive = true;
+                this.timeLeft = 60;
+                this.startBtn.textContent = 'ゲーム中...';
+                this.startBtn.disabled = true;
+                
+                // ゲームタイマー
+                this.gameTimer = setInterval(() => {
+                    this.timeLeft--;
+                    if (this.timeLeft <= 0) {
+                        this.endGame();
+                    }
+                    this.updateDisplay();
+                }, 1000);
+                
+                // オブジェクトスポーンタイマー
+                this.spawnTimer = setInterval(() => {
+                    if (this.objects.length < 5) {
+                        this.spawnObject();
+                    }
+                }, 3000);
+                
+                this.updateDisplay();
+            }
+
+            endGame() {
+                this.gameActive = false;
+                clearInterval(this.gameTimer);
+                clearInterval(this.spawnTimer);
+                
+                this.startBtn.textContent = 'ゲーム開始';
+                this.startBtn.disabled = false;
+                
+                // 結果表示
+                alert(`ゲーム終了！\nスコア: ${this.score}\n最大コンボ: ${this.combo}\n最高脳波レベル: ${this.brainwaveLevel}`);
+            }
+
+            resetGame() {
+                this.gameActive = false;
+                clearInterval(this.gameTimer);
+                clearInterval(this.spawnTimer);
+                
+                this.score = 0;
+                this.brainwaveLevel = 0;
+                this.timeLeft = 60;
+                this.combo = 0;
+                this.controlledObject = null;
+                
+                // オブジェクトをすべて削除
+                this.objects.forEach(obj => obj.remove());
+                this.objects = [];
+                
+                this.startBtn.textContent = 'ゲーム開始';
+                this.startBtn.disabled = false;
+                
+                this.spawnInitialObjects();
+                this.updateDisplay();
+            }
+
+            toggleInstructions() {
+                const isVisible = this.instructions.style.display !== 'none';
+                this.instructions.style.display = isVisible ? 'none' : 'block';
+                this.helpBtn.textContent = isVisible ? '操作説明' : '説明を閉じる';
+            }
+
+            updateDisplay() {
+                this.scoreElement.textContent = this.score;
+                this.brainwaveLevelElement.textContent = this.brainwaveLevel;
+                this.brainwaveFillElement.style.width = (this.brainwaveLevel / 10) + '%';
+                this.timeLeftElement.textContent = this.timeLeft;
+                this.comboElement.textContent = this.combo;
+            }
+        }
+
+        // ゲーム初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            new MindControlGame();
+        });
+
+        // フェードアウトアニメーション追加
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeOut {
+                0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5) translateY(-30px); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

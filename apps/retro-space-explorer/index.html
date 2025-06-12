@@ -211,23 +211,45 @@
         const explosions = [];
 
         // サウンド効果（Web Audio API）
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let audioContext = null;
+        let soundEnabled = true;
+        
+        // AudioContextを初期化（ユーザー操作後）
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            // Audio Contextが停止している場合は再開
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
         
         function createSound(frequency, duration, type = 'sine') {
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
+            if (!soundEnabled || !audioContext) return;
             
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-            oscillator.type = type;
-            
-            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
-            
-            oscillator.start();
-            oscillator.stop(audioContext.currentTime + duration);
+            try {
+                initAudioContext();
+                
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                oscillator.type = type;
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + duration);
+            } catch (error) {
+                console.log('Sound disabled due to browser restrictions');
+                soundEnabled = false;
+            }
         }
 
         // 星の背景を初期化
@@ -609,6 +631,9 @@
 
         // ゲーム開始
         function startGame() {
+            // オーディオを初期化（ユーザー操作による）
+            initAudioContext();
+            
             gameState = 'playing';
             document.getElementById('startScreen').style.display = 'none';
             score = 0;
