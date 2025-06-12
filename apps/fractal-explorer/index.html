@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>フラクタル探索</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border-right: 2px solid #ff0080;
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        h1 {
+            margin: 0 0 20px 0;
+            font-size: 1.8rem;
+            background: linear-gradient(45deg, #ff0080, #8000ff, #0080ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .fractal-selector {
+            margin-bottom: 20px;
+        }
+
+        .fractal-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #ff0080;
+            color: #ff0080;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .fractal-btn.active {
+            background: #ff0080;
+            color: white;
+        }
+
+        .fractal-btn:hover {
+            background: rgba(255, 0, 128, 0.2);
+        }
+
+        .controls {
+            margin: 20px 0;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            color: #0080ff;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: #333;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff0080, #8000ff);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 0, 128, 0.5);
+        }
+
+        .value-display {
+            color: white;
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background: linear-gradient(45deg, #0080ff, #8000ff);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0, 128, 255, 0.4);
+        }
+
+        .info-panel {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+
+        .coordinates {
+            font-family: monospace;
+            font-size: 12px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        canvas {
+            flex: 1;
+            cursor: crosshair;
+            background: #000;
+        }
+
+        .stats {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 10;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 100;
+            display: none;
+        }
+
+        .color-scheme {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            margin: 10px 0;
+        }
+
+        .color-btn {
+            width: 100%;
+            height: 30px;
+            border: 2px solid #333;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .color-btn.active {
+            border-color: #ff0080;
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: 300px;
+                position: absolute;
+                bottom: -250px;
+                transition: bottom 0.3s ease;
+                border-right: none;
+                border-top: 2px solid #ff0080;
+            }
+            
+            .sidebar.open {
+                bottom: 0;
+            }
+            
+            .mobile-toggle {
+                position: absolute;
+                top: -40px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 100px;
+                height: 40px;
+                background: rgba(0, 0, 0, 0.9);
+                border: 2px solid #ff0080;
+                border-bottom: none;
+                border-radius: 10px 10px 0 0;
+                color: white;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            canvas {
+                width: 100vw;
+                height: 100vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <div class="mobile-toggle" onclick="toggleSidebar()">設定</div>
+            
+            <h1>∞ フラクタル探索</h1>
+            
+            <div class="fractal-selector">
+                <h3>フラクタルタイプ</h3>
+                <button class="fractal-btn active" onclick="selectFractal('mandelbrot')">
+                    <strong>マンデルブロ集合</strong><br>
+                    <small>最も有名なフラクタル</small>
+                </button>
+                <button class="fractal-btn" onclick="selectFractal('julia')">
+                    <strong>ジュリア集合</strong><br>
+                    <small>美しい対称パターン</small>
+                </button>
+                <button class="fractal-btn" onclick="selectFractal('burning_ship')">
+                    <strong>バーニングシップ</strong><br>
+                    <small>船のような形状</small>
+                </button>
+                <button class="fractal-btn" onclick="selectFractal('newton')">
+                    <strong>ニュートン法</strong><br>
+                    <small>カラフルな収束領域</small>
+                </button>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label>反復回数 (詳細度)</label>
+                    <input type="range" id="iterations" min="50" max="1000" value="100">
+                    <div class="value-display" id="iterationsValue">100</div>
+                </div>
+                
+                <div class="control-group">
+                    <label>ズーム倍率</label>
+                    <input type="range" id="zoom" min="0.1" max="1000" step="0.1" value="1">
+                    <div class="value-display" id="zoomValue">1x</div>
+                </div>
+                
+                <div class="control-group">
+                    <label>色相シフト</label>
+                    <input type="range" id="hueShift" min="0" max="360" value="0">
+                    <div class="value-display" id="hueShiftValue">0°</div>
+                </div>
+                
+                <div class="control-group">
+                    <label>彩度</label>
+                    <input type="range" id="saturation" min="0" max="100" value="80">
+                    <div class="value-display" id="saturationValue">80%</div>
+                </div>
+            </div>
+            
+            <div class="color-scheme">
+                <div class="color-btn active" onclick="setColorScheme('classic')" style="background: linear-gradient(45deg, #000080, #ff0080);"></div>
+                <div class="color-btn" onclick="setColorScheme('fire')" style="background: linear-gradient(45deg, #ff0000, #ffff00);"></div>
+                <div class="color-btn" onclick="setColorScheme('ocean')" style="background: linear-gradient(45deg, #000080, #00ffff);"></div>
+                <div class="color-btn" onclick="setColorScheme('rainbow')" style="background: linear-gradient(45deg, #ff0000, #00ff00, #0000ff);"></div>
+                <div class="color-btn" onclick="setColorScheme('grayscale')" style="background: linear-gradient(45deg, #000000, #ffffff);"></div>
+                <div class="color-btn" onclick="setColorScheme('neon')" style="background: linear-gradient(45deg, #ff00ff, #00ffff);"></div>
+                <div class="color-btn" onclick="setColorScheme('sunset')" style="background: linear-gradient(45deg, #ff4500, #ffd700);"></div>
+                <div class="color-btn" onclick="setColorScheme('forest')" style="background: linear-gradient(45deg, #006400, #90ee90);"></div>
+            </div>
+            
+            <button onclick="resetView()">🔄 初期位置にリセット</button>
+            <button onclick="randomJump()">🎲 ランダムジャンプ</button>
+            <button onclick="saveImage()">📸 画像保存</button>
+            <button onclick="toggleAnimation()">🎬 アニメーション</button>
+            
+            <div class="info-panel">
+                <h4>📋 操作方法</h4>
+                <p>• クリック: その位置を中心にズーム</p>
+                <p>• ドラッグ: 表示領域を移動</p>
+                <p>• ホイール: ズームイン/アウト</p>
+                
+                <div class="coordinates" id="coordinates">
+                    <div>中心座標:</div>
+                    <div>X: 0.0000</div>
+                    <div>Y: 0.0000</div>
+                    <div>ズーム: 1x</div>
+                </div>
+            </div>
+        </div>
+        
+        <canvas id="fractalCanvas"></canvas>
+        
+        <div class="stats">
+            <div><strong>レンダリング時間:</strong> <span id="renderTime">0ms</span></div>
+            <div><strong>FPS:</strong> <span id="fps">0</span></div>
+            <div><strong>ピクセル数:</strong> <span id="pixelCount">0</span></div>
+        </div>
+        
+        <div class="loading" id="loading">
+            <h3>レンダリング中...</h3>
+            <p>高精度計算を実行しています</p>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('fractalCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let currentFractal = 'mandelbrot';
+        let centerX = 0;
+        let centerY = 0;
+        let zoom = 1;
+        let colorScheme = 'classic';
+        let isAnimating = false;
+        let animationFrame = 0;
+        let isDragging = false;
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+        let renderStartTime = 0;
+        let lastRenderTime = 0;
+        
+        function resizeCanvas() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarWidth = window.innerWidth <= 768 ? 0 : 300;
+            
+            canvas.width = window.innerWidth - sidebarWidth;
+            canvas.height = window.innerHeight;
+            
+            renderFractal();
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        // 複素数計算関数
+        function complexAdd(a, b) {
+            return { re: a.re + b.re, im: a.im + b.im };
+        }
+        
+        function complexMultiply(a, b) {
+            return {
+                re: a.re * b.re - a.im * b.im,
+                im: a.re * b.im + a.im * b.re
+            };
+        }
+        
+        function complexMagnitudeSquared(c) {
+            return c.re * c.re + c.im * c.im;
+        }
+        
+        function complexDivide(a, b) {
+            const denom = b.re * b.re + b.im * b.im;
+            return {
+                re: (a.re * b.re + a.im * b.im) / denom,
+                im: (a.im * b.re - a.re * b.im) / denom
+            };
+        }
+        
+        // フラクタル計算関数
+        function mandelbrot(c, maxIter) {
+            let z = { re: 0, im: 0 };
+            let iter = 0;
+            
+            while (iter < maxIter && complexMagnitudeSquared(z) < 4) {
+                z = complexAdd(complexMultiply(z, z), c);
+                iter++;
+            }
+            
+            return iter === maxIter ? 0 : iter + 1 - Math.log2(Math.log2(complexMagnitudeSquared(z)));
+        }
+        
+        function julia(z, maxIter) {
+            const c = { re: -0.7269, im: 0.1889 }; // 美しいジュリア集合の定数
+            let iter = 0;
+            
+            while (iter < maxIter && complexMagnitudeSquared(z) < 4) {
+                z = complexAdd(complexMultiply(z, z), c);
+                iter++;
+            }
+            
+            return iter === maxIter ? 0 : iter + 1 - Math.log2(Math.log2(complexMagnitudeSquared(z)));
+        }
+        
+        function burningShip(c, maxIter) {
+            let z = { re: 0, im: 0 };
+            let iter = 0;
+            
+            while (iter < maxIter && complexMagnitudeSquared(z) < 4) {
+                z = {
+                    re: Math.abs(z.re),
+                    im: -Math.abs(z.im)
+                };
+                z = complexAdd(complexMultiply(z, z), c);
+                iter++;
+            }
+            
+            return iter === maxIter ? 0 : iter + 1 - Math.log2(Math.log2(complexMagnitudeSquared(z)));
+        }
+        
+        function newton(z, maxIter) {
+            // f(z) = z^3 - 1 のニュートン法
+            const roots = [
+                { re: 1, im: 0 },
+                { re: -0.5, im: Math.sqrt(3) / 2 },
+                { re: -0.5, im: -Math.sqrt(3) / 2 }
+            ];
+            
+            let iter = 0;
+            
+            while (iter < maxIter) {
+                // f(z) = z^3 - 1
+                const z3 = complexMultiply(complexMultiply(z, z), z);
+                const f = { re: z3.re - 1, im: z3.im };
+                
+                // f'(z) = 3z^2
+                const z2 = complexMultiply(z, z);
+                const fp = { re: 3 * z2.re, im: 3 * z2.im };
+                
+                // z = z - f(z)/f'(z)
+                const ratio = complexDivide(f, fp);
+                z = { re: z.re - ratio.re, im: z.im - ratio.im };
+                
+                // 根への収束判定
+                for (let i = 0; i < roots.length; i++) {
+                    const diff = { re: z.re - roots[i].re, im: z.im - roots[i].im };
+                    if (complexMagnitudeSquared(diff) < 0.0001) {
+                        return i + iter / maxIter;
+                    }
+                }
+                
+                iter++;
+            }
+            
+            return 0;
+        }
+        
+        function getColor(value, maxIter) {
+            if (value === 0) return 'rgb(0, 0, 0)';
+            
+            const hueShift = parseInt(document.getElementById('hueShift').value);
+            const saturation = parseInt(document.getElementById('saturation').value);
+            
+            let r, g, b;
+            
+            switch (colorScheme) {
+                case 'classic':
+                    const hue = (value / maxIter * 360 + hueShift) % 360;
+                    const [h, s, l] = [hue, saturation, 50 + value / maxIter * 50];
+                    [r, g, b] = hslToRgb(h / 360, s / 100, l / 100);
+                    break;
+                    
+                case 'fire':
+                    const t = value / maxIter;
+                    r = Math.min(255, t * 255 * 2);
+                    g = Math.max(0, Math.min(255, (t - 0.5) * 255 * 2));
+                    b = Math.max(0, Math.min(255, (t - 0.8) * 255 * 5));
+                    break;
+                    
+                case 'ocean':
+                    const o = value / maxIter;
+                    r = 0;
+                    g = Math.min(255, o * 255 * 1.5);
+                    b = Math.min(255, 128 + o * 127);
+                    break;
+                    
+                case 'rainbow':
+                    const rainbow = (value / maxIter * 6) % 6;
+                    const i = Math.floor(rainbow);
+                    const f = rainbow - i;
+                    const p = 0;
+                    const q = 1 - f;
+                    const t2 = f;
+                    
+                    switch (i) {
+                        case 0: [r, g, b] = [255, t2 * 255, p * 255]; break;
+                        case 1: [r, g, b] = [q * 255, 255, p * 255]; break;
+                        case 2: [r, g, b] = [p * 255, 255, t2 * 255]; break;
+                        case 3: [r, g, b] = [p * 255, q * 255, 255]; break;
+                        case 4: [r, g, b] = [t2 * 255, p * 255, 255]; break;
+                        case 5: [r, g, b] = [255, p * 255, q * 255]; break;
+                    }
+                    break;
+                    
+                case 'grayscale':
+                    const gray = Math.min(255, value / maxIter * 255);
+                    r = g = b = gray;
+                    break;
+                    
+                case 'neon':
+                    const n = Math.sin(value / maxIter * Math.PI * 4);
+                    r = Math.abs(Math.sin(n * 2)) * 255;
+                    g = Math.abs(Math.sin(n * 3 + 2)) * 255;
+                    b = Math.abs(Math.sin(n * 5 + 4)) * 255;
+                    break;
+                    
+                case 'sunset':
+                    const s2 = value / maxIter;
+                    r = 255;
+                    g = Math.min(255, s2 * 215 + 40);
+                    b = Math.max(0, (s2 - 0.6) * 255 * 2.5);
+                    break;
+                    
+                case 'forest':
+                    const f2 = value / maxIter;
+                    r = Math.min(255, f2 * 100);
+                    g = Math.min(255, 100 + f2 * 155);
+                    b = Math.min(255, f2 * 100);
+                    break;
+            }
+            
+            return `rgb(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)})`;
+        }
+        
+        function hslToRgb(h, s, l) {
+            let r, g, b;
+            
+            if (s === 0) {
+                r = g = b = l;
+            } else {
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1/6) return p + (q - p) * 6 * t;
+                    if (t < 1/2) return q;
+                    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                    return p;
+                };
+                
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+                r = hue2rgb(p, q, h + 1/3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1/3);
+            }
+            
+            return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+        }
+        
+        function renderFractal() {
+            renderStartTime = performance.now();
+            document.getElementById('loading').style.display = 'block';
+            
+            const maxIter = parseInt(document.getElementById('iterations').value);
+            const imageData = ctx.createImageData(canvas.width, canvas.height);
+            const data = imageData.data;
+            
+            const scale = 4 / zoom;
+            const centerXOffset = centerX;
+            const centerYOffset = centerY;
+            
+            let pixelCount = 0;
+            
+            for (let py = 0; py < canvas.height; py++) {
+                for (let px = 0; px < canvas.width; px++) {
+                    const x = (px - canvas.width / 2) * scale / canvas.width + centerXOffset;
+                    const y = (py - canvas.height / 2) * scale / canvas.height + centerYOffset;
+                    
+                    let value;
+                    switch (currentFractal) {
+                        case 'mandelbrot':
+                            value = mandelbrot({ re: x, im: y }, maxIter);
+                            break;
+                        case 'julia':
+                            value = julia({ re: x, im: y }, maxIter);
+                            break;
+                        case 'burning_ship':
+                            value = burningShip({ re: x, im: y }, maxIter);
+                            break;
+                        case 'newton':
+                            value = newton({ re: x, im: y }, maxIter);
+                            break;
+                    }
+                    
+                    const color = getColor(value, maxIter);
+                    const rgb = color.match(/\d+/g);
+                    
+                    const index = (py * canvas.width + px) * 4;
+                    data[index] = rgb[0];
+                    data[index + 1] = rgb[1];
+                    data[index + 2] = rgb[2];
+                    data[index + 3] = 255;
+                    
+                    pixelCount++;
+                }
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+            
+            const renderTime = performance.now() - renderStartTime;
+            lastRenderTime = renderTime;
+            
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('renderTime').textContent = Math.round(renderTime) + 'ms';
+            document.getElementById('pixelCount').textContent = pixelCount.toLocaleString();
+            
+            updateCoordinates();
+        }
+        
+        function updateCoordinates() {
+            document.getElementById('coordinates').innerHTML = `
+                <div>中心座標:</div>
+                <div>X: ${centerX.toFixed(6)}</div>
+                <div>Y: ${centerY.toFixed(6)}</div>
+                <div>ズーム: ${zoom.toFixed(2)}x</div>
+            `;
+        }
+        
+        function selectFractal(type) {
+            currentFractal = type;
+            
+            document.querySelectorAll('.fractal-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // フラクタルタイプに応じて初期位置をリセット
+            switch (type) {
+                case 'mandelbrot':
+                    centerX = -0.5;
+                    centerY = 0;
+                    zoom = 1;
+                    break;
+                case 'julia':
+                    centerX = 0;
+                    centerY = 0;
+                    zoom = 1;
+                    break;
+                case 'burning_ship':
+                    centerX = -1.8;
+                    centerY = -0.08;
+                    zoom = 1;
+                    break;
+                case 'newton':
+                    centerX = 0;
+                    centerY = 0;
+                    zoom = 1;
+                    break;
+            }
+            
+            document.getElementById('zoom').value = zoom;
+            document.getElementById('zoomValue').textContent = zoom + 'x';
+            
+            renderFractal();
+        }
+        
+        function setColorScheme(scheme) {
+            colorScheme = scheme;
+            
+            document.querySelectorAll('.color-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            renderFractal();
+        }
+        
+        function resetView() {
+            centerX = currentFractal === 'mandelbrot' ? -0.5 : 0;
+            centerY = 0;
+            zoom = 1;
+            
+            document.getElementById('zoom').value = zoom;
+            document.getElementById('zoomValue').textContent = zoom + 'x';
+            
+            renderFractal();
+        }
+        
+        function randomJump() {
+            // 面白い座標にランダムジャンプ
+            const interestingPoints = {
+                mandelbrot: [
+                    { x: -0.8, y: 0.156, z: 100 },
+                    { x: -0.4, y: 0.6, z: 50 },
+                    { x: 0.25, y: 0, z: 200 },
+                    { x: -1.25, y: 0, z: 150 }
+                ],
+                julia: [
+                    { x: 0, y: 0, z: 5 },
+                    { x: 0.3, y: 0.5, z: 20 },
+                    { x: -0.8, y: 0.8, z: 10 }
+                ]
+            };
+            
+            const points = interestingPoints[currentFractal] || [{ x: 0, y: 0, z: 1 }];
+            const point = points[Math.floor(Math.random() * points.length)];
+            
+            centerX = point.x;
+            centerY = point.y;
+            zoom = point.z;
+            
+            document.getElementById('zoom').value = zoom;
+            document.getElementById('zoomValue').textContent = zoom + 'x';
+            
+            renderFractal();
+        }
+        
+        function saveImage() {
+            const link = document.createElement('a');
+            link.download = `fractal-${currentFractal}-${Date.now()}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        function toggleAnimation() {
+            isAnimating = !isAnimating;
+            const button = event.target;
+            
+            if (isAnimating) {
+                button.textContent = '⏹️ 停止';
+                animateFrame();
+            } else {
+                button.textContent = '🎬 アニメーション';
+            }
+        }
+        
+        function animateFrame() {
+            if (!isAnimating) return;
+            
+            animationFrame++;
+            const hueShift = document.getElementById('hueShift');
+            hueShift.value = (parseInt(hueShift.value) + 2) % 360;
+            document.getElementById('hueShiftValue').textContent = hueShift.value + '°';
+            
+            renderFractal();
+            
+            setTimeout(() => {
+                requestAnimationFrame(animateFrame);
+            }, 100);
+        }
+        
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+        
+        // イベントリスナー
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const scale = 4 / zoom;
+            const newCenterX = (x - canvas.width / 2) * scale / canvas.width + centerX;
+            const newCenterY = (y - canvas.height / 2) * scale / canvas.height + centerY;
+            
+            centerX = newCenterX;
+            centerY = newCenterY;
+            zoom *= 2;
+            
+            document.getElementById('zoom').value = Math.min(1000, zoom);
+            document.getElementById('zoomValue').textContent = zoom.toFixed(2) + 'x';
+            
+            renderFractal();
+        });
+        
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const factor = e.deltaY > 0 ? 0.8 : 1.25;
+            zoom = Math.max(0.1, Math.min(1000, zoom * factor));
+            
+            document.getElementById('zoom').value = zoom;
+            document.getElementById('zoomValue').textContent = zoom.toFixed(2) + 'x';
+            
+            renderFractal();
+        });
+        
+        // ドラッグ操作
+        canvas.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const dx = e.clientX - lastMouseX;
+                const dy = e.clientY - lastMouseY;
+                
+                const scale = 4 / zoom;
+                centerX -= dx * scale / canvas.width;
+                centerY -= dy * scale / canvas.height;
+                
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+                
+                renderFractal();
+            }
+        });
+        
+        canvas.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+        
+        // スライダーイベント
+        document.getElementById('iterations').addEventListener('input', function() {
+            document.getElementById('iterationsValue').textContent = this.value;
+            renderFractal();
+        });
+        
+        document.getElementById('zoom').addEventListener('input', function() {
+            zoom = parseFloat(this.value);
+            document.getElementById('zoomValue').textContent = zoom.toFixed(2) + 'x';
+            renderFractal();
+        });
+        
+        document.getElementById('hueShift').addEventListener('input', function() {
+            document.getElementById('hueShiftValue').textContent = this.value + '°';
+            renderFractal();
+        });
+        
+        document.getElementById('saturation').addEventListener('input', function() {
+            document.getElementById('saturationValue').textContent = this.value + '%';
+            renderFractal();
+        });
+        
+        // FPS計算
+        let frameCount = 0;
+        let fpsStartTime = Date.now();
+        
+        function updateFPS() {
+            frameCount++;
+            const now = Date.now();
+            const elapsed = now - fpsStartTime;
+            
+            if (elapsed >= 1000) {
+                const fps = Math.round((frameCount * 1000) / elapsed);
+                document.getElementById('fps').textContent = fps;
+                frameCount = 0;
+                fpsStartTime = now;
+            }
+            
+            requestAnimationFrame(updateFPS);
+        }
+        
+        updateFPS();
+        
+        // 初期レンダリング
+        renderFractal();
+    </script>
+</body>
+</html> 

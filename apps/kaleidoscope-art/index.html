@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>バーチャル万華鏡</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        canvas {
+            border: 3px solid #ff0080;
+            border-radius: 50%;
+            box-shadow: 
+                0 0 50px rgba(255, 0, 128, 0.5),
+                0 0 100px rgba(255, 0, 128, 0.3),
+                inset 0 0 50px rgba(255, 255, 255, 0.1);
+            animation: rotate 30s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        label {
+            color: #fff;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        input[type="range"] {
+            width: 100px;
+            appearance: none;
+            height: 8px;
+            border-radius: 5px;
+            background: #333;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff0080, #0080ff);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 0, 128, 0.5);
+        }
+
+        button {
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #ff0080, #0080ff);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 0, 128, 0.4);
+        }
+
+        .info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #fff;
+            font-size: 14px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            max-width: 250px;
+        }
+
+        .pattern-name {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                bottom: 10px;
+                padding: 15px;
+                gap: 10px;
+            }
+            
+            .control-group {
+                gap: 5px;
+            }
+            
+            input[type="range"] {
+                width: 80px;
+            }
+            
+            .info {
+                position: static;
+                margin-bottom: 20px;
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="info">
+            <h3>🔮 バーチャル万華鏡</h3>
+            <p>マウスを動かして美しいパターンを生成しよう！</p>
+            <p>✨ リアルタイム対称パターン<br>
+            🎨 無限のカラーバリエーション<br>
+            🔄 回転と変形エフェクト</p>
+        </div>
+        
+        <div class="pattern-name" id="patternName">Classic Kaleidoscope</div>
+        
+        <canvas id="kaleidoscope" width="500" height="500"></canvas>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label>対称度</label>
+                <input type="range" id="symmetry" min="3" max="24" value="8">
+            </div>
+            <div class="control-group">
+                <label>パーティクル数</label>
+                <input type="range" id="particles" min="10" max="200" value="50">
+            </div>
+            <div class="control-group">
+                <label>回転速度</label>
+                <input type="range" id="rotationSpeed" min="0" max="10" value="2">
+            </div>
+            <div class="control-group">
+                <label>色相変化</label>
+                <input type="range" id="hueShift" min="0" max="360" value="0">
+            </div>
+            <div class="control-group">
+                <label>ブルーム</label>
+                <input type="range" id="bloom" min="0" max="10" value="3">
+            </div>
+            <button onclick="randomizeSettings()">🎲 ランダム</button>
+            <button onclick="saveImage()">📸 保存</button>
+            <button onclick="toggleAutoMode()">🤖 自動モード</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('kaleidoscope');
+        const ctx = canvas.getContext('2d');
+        const patternNameEl = document.getElementById('patternName');
+        
+        let mouseX = canvas.width / 2;
+        let mouseY = canvas.height / 2;
+        let particles = [];
+        let animationId;
+        let autoMode = false;
+        let rotation = 0;
+        
+        // パターン名リスト
+        const patternNames = [
+            "Classic Kaleidoscope", "Quantum Mandala", "Cosmic Flower",
+            "Digital Chrysanthemum", "Neon Snowflake", "Plasma Rose",
+            "Fractal Star", "Aurora Borealis", "Sacred Geometry",
+            "Holographic Dreams", "Cyberpunk Vision", "Rainbow Spiral"
+        ];
+        
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 4;
+                this.vy = (Math.random() - 0.5) * 4;
+                this.life = 1.0;
+                this.decay = Math.random() * 0.02 + 0.005;
+                this.size = Math.random() * 6 + 2;
+                this.hue = Math.random() * 360;
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.life -= this.decay;
+                
+                if (this.life <= 0) {
+                    this.reset();
+                }
+                
+                // 画面端での反射
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+            
+            draw() {
+                const alpha = this.life;
+                const hueShift = parseInt(document.getElementById('hueShift').value);
+                const finalHue = (this.hue + hueShift) % 360;
+                
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = `hsla(${finalHue}, 100%, 50%, ${alpha})`;
+                ctx.shadowBlur = parseInt(document.getElementById('bloom').value) * 2;
+                ctx.shadowColor = `hsla(${finalHue}, 100%, 50%, 0.8)`;
+                
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+        
+        function initParticles() {
+            const particleCount = parseInt(document.getElementById('particles').value);
+            particles = [];
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+        
+        function drawKaleidoscope() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const symmetryValue = parseInt(document.getElementById('symmetry').value);
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            // 回転の更新
+            const rotSpeed = parseInt(document.getElementById('rotationSpeed').value) * 0.01;
+            rotation += rotSpeed;
+            
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(rotation);
+            
+            // 対称パターンの描画
+            for (let i = 0; i < symmetryValue; i++) {
+                ctx.save();
+                ctx.rotate((i * 2 * Math.PI) / symmetryValue);
+                
+                // 鏡像効果
+                if (i % 2 === 1) {
+                    ctx.scale(1, -1);
+                }
+                
+                ctx.translate(-centerX, -centerY);
+                
+                // パーティクルの描画
+                particles.forEach(particle => {
+                    particle.draw();
+                });
+                
+                ctx.restore();
+            }
+            
+            ctx.restore();
+            
+            // パーティクルの更新
+            particles.forEach(particle => {
+                particle.update();
+            });
+        }
+        
+        function animate() {
+            drawKaleidoscope();
+            
+            if (autoMode) {
+                // 自動モードでのマウス座標シミュレーション
+                mouseX = canvas.width / 2 + Math.sin(Date.now() * 0.002) * 100;
+                mouseY = canvas.height / 2 + Math.cos(Date.now() * 0.003) * 100;
+                
+                // パラメータの自動変化
+                const time = Date.now() * 0.001;
+                document.getElementById('hueShift').value = Math.sin(time * 0.5) * 180 + 180;
+                document.getElementById('bloom').value = Math.sin(time * 0.3) * 3 + 5;
+            }
+            
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        function randomizeSettings() {
+            document.getElementById('symmetry').value = Math.floor(Math.random() * 20) + 4;
+            document.getElementById('particles').value = Math.floor(Math.random() * 150) + 50;
+            document.getElementById('rotationSpeed').value = Math.floor(Math.random() * 8) + 1;
+            document.getElementById('hueShift').value = Math.floor(Math.random() * 360);
+            document.getElementById('bloom').value = Math.floor(Math.random() * 8) + 2;
+            
+            // ランダムなパターン名を表示
+            const randomName = patternNames[Math.floor(Math.random() * patternNames.length)];
+            patternNameEl.textContent = randomName;
+            
+            initParticles();
+        }
+        
+        function saveImage() {
+            const link = document.createElement('a');
+            link.download = 'kaleidoscope-art.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        let autoModeButton;
+        function toggleAutoMode() {
+            autoMode = !autoMode;
+            const button = event.target;
+            if (autoMode) {
+                button.textContent = '⏸️ 停止';
+                button.style.background = 'linear-gradient(45deg, #ff4040, #ff8040)';
+            } else {
+                button.textContent = '🤖 自動モード';
+                button.style.background = 'linear-gradient(45deg, #ff0080, #0080ff)';
+            }
+        }
+        
+        // マウスイベント
+        canvas.addEventListener('mousemove', (e) => {
+            if (!autoMode) {
+                const rect = canvas.getBoundingClientRect();
+                mouseX = e.clientX - rect.left;
+                mouseY = e.clientY - rect.top;
+                
+                // マウス座標に基づいてパーティクルに影響を与える
+                particles.forEach(particle => {
+                    const dx = mouseX - particle.x;
+                    const dy = mouseY - particle.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 100) {
+                        const force = (100 - distance) / 100;
+                        particle.vx += dx * force * 0.01;
+                        particle.vy += dy * force * 0.01;
+                    }
+                });
+            }
+        });
+        
+        // タッチイベント
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (!autoMode) {
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                mouseX = touch.clientX - rect.left;
+                mouseY = touch.clientY - rect.top;
+            }
+        });
+        
+        // コントロールイベントリスナー
+        document.getElementById('particles').addEventListener('input', initParticles);
+        
+        // 初期化
+        initParticles();
+        animate();
+        
+        // レスポンシブ対応
+        function resizeCanvas() {
+            const size = Math.min(window.innerWidth * 0.8, window.innerHeight * 0.6, 500);
+            canvas.width = size;
+            canvas.height = size;
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+    </script>
+</body>
+</html> 

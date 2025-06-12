@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIダンスバトル</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #ff0080 0%, #8000ff 25%, #0080ff 50%, #00ff80 75%, #ffff00 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease-in-out infinite;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 3px solid #ff0080;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #ff0080, #8000ff, #0080ff, #00ff80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+            animation: titlePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .battle-arena {
+            flex: 1;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dancer {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border: 3px solid transparent;
+            margin: 20px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+        }
+
+        .dancer.player {
+            border-color: #00ff80;
+            box-shadow: 0 0 30px rgba(0, 255, 128, 0.5);
+        }
+
+        .dancer.ai {
+            border-color: #ff0080;
+            box-shadow: 0 0 30px rgba(255, 0, 128, 0.5);
+        }
+
+        .dancer.dancing {
+            animation: danceGlow 0.5s ease-in-out;
+        }
+
+        @keyframes danceGlow {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(255, 255, 255, 0.3); }
+            50% { transform: scale(1.05); box-shadow: 0 0 50px rgba(255, 255, 255, 0.8); }
+        }
+
+        .dancer-avatar {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 100px;
+            margin-bottom: 20px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .dancer-avatar.dancing {
+            animation: avatarDance 0.6s ease-in-out;
+        }
+
+        @keyframes avatarDance {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(-10deg) scale(1.1); }
+            75% { transform: rotate(10deg) scale(1.1); }
+        }
+
+        .dancer-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .score {
+            font-size: 36px;
+            font-weight: bold;
+            color: #ffff00;
+            text-shadow: 0 0 10px rgba(255, 255, 0, 0.8);
+        }
+
+        .combo {
+            font-size: 18px;
+            color: #ff0080;
+            margin-top: 10px;
+        }
+
+        .dance-moves {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 10;
+        }
+
+        .move-button {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .move-button:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+        }
+
+        .move-button.active {
+            background: #ff0080;
+            transform: scale(1.2);
+            animation: buttonPulse 0.3s ease-in-out;
+        }
+
+        @keyframes buttonPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 0, 128, 0.8); }
+            50% { box-shadow: 0 0 40px rgba(255, 0, 128, 1); }
+        }
+
+        .game-info {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 20px;
+            border: 3px solid #ff0080;
+            backdrop-filter: blur(15px);
+            z-index: 20;
+            min-width: 300px;
+        }
+
+        .start-button {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #ff0080, #8000ff);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .start-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 0, 128, 0.4);
+        }
+
+        .rhythm-indicator {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            border: 2px solid #ff0080;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .rhythm-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff0080, #8000ff, #0080ff, #00ff80);
+            border-radius: 8px;
+            transition: width 0.1s ease;
+        }
+
+        .beat-indicator {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            height: 100%;
+            background: #ffff00;
+            animation: beatPulse 0.5s ease-in-out infinite;
+        }
+
+        @keyframes beatPulse {
+            0%, 100% { opacity: 1; transform: scaleY(1); }
+            50% { opacity: 0.5; transform: scaleY(1.5); }
+        }
+
+        .special-effects {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ff0080;
+            border-radius: 50%;
+            animation: particleFloat 2s ease-out forwards;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.5) translateY(-100px);
+            }
+        }
+
+        .vs-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            font-weight: bold;
+            color: #ffff00;
+            text-shadow: 0 0 20px rgba(255, 255, 0, 0.8);
+            z-index: 10;
+            animation: vsRotate 3s ease-in-out infinite;
+        }
+
+        @keyframes vsRotate {
+            0%, 100% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+            50% { transform: translate(-50%, -50%) rotate(5deg) scale(1.1); }
+        }
+
+        .difficulty-selector {
+            margin: 20px 0;
+        }
+
+        .difficulty-btn {
+            padding: 10px 20px;
+            margin: 0 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid #ff0080;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .difficulty-btn.active {
+            background: #ff0080;
+        }
+
+        @media (max-width: 768px) {
+            .battle-arena {
+                flex-direction: column;
+            }
+            
+            .dancer {
+                margin: 10px;
+            }
+            
+            .dancer-avatar {
+                width: 150px;
+                height: 150px;
+                font-size: 75px;
+            }
+            
+            .dance-moves {
+                bottom: 50px;
+                gap: 15px;
+            }
+            
+            .move-button {
+                width: 60px;
+                height: 60px;
+                font-size: 30px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>💃 AIダンスバトル 🕺</h1>
+            <p>リズムに合わせて踊って、AIに勝利しよう！</p>
+        </div>
+
+        <div class="rhythm-indicator" id="rhythmIndicator" style="display: none;">
+            <div class="rhythm-bar" id="rhythmBar"></div>
+            <div class="beat-indicator"></div>
+        </div>
+
+        <div class="battle-arena">
+            <div class="dancer player">
+                <div class="dancer-avatar" id="playerAvatar">🕺</div>
+                <div class="dancer-name">あなた</div>
+                <div class="score" id="playerScore">0</div>
+                <div class="combo" id="playerCombo">コンボ: 0</div>
+            </div>
+
+            <div class="vs-text" id="vsText" style="display: none;">VS</div>
+
+            <div class="dancer ai">
+                <div class="dancer-avatar" id="aiAvatar">🤖</div>
+                <div class="dancer-name">AI ダンサー</div>
+                <div class="score" id="aiScore">0</div>
+                <div class="combo" id="aiCombo">コンボ: 0</div>
+            </div>
+        </div>
+
+        <div class="dance-moves" id="danceMoves" style="display: none;">
+            <div class="move-button" data-move="👆" onclick="playerMove('👆')">👆</div>
+            <div class="move-button" data-move="👇" onclick="playerMove('👇')">👇</div>
+            <div class="move-button" data-move="👈" onclick="playerMove('👈')">👈</div>
+            <div class="move-button" data-move="👉" onclick="playerMove('👉')">👉</div>
+            <div class="move-button" data-move="🔄" onclick="playerMove('🔄')">🔄</div>
+        </div>
+
+        <div class="special-effects" id="specialEffects"></div>
+
+        <div class="game-info" id="gameInfo">
+            <h2>🎵 ダンスバトル開始！</h2>
+            <p>リズムに合わせてダンスムーブを入力しよう！</p>
+            <p>正確なタイミングでコンボを決めて高スコアを狙え！</p>
+            
+            <div class="difficulty-selector">
+                <h3>難易度選択:</h3>
+                <button class="difficulty-btn active" onclick="selectDifficulty('easy')">初級</button>
+                <button class="difficulty-btn" onclick="selectDifficulty('medium')">中級</button>
+                <button class="difficulty-btn" onclick="selectDifficulty('hard')">上級</button>
+                <button class="difficulty-btn" onclick="selectDifficulty('expert')">専門家</button>
+            </div>
+            
+            <button class="start-button" onclick="startBattle()">🎮 バトル開始</button>
+        </div>
+    </div>
+
+    <script>
+        let gameState = {
+            playing: false,
+            difficulty: 'easy',
+            playerScore: 0,
+            aiScore: 0,
+            playerCombo: 0,
+            aiCombo: 0,
+            currentBeat: 0,
+            totalBeats: 32,
+            bpm: 120,
+            beatInterval: null,
+            lastPlayerMove: null,
+            lastAiMove: null,
+            particles: []
+        };
+        
+        const difficulties = {
+            easy: { bpm: 100, accuracy: 0.7, complexity: 3 },
+            medium: { bpm: 120, accuracy: 0.8, complexity: 4 },
+            hard: { bpm: 140, accuracy: 0.9, complexity: 5 },
+            expert: { bpm: 160, accuracy: 0.95, complexity: 5 }
+        };
+        
+        const danceEmojis = ['🕺', '💃', '🤸', '🏃', '🚶', '🤾', '🏋️', '🤺'];
+        const aiAvatars = ['🤖', '👾', '🦾', '🎭', '👺', '🤡', '👻', '🦸'];
+        
+        function selectDifficulty(level) {
+            gameState.difficulty = level;
+            
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            const config = difficulties[level];
+            gameState.bpm = config.bpm;
+        }
+        
+        function startBattle() {
+            document.getElementById('gameInfo').style.display = 'none';
+            document.getElementById('danceMoves').style.display = 'flex';
+            document.getElementById('rhythmIndicator').style.display = 'block';
+            document.getElementById('vsText').style.display = 'block';
+            
+            gameState.playing = true;
+            gameState.playerScore = 0;
+            gameState.aiScore = 0;
+            gameState.playerCombo = 0;
+            gameState.aiCombo = 0;
+            gameState.currentBeat = 0;
+            
+            updateDisplay();
+            startRhythm();
+            
+            // AIアバターをランダム選択
+            const randomAiAvatar = aiAvatars[Math.floor(Math.random() * aiAvatars.length)];
+            document.getElementById('aiAvatar').textContent = randomAiAvatar;
+        }
+        
+        function startRhythm() {
+            const beatDuration = 60000 / gameState.bpm; // ミリ秒
+            
+            gameState.beatInterval = setInterval(() => {
+                if (!gameState.playing) return;
+                
+                gameState.currentBeat++;
+                updateRhythm();
+                
+                // AIの自動ダンス
+                if (gameState.currentBeat % 2 === 0) {
+                    executeAiMove();
+                }
+                
+                // ゲーム終了判定
+                if (gameState.currentBeat >= gameState.totalBeats) {
+                    endBattle();
+                }
+            }, beatDuration);
+        }
+        
+        function updateRhythm() {
+            const progress = (gameState.currentBeat / gameState.totalBeats) * 100;
+            document.getElementById('rhythmBar').style.width = progress + '%';
+        }
+        
+        function playerMove(move) {
+            if (!gameState.playing) return;
+            
+            const button = document.querySelector(`[data-move="${move}"]`);
+            button.classList.add('active');
+            setTimeout(() => button.classList.remove('active'), 300);
+            
+            gameState.lastPlayerMove = move;
+            executeDanceMove('player', move);
+            
+            // スコア計算
+            const config = difficulties[gameState.difficulty];
+            const baseScore = 100;
+            const comboBonus = gameState.playerCombo * 10;
+            const points = baseScore + comboBonus;
+            
+            gameState.playerScore += points;
+            gameState.playerCombo++;
+            
+            updateDisplay();
+            createParticles('player');
+            
+            // プレイヤーアバターをランダム変更
+            const randomPlayerAvatar = danceEmojis[Math.floor(Math.random() * danceEmojis.length)];
+            document.getElementById('playerAvatar').textContent = randomPlayerAvatar;
+        }
+        
+        function executeAiMove() {
+            const moves = ['👆', '👇', '👈', '👉', '🔄'];
+            const config = difficulties[gameState.difficulty];
+            
+            // 難易度に応じたAIの動き
+            let selectedMove;
+            if (Math.random() < config.accuracy) {
+                // 正確な動き
+                selectedMove = moves[Math.floor(Math.random() * config.complexity)];
+            } else {
+                // ランダムな動き
+                selectedMove = moves[Math.floor(Math.random() * moves.length)];
+            }
+            
+            gameState.lastAiMove = selectedMove;
+            executeDanceMove('ai', selectedMove);
+            
+            // AIスコア計算
+            const baseScore = 80; // AIは少し低めのベーススコア
+            const comboBonus = gameState.aiCombo * 8;
+            const points = baseScore + comboBonus;
+            
+            gameState.aiScore += points;
+            gameState.aiCombo++;
+            
+            updateDisplay();
+            createParticles('ai');
+        }
+        
+        function executeDanceMove(dancer, move) {
+            const dancerElement = document.querySelector(`.dancer.${dancer}`);
+            const avatarElement = document.getElementById(`${dancer}Avatar`);
+            
+            // ダンスアニメーション
+            dancerElement.classList.add('dancing');
+            avatarElement.classList.add('dancing');
+            
+            setTimeout(() => {
+                dancerElement.classList.remove('dancing');
+                avatarElement.classList.remove('dancing');
+            }, 600);
+            
+            // 動きに応じた特殊エフェクト
+            switch (move) {
+                case '👆':
+                    createSpecialEffect(dancer, 'up');
+                    break;
+                case '👇':
+                    createSpecialEffect(dancer, 'down');
+                    break;
+                case '👈':
+                    createSpecialEffect(dancer, 'left');
+                    break;
+                case '👉':
+                    createSpecialEffect(dancer, 'right');
+                    break;
+                case '🔄':
+                    createSpecialEffect(dancer, 'spin');
+                    break;
+            }
+        }
+        
+        function createSpecialEffect(dancer, type) {
+            const dancerElement = document.querySelector(`.dancer.${dancer}`);
+            const rect = dancerElement.getBoundingClientRect();
+            
+            // 特殊エフェクトパーティクル
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = (rect.left + rect.width / 2) + 'px';
+                    particle.style.top = (rect.top + rect.height / 2) + 'px';
+                    
+                    // 動きタイプに応じた色
+                    switch (type) {
+                        case 'up':
+                            particle.style.background = '#00ff80';
+                            break;
+                        case 'down':
+                            particle.style.background = '#ff0080';
+                            break;
+                        case 'left':
+                            particle.style.background = '#0080ff';
+                            break;
+                        case 'right':
+                            particle.style.background = '#8000ff';
+                            break;
+                        case 'spin':
+                            particle.style.background = '#ffff00';
+                            break;
+                    }
+                    
+                    document.getElementById('specialEffects').appendChild(particle);
+                    
+                    setTimeout(() => {
+                        particle.remove();
+                    }, 2000);
+                }, i * 50);
+            }
+        }
+        
+        function createParticles(dancer) {
+            const dancerElement = document.querySelector(`.dancer.${dancer}`);
+            const rect = dancerElement.getBoundingClientRect();
+            
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = (rect.left + Math.random() * rect.width) + 'px';
+                    particle.style.top = (rect.top + Math.random() * rect.height) + 'px';
+                    particle.style.background = dancer === 'player' ? '#00ff80' : '#ff0080';
+                    
+                    document.getElementById('specialEffects').appendChild(particle);
+                    
+                    setTimeout(() => {
+                        particle.remove();
+                    }, 2000);
+                }, i * 30);
+            }
+        }
+        
+        function updateDisplay() {
+            document.getElementById('playerScore').textContent = gameState.playerScore;
+            document.getElementById('aiScore').textContent = gameState.aiScore;
+            document.getElementById('playerCombo').textContent = `コンボ: ${gameState.playerCombo}`;
+            document.getElementById('aiCombo').textContent = `コンボ: ${gameState.aiCombo}`;
+        }
+        
+        function endBattle() {
+            gameState.playing = false;
+            clearInterval(gameState.beatInterval);
+            
+            const winner = gameState.playerScore > gameState.aiScore ? 'プレイヤー' : 'AI';
+            const winnerScore = Math.max(gameState.playerScore, gameState.aiScore);
+            
+            // 勝利エフェクト
+            if (winner === 'プレイヤー') {
+                createVictoryEffect('player');
+            } else {
+                createVictoryEffect('ai');
+            }
+            
+            setTimeout(() => {
+                alert(`🎉 バトル終了！\n勝者: ${winner}\n最終スコア: ${winnerScore}\n\nもう一度挑戦しますか？`);
+                resetGame();
+            }, 2000);
+        }
+        
+        function createVictoryEffect(winner) {
+            const dancerElement = document.querySelector(`.dancer.${winner}`);
+            
+            // 勝利パーティクル大量発生
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const rect = dancerElement.getBoundingClientRect();
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = (rect.left + Math.random() * rect.width) + 'px';
+                    particle.style.top = (rect.top + Math.random() * rect.height) + 'px';
+                    particle.style.background = '#ffff00';
+                    particle.style.width = '15px';
+                    particle.style.height = '15px';
+                    
+                    document.getElementById('specialEffects').appendChild(particle);
+                    
+                    setTimeout(() => {
+                        particle.remove();
+                    }, 3000);
+                }, i * 50);
+            }
+        }
+        
+        function resetGame() {
+            document.getElementById('gameInfo').style.display = 'block';
+            document.getElementById('danceMoves').style.display = 'none';
+            document.getElementById('rhythmIndicator').style.display = 'none';
+            document.getElementById('vsText').style.display = 'none';
+            
+            gameState.playing = false;
+            gameState.currentBeat = 0;
+            
+            // アバターリセット
+            document.getElementById('playerAvatar').textContent = '🕺';
+            document.getElementById('aiAvatar').textContent = '🤖';
+            
+            updateDisplay();
+        }
+        
+        // キーボード操作
+        document.addEventListener('keydown', (e) => {
+            if (!gameState.playing) return;
+            
+            switch (e.key) {
+                case 'ArrowUp':
+                    playerMove('👆');
+                    break;
+                case 'ArrowDown':
+                    playerMove('👇');
+                    break;
+                case 'ArrowLeft':
+                    playerMove('👈');
+                    break;
+                case 'ArrowRight':
+                    playerMove('👉');
+                    break;
+                case ' ':
+                    playerMove('🔄');
+                    break;
+            }
+        });
+        
+        // タッチイベント（モバイル対応）
+        let touchStartX = 0;
+        let touchStartY = 0;
+        
+        document.addEventListener('touchstart', (e) => {
+            if (!gameState.playing) return;
+            
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+        
+        document.addEventListener('touchend', (e) => {
+            if (!gameState.playing) return;
+            
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = touchEndY - touchStartY;
+            
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                if (deltaX > 30) {
+                    playerMove('👉');
+                } else if (deltaX < -30) {
+                    playerMove('👈');
+                }
+            } else {
+                if (deltaY > 30) {
+                    playerMove('👇');
+                } else if (deltaY < -30) {
+                    playerMove('👆');
+                }
+            }
+        });
+        
+        // ダブルタップでスピン
+        let lastTap = 0;
+        document.addEventListener('touchend', (e) => {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            
+            if (tapLength < 500 && tapLength > 0 && gameState.playing) {
+                playerMove('🔄');
+            }
+            
+            lastTap = currentTime;
+        });
+        
+        // ゲーム初期化
+        updateDisplay();
+    </script>
+</body>
+</html> 

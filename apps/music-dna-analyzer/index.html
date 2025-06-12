@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音楽DNA分析</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1a0033 0%, #330066 25%, #006633 50%, #663300 75%, #000033 100%);
+            color: white;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid #00ff88;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #00ff88, #0088ff, #8800ff, #ff0088);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+        }
+
+        .controls {
+            position: absolute;
+            top: 100px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            z-index: 10;
+            width: 280px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            color: #00ff88;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #00ff88;
+            border-radius: 5px;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: #333;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #00ff88, #0088ff);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background: linear-gradient(45deg, #00ff88, #0088ff);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+        }
+
+        .audio-controls {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .audio-controls button {
+            flex: 1;
+            padding: 8px;
+            font-size: 12px;
+        }
+
+        .visualization-area {
+            flex: 1;
+            position: relative;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .info-panel {
+            position: absolute;
+            top: 100px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            z-index: 10;
+            width: 250px;
+        }
+
+        .dna-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .frequency-bands {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .band {
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .band-label {
+            color: #00ff88;
+        }
+
+        .band-value {
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .preset-btn {
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #00ff88;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .preset-btn:hover, .preset-btn.active {
+            background: #00ff88;
+            color: #000;
+        }
+
+        .sample-selector {
+            margin: 15px 0;
+        }
+
+        .sample-btn {
+            display: block;
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #0088ff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .sample-btn:hover {
+            background: #0088ff;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #0088ff);
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        @media (max-width: 768px) {
+            .controls, .info-panel {
+                position: relative;
+                width: auto;
+                margin: 10px;
+            }
+            
+            .container {
+                overflow-y: auto;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧬 音楽DNA分析</h1>
+            <p>音楽の周波数を分析して美しいDNAパターンを生成</p>
+        </div>
+
+        <div class="controls">
+            <h3>🎵 音源選択</h3>
+            
+            <div class="control-group">
+                <label>音楽ファイル (.mp3, .wav)</label>
+                <input type="file" id="audioFile" accept="audio/*">
+            </div>
+            
+            <div class="sample-selector">
+                <h4>🎼 サンプル音源</h4>
+                <button class="sample-btn" onclick="loadSample('synth')">🎹 シンセサイザー</button>
+                <button class="sample-btn" onclick="loadSample('drums')">🥁 ドラムループ</button>
+                <button class="sample-btn" onclick="loadSample('ambient')">🌌 アンビエント</button>
+                <button class="sample-btn" onclick="generateTone()">🔊 テストトーン生成</button>
+            </div>
+            
+            <div class="audio-controls">
+                <button onclick="togglePlayback()">▶️ 再生</button>
+                <button onclick="stopAudio()">⏹️ 停止</button>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            
+            <div class="control-group">
+                <label>DNAらせん速度</label>
+                <input type="range" id="spiralSpeed" min="0.1" max="5" step="0.1" value="1">
+            </div>
+            
+            <div class="control-group">
+                <label>感度</label>
+                <input type="range" id="sensitivity" min="1" max="10" value="5">
+            </div>
+            
+            <div class="control-group">
+                <label>色相シフト</label>
+                <input type="range" id="hueShift" min="0" max="360" value="0">
+            </div>
+            
+            <div class="preset-buttons">
+                <button class="preset-btn active" onclick="selectVisualization('dna')">DNA</button>
+                <button class="preset-btn" onclick="selectVisualization('helix')">二重らせん</button>
+                <button class="preset-btn" onclick="selectVisualization('spectrum')">スペクトラム</button>
+                <button class="preset-btn" onclick="selectVisualization('particle')">パーティクル</button>
+            </div>
+            
+            <button onclick="saveFrame()">📸 フレーム保存</button>
+            <button onclick="recordGif()">🎬 GIF録画</button>
+        </div>
+
+        <div class="visualization-area">
+            <canvas id="visualCanvas"></canvas>
+        </div>
+
+        <div class="info-panel">
+            <h3>📊 音響解析</h3>
+            
+            <div class="dna-info">
+                <h4>🧬 音楽DNA情報</h4>
+                <p id="dnaSignature">分析待機中...</p>
+                <p><strong>テンポ:</strong> <span id="tempoInfo">--</span> BPM</p>
+                <p><strong>キー:</strong> <span id="keyInfo">--</span></p>
+            </div>
+            
+            <div class="frequency-bands">
+                <div class="band">
+                    <div class="band-label">低音域</div>
+                    <div class="band-value" id="bassLevel">0%</div>
+                </div>
+                <div class="band">
+                    <div class="band-label">中音域</div>
+                    <div class="band-value" id="midLevel">0%</div>
+                </div>
+                <div class="band">
+                    <div class="band-label">高音域</div>
+                    <div class="band-value" id="trebleLevel">0%</div>
+                </div>
+                <div class="band">
+                    <div class="band-label">エネルギー</div>
+                    <div class="band-value" id="energyLevel">0%</div>
+                </div>
+            </div>
+            
+            <div class="dna-info">
+                <h4>🎨 視覚化設定</h4>
+                <p><strong>現在のモード:</strong> <span id="currentMode">DNA</span></p>
+                <p><strong>フレームレート:</strong> <span id="fpsInfo">60</span> FPS</p>
+                <p><strong>解析周波数:</strong> <span id="freqInfo">1024</span> bins</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('visualCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let audioContext = null;
+        let audioSource = null;
+        let analyser = null;
+        let dataArray = null;
+        let audio = null;
+        let isPlaying = false;
+        let animationId = null;
+        let currentVisualization = 'dna';
+        let spiralAngle = 0;
+        let particles = [];
+        let frameCount = 0;
+        let isRecording = false;
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        // Web Audio API初期化
+        async function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 2048;
+                dataArray = new Uint8Array(analyser.frequencyBinCount);
+            }
+        }
+        
+        // ファイル読み込み
+        document.getElementById('audioFile').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                await initAudio();
+                
+                if (audio) {
+                    audio.pause();
+                }
+                
+                audio = new Audio(URL.createObjectURL(file));
+                audio.crossOrigin = 'anonymous';
+                
+                audioSource = audioContext.createMediaElementSource(audio);
+                audioSource.connect(analyser);
+                analyser.connect(audioContext.destination);
+                
+                startVisualization();
+                updateAudioInfo(file.name);
+            }
+        });
+        
+        // サンプル音源生成
+        function generateTone() {
+            initAudio().then(() => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(analyser);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 2);
+                
+                startVisualization();
+                updateAudioInfo('テストトーン (440Hz)');
+            });
+        }
+        
+        // サンプル音源読み込み（実際の実装では音源ファイルが必要）
+        function loadSample(type) {
+            // デモ用に合成音源を生成
+            initAudio().then(() => {
+                generateComplexTone(type);
+                updateAudioInfo(`サンプル: ${type}`);
+            });
+        }
+        
+        function generateComplexTone(type) {
+            const oscillators = [];
+            const gainNodes = [];
+            
+            // タイプに応じた周波数とパターン
+            const patterns = {
+                synth: [220, 330, 440, 550],
+                drums: [60, 120, 200, 400],
+                ambient: [110, 165, 220, 330]
+            };
+            
+            const frequencies = patterns[type] || [440];
+            
+            frequencies.forEach((freq, i) => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                
+                osc.connect(analyser);
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                
+                osc.frequency.setValueAtTime(freq, audioContext.currentTime);
+                osc.type = i % 2 === 0 ? 'sine' : 'square';
+                
+                gain.gain.setValueAtTime(0.05, audioContext.currentTime);
+                
+                osc.start();
+                osc.stop(audioContext.currentTime + 3);
+                
+                oscillators.push(osc);
+                gainNodes.push(gain);
+            });
+            
+            startVisualization();
+        }
+        
+        function togglePlayback() {
+            if (audio) {
+                if (isPlaying) {
+                    audio.pause();
+                    isPlaying = false;
+                    document.querySelector('.audio-controls button').textContent = '▶️ 再生';
+                } else {
+                    audio.play();
+                    isPlaying = true;
+                    document.querySelector('.audio-controls button').textContent = '⏸️ 一時停止';
+                }
+            }
+        }
+        
+        function stopAudio() {
+            if (audio) {
+                audio.pause();
+                audio.currentTime = 0;
+                isPlaying = false;
+                document.querySelector('.audio-controls button').textContent = '▶️ 再生';
+            }
+        }
+        
+        function startVisualization() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            animate();
+        }
+        
+        function animate() {
+            if (analyser) {
+                analyser.getByteFrequencyData(dataArray);
+            }
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 背景グラデーション
+            const gradient = ctx.createRadialGradient(
+                canvas.width / 2, canvas.height / 2, 0,
+                canvas.width / 2, canvas.height / 2, Math.max(canvas.width, canvas.height) / 2
+            );
+            gradient.addColorStop(0, 'rgba(26, 0, 51, 0.8)');
+            gradient.addColorStop(1, 'rgba(0, 0, 51, 0.9)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 現在の視覚化モードに応じて描画
+            switch (currentVisualization) {
+                case 'dna':
+                    drawDNAVisualization();
+                    break;
+                case 'helix':
+                    drawDoubleHelix();
+                    break;
+                case 'spectrum':
+                    drawSpectrum();
+                    break;
+                case 'particle':
+                    drawParticleSystem();
+                    break;
+            }
+            
+            updateFrequencyBands();
+            updateProgress();
+            
+            frameCount++;
+            spiralAngle += parseFloat(document.getElementById('spiralSpeed').value) * 0.02;
+            
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        function drawDNAVisualization() {
+            if (!dataArray) return;
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const sensitivity = parseFloat(document.getElementById('sensitivity').value);
+            const hueShift = parseFloat(document.getElementById('hueShift').value);
+            
+            // DNAらせんの描画
+            for (let i = 0; i < dataArray.length; i += 4) {
+                const frequency = dataArray[i] / 255;
+                const angle = (i / dataArray.length) * Math.PI * 8 + spiralAngle;
+                
+                const radius = 100 + frequency * sensitivity * 50;
+                const x1 = centerX + Math.cos(angle) * radius;
+                const y1 = centerY + Math.sin(angle) * radius + (i / dataArray.length) * canvas.height - canvas.height / 2;
+                
+                const x2 = centerX + Math.cos(angle + Math.PI) * radius;
+                const y2 = centerY + Math.sin(angle + Math.PI) * radius + (i / dataArray.length) * canvas.height - canvas.height / 2;
+                
+                // DNAストランドの色
+                const hue = (i / dataArray.length * 360 + hueShift) % 360;
+                const saturation = 70 + frequency * 30;
+                const lightness = 50 + frequency * 30;
+                
+                ctx.strokeStyle = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+                ctx.lineWidth = 2 + frequency * 4;
+                ctx.globalAlpha = 0.7 + frequency * 0.3;
+                
+                // らせん構造
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+                
+                // 塩基対の表現
+                if (i % 16 === 0) {
+                    ctx.fillStyle = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+                    ctx.beginPath();
+                    ctx.arc(x1, y1, 3 + frequency * 5, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    ctx.beginPath();
+                    ctx.arc(x2, y2, 3 + frequency * 5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            
+            ctx.globalAlpha = 1;
+        }
+        
+        function drawDoubleHelix() {
+            if (!dataArray) return;
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const sensitivity = parseFloat(document.getElementById('sensitivity').value);
+            const hueShift = parseFloat(document.getElementById('hueShift').value);
+            
+            // 二重らせん構造
+            for (let i = 0; i < 100; i++) {
+                const progress = i / 100;
+                const frequency = dataArray[Math.floor(progress * dataArray.length)] / 255;
+                
+                const y = centerY - 200 + progress * 400;
+                const angle1 = progress * Math.PI * 6 + spiralAngle;
+                const angle2 = angle1 + Math.PI;
+                
+                const radius = 80 + frequency * sensitivity * 30;
+                
+                const x1 = centerX + Math.cos(angle1) * radius;
+                const x2 = centerX + Math.cos(angle2) * radius;
+                
+                const hue = (progress * 360 + hueShift) % 360;
+                
+                // らせん1
+                ctx.fillStyle = `hsl(${hue}, 80%, ${60 + frequency * 40}%)`;
+                ctx.beginPath();
+                ctx.arc(x1, y, 4 + frequency * 6, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // らせん2
+                ctx.fillStyle = `hsl(${(hue + 180) % 360}, 80%, ${60 + frequency * 40}%)`;
+                ctx.beginPath();
+                ctx.arc(x2, y, 4 + frequency * 6, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 接続線
+                if (i % 5 === 0) {
+                    ctx.strokeStyle = `hsl(${hue}, 60%, 70%)`;
+                    ctx.lineWidth = 1 + frequency * 3;
+                    ctx.globalAlpha = 0.6;
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y);
+                    ctx.lineTo(x2, y);
+                    ctx.stroke();
+                }
+            }
+            
+            ctx.globalAlpha = 1;
+        }
+        
+        function drawSpectrum() {
+            if (!dataArray) return;
+            
+            const barWidth = canvas.width / dataArray.length * 4;
+            const hueShift = parseFloat(document.getElementById('hueShift').value);
+            
+            for (let i = 0; i < dataArray.length; i += 4) {
+                const frequency = dataArray[i] / 255;
+                const barHeight = frequency * canvas.height * 0.8;
+                
+                const x = i / 4 * barWidth;
+                const y = canvas.height - barHeight;
+                
+                const hue = (i / dataArray.length * 360 + hueShift) % 360;
+                
+                ctx.fillStyle = `hsl(${hue}, 80%, ${50 + frequency * 30}%)`;
+                ctx.fillRect(x, y, barWidth - 2, barHeight);
+                
+                // グロー効果
+                ctx.shadowColor = `hsl(${hue}, 100%, 70%)`;
+                ctx.shadowBlur = 10 + frequency * 20;
+                ctx.fillRect(x, y, barWidth - 2, barHeight);
+                ctx.shadowBlur = 0;
+            }
+        }
+        
+        function drawParticleSystem() {
+            if (!dataArray) return;
+            
+            const sensitivity = parseFloat(document.getElementById('sensitivity').value);
+            const hueShift = parseFloat(document.getElementById('hueShift').value);
+            
+            // 新しいパーティクルの生成
+            for (let i = 0; i < dataArray.length; i += 20) {
+                const frequency = dataArray[i] / 255;
+                
+                if (frequency > 0.1 && particles.length < 500) {
+                    particles.push({
+                        x: Math.random() * canvas.width,
+                        y: canvas.height,
+                        vx: (Math.random() - 0.5) * 4,
+                        vy: -frequency * sensitivity * 8,
+                        life: 1,
+                        frequency: frequency,
+                        hue: (i / dataArray.length * 360 + hueShift) % 360
+                    });
+                }
+            }
+            
+            // パーティクルの更新と描画
+            particles = particles.filter(particle => {
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.vy += 0.1; // 重力
+                particle.life -= 0.01;
+                
+                if (particle.life > 0) {
+                    ctx.globalAlpha = particle.life;
+                    ctx.fillStyle = `hsl(${particle.hue}, 80%, ${50 + particle.frequency * 50}%)`;
+                    ctx.beginPath();
+                    ctx.arc(particle.x, particle.y, 2 + particle.frequency * 8, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    return true;
+                }
+                return false;
+            });
+            
+            ctx.globalAlpha = 1;
+        }
+        
+        function updateFrequencyBands() {
+            if (!dataArray) return;
+            
+            const bassEnd = Math.floor(dataArray.length * 0.1);
+            const midEnd = Math.floor(dataArray.length * 0.5);
+            
+            let bass = 0, mid = 0, treble = 0, energy = 0;
+            
+            // 低音域
+            for (let i = 0; i < bassEnd; i++) {
+                bass += dataArray[i];
+            }
+            bass = (bass / bassEnd / 255 * 100).toFixed(0);
+            
+            // 中音域
+            for (let i = bassEnd; i < midEnd; i++) {
+                mid += dataArray[i];
+            }
+            mid = (mid / (midEnd - bassEnd) / 255 * 100).toFixed(0);
+            
+            // 高音域
+            for (let i = midEnd; i < dataArray.length; i++) {
+                treble += dataArray[i];
+            }
+            treble = (treble / (dataArray.length - midEnd) / 255 * 100).toFixed(0);
+            
+            // 全体エネルギー
+            for (let i = 0; i < dataArray.length; i++) {
+                energy += dataArray[i];
+            }
+            energy = (energy / dataArray.length / 255 * 100).toFixed(0);
+            
+            document.getElementById('bassLevel').textContent = bass + '%';
+            document.getElementById('midLevel').textContent = mid + '%';
+            document.getElementById('trebleLevel').textContent = treble + '%';
+            document.getElementById('energyLevel').textContent = energy + '%';
+        }
+        
+        function updateProgress() {
+            if (audio) {
+                const progress = (audio.currentTime / audio.duration) * 100;
+                document.getElementById('progressFill').style.width = progress + '%';
+            }
+        }
+        
+        function selectVisualization(type) {
+            currentVisualization = type;
+            
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            document.getElementById('currentMode').textContent = type.toUpperCase();
+        }
+        
+        function updateAudioInfo(filename) {
+            document.getElementById('dnaSignature').textContent = `分析中: ${filename}`;
+            
+            // 模擬的な音響情報
+            const mockTempo = Math.floor(Math.random() * 60) + 80;
+            const keys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+            const mockKey = keys[Math.floor(Math.random() * keys.length)];
+            
+            document.getElementById('tempoInfo').textContent = mockTempo;
+            document.getElementById('keyInfo').textContent = mockKey;
+        }
+        
+        function saveFrame() {
+            const link = document.createElement('a');
+            link.download = `music-dna-${Date.now()}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        function recordGif() {
+            if (!isRecording) {
+                isRecording = true;
+                event.target.textContent = '⏹️ 録画停止';
+                // GIF録画の実装（実際にはより複雑な処理が必要）
+                setTimeout(() => {
+                    isRecording = false;
+                    event.target.textContent = '🎬 GIF録画';
+                    alert('GIF録画が完了しました！（デモ版）');
+                }, 5000);
+            } else {
+                isRecording = false;
+                event.target.textContent = '🎬 GIF録画';
+            }
+        }
+        
+        // FPS計算
+        let fpsCounter = 0;
+        let fpsStartTime = Date.now();
+        
+        setInterval(() => {
+            const now = Date.now();
+            const elapsed = now - fpsStartTime;
+            
+            if (elapsed >= 1000) {
+                const fps = Math.round((fpsCounter * 1000) / elapsed);
+                document.getElementById('fpsInfo').textContent = fps;
+                fpsCounter = 0;
+                fpsStartTime = now;
+            }
+        }, 1000);
+        
+        // 初期化
+        document.getElementById('freqInfo').textContent = '1024';
+        
+        // オーディオ再生中のプログレス更新
+        setInterval(() => {
+            if (audio && isPlaying) {
+                updateProgress();
+            }
+            fpsCounter++;
+        }, 100);
+    </script>
+</body>
+</html> 

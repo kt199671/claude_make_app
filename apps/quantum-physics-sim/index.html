@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>量子物理学シミュレーター</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(ellipse at center, #1a0033 0%, #000011 70%, #000000 100%);
+            color: white;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #ff0080, #8000ff, #0080ff, #00ff80);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: quantumGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes quantumGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .controls {
+            position: absolute;
+            top: 100px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 10;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            color: #ff0080;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        input[type="range"] {
+            width: 150px;
+            appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: #333;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff0080, #8000ff);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 0, 128, 0.5);
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            background: linear-gradient(45deg, #ff0080, #8000ff);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 0, 128, 0.4);
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .info-panel {
+            position: absolute;
+            top: 100px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 10;
+            max-width: 300px;
+        }
+
+        .quantum-stat {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+
+        .stat-label {
+            color: #8000ff;
+            font-size: 12px;
+        }
+
+        .stat-value {
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .wave-function {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            height: 100px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 10;
+        }
+
+        @media (max-width: 768px) {
+            .controls, .info-panel {
+                position: relative;
+                margin: 10px;
+                max-width: none;
+            }
+            
+            .wave-function {
+                width: 90%;
+                bottom: 10px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚛️ 量子物理学シミュレーター</h1>
+            <p>量子粒子の神秘的な振る舞いを体験しよう</p>
+        </div>
+
+        <div class="controls">
+            <h3>🔬 実験パラメータ</h3>
+            
+            <div class="control-group">
+                <label>粒子数</label>
+                <input type="range" id="particleCount" min="50" max="500" value="200">
+                <span id="particleCountValue">200</span>
+            </div>
+            
+            <div class="control-group">
+                <label>量子もつれ強度</label>
+                <input type="range" id="entanglement" min="0" max="1" step="0.1" value="0.5">
+                <span id="entanglementValue">0.5</span>
+            </div>
+            
+            <div class="control-group">
+                <label>不確定性原理</label>
+                <input type="range" id="uncertainty" min="0.1" max="2" step="0.1" value="1">
+                <span id="uncertaintyValue">1</span>
+            </div>
+            
+            <div class="control-group">
+                <label>観測確率</label>
+                <input type="range" id="observation" min="0" max="1" step="0.1" value="0.1">
+                <span id="observationValue">0.1</span>
+            </div>
+            
+            <button onclick="toggleExperiment('doubleSlitExperiment')">二重スリット実験</button>
+            <button onclick="toggleExperiment('quantumTunneling')">量子トンネル効果</button>
+            <button onclick="toggleExperiment('superposition')">重ね合わせ状態</button>
+            <button onclick="addQuantumField()">量子場生成</button>
+            <button onclick="resetSimulation()">🔄 リセット</button>
+        </div>
+
+        <div class="info-panel">
+            <h3>📊 量子状態</h3>
+            
+            <div class="quantum-stat">
+                <div class="stat-label">波動関数崩壊率</div>
+                <div class="stat-value" id="collapseRate">0%</div>
+            </div>
+            
+            <div class="quantum-stat">
+                <div class="stat-label">エンタングルメント係数</div>
+                <div class="stat-value" id="entanglementCoeff">0.00</div>
+            </div>
+            
+            <div class="quantum-stat">
+                <div class="stat-label">量子干渉パターン</div>
+                <div class="stat-value" id="interferencePattern">Normal</div>
+            </div>
+            
+            <div class="quantum-stat">
+                <div class="stat-label">観測された粒子</div>
+                <div class="stat-value" id="observedParticles">0</div>
+            </div>
+            
+            <p style="font-size: 12px; color: #aaa; margin-top: 15px;">
+                💡 ヒント: マウスを動かして観測装置を操作しよう！
+            </p>
+        </div>
+
+        <div class="wave-function">
+            <canvas id="waveCanvas" width="400" height="100"></canvas>
+        </div>
+
+        <canvas id="quantumCanvas"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('quantumCanvas');
+        const ctx = canvas.getContext('2d');
+        const waveCanvas = document.getElementById('waveCanvas');
+        const waveCtx = waveCanvas.getContext('2d');
+        
+        let particles = [];
+        let quantumFields = [];
+        let mouseX = 0;
+        let mouseY = 0;
+        let time = 0;
+        let experimentMode = 'superposition';
+        let observedCount = 0;
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        class QuantumParticle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+                this.phase = Math.random() * Math.PI * 2;
+                this.probability = Math.random();
+                this.observed = false;
+                this.entangled = null;
+                this.superposition = true;
+                this.size = Math.random() * 3 + 1;
+                this.color = {
+                    h: Math.random() * 360,
+                    s: 100,
+                    l: 50
+                };
+            }
+            
+            update() {
+                const uncertainty = parseFloat(document.getElementById('uncertainty').value);
+                const observationProb = parseFloat(document.getElementById('observation').value);
+                
+                // 不確定性原理の適用
+                this.vx += (Math.random() - 0.5) * uncertainty * 0.1;
+                this.vy += (Math.random() - 0.5) * uncertainty * 0.1;
+                
+                // 位置更新
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                // 境界での反射
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+                
+                // 位置制限
+                this.x = Math.max(0, Math.min(canvas.width, this.x));
+                this.y = Math.max(0, Math.min(canvas.height, this.y));
+                
+                // 位相の更新
+                this.phase += 0.1;
+                
+                // 観測によるwavefunction collapse
+                const mouseDistance = Math.sqrt(
+                    Math.pow(this.x - mouseX, 2) + Math.pow(this.y - mouseY, 2)
+                );
+                
+                if (mouseDistance < 100 && Math.random() < observationProb) {
+                    this.observed = true;
+                    this.superposition = false;
+                    observedCount++;
+                } else if (mouseDistance > 150) {
+                    this.observed = false;
+                    this.superposition = true;
+                }
+                
+                // 実験モードに応じた特殊な振る舞い
+                this.applyExperimentEffects();
+            }
+            
+            applyExperimentEffects() {
+                switch (experimentMode) {
+                    case 'doubleSlitExperiment':
+                        this.doubleSlitBehavior();
+                        break;
+                    case 'quantumTunneling':
+                        this.tunnelingBehavior();
+                        break;
+                    case 'superposition':
+                        this.superpositionBehavior();
+                        break;
+                }
+            }
+            
+            doubleSlitBehavior() {
+                const centerY = canvas.height / 2;
+                const slitWidth = 50;
+                const slitSeparation = 100;
+                
+                if (Math.abs(this.x - canvas.width / 3) < 10) {
+                    const slit1Y = centerY - slitSeparation / 2;
+                    const slit2Y = centerY + slitSeparation / 2;
+                    
+                    if (!(Math.abs(this.y - slit1Y) < slitWidth || Math.abs(this.y - slit2Y) < slitWidth)) {
+                        this.vx *= -1;
+                    } else {
+                        // 干渉パターンの生成
+                        this.color.h = (this.y - centerY + 200) % 360;
+                    }
+                }
+            }
+            
+            tunnelingBehavior() {
+                const barrierX = canvas.width / 2;
+                const barrierWidth = 20;
+                const barrierHeight = canvas.height / 3;
+                const barrierY = canvas.height / 2 - barrierHeight / 2;
+                
+                if (this.x > barrierX && this.x < barrierX + barrierWidth &&
+                    this.y > barrierY && this.y < barrierY + barrierHeight) {
+                    
+                    // 量子トンネル効果（確率的通過）
+                    if (Math.random() < 0.3) {
+                        this.x = barrierX + barrierWidth + 5;
+                        this.color.h = 120; // 緑色でトンネル効果を表現
+                    } else {
+                        this.vx *= -1;
+                        this.x = barrierX - 5;
+                    }
+                }
+            }
+            
+            superpositionBehavior() {
+                if (this.superposition && !this.observed) {
+                    // 重ね合わせ状態の表現
+                    this.probability = Math.sin(this.phase) * 0.5 + 0.5;
+                    this.color.s = this.probability * 100;
+                    this.color.l = 50 + this.probability * 30;
+                }
+            }
+            
+            draw() {
+                ctx.save();
+                
+                if (this.superposition && !this.observed) {
+                    // 重ね合わせ状態の描画（複数の位置に同時存在）
+                    for (let i = 0; i < 3; i++) {
+                        const offsetX = Math.sin(this.phase + i * Math.PI / 3) * 20;
+                        const offsetY = Math.cos(this.phase + i * Math.PI / 3) * 20;
+                        
+                        ctx.globalAlpha = 0.3;
+                        ctx.fillStyle = `hsla(${this.color.h}, ${this.color.s}%, ${this.color.l}%, 0.6)`;
+                        ctx.shadowBlur = 15;
+                        ctx.shadowColor = `hsla(${this.color.h}, 100%, 50%, 0.8)`;
+                        
+                        ctx.beginPath();
+                        ctx.arc(this.x + offsetX, this.y + offsetY, this.size, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                } else {
+                    // 観測された状態の描画
+                    ctx.globalAlpha = 1;
+                    ctx.fillStyle = `hsl(${this.color.h}, ${this.color.s}%, ${this.color.l}%)`;
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = `hsla(${this.color.h}, 100%, 50%, 0.8)`;
+                    
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
+                // 量子もつれの可視化
+                if (this.entangled) {
+                    ctx.strokeStyle = `hsla(${(this.color.h + 180) % 360}, 100%, 70%, 0.5)`;
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([5, 5]);
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(this.entangled.x, this.entangled.y);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+                
+                ctx.restore();
+            }
+        }
+        
+        class QuantumField {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = 0;
+                this.maxRadius = 150;
+                this.intensity = 1;
+                this.color = Math.random() * 360;
+            }
+            
+            update() {
+                this.radius += 2;
+                this.intensity = Math.max(0, 1 - this.radius / this.maxRadius);
+                
+                if (this.radius > this.maxRadius) {
+                    return false; // 削除フラグ
+                }
+                return true;
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.intensity * 0.3;
+                
+                const gradient = ctx.createRadialGradient(
+                    this.x, this.y, 0,
+                    this.x, this.y, this.radius
+                );
+                gradient.addColorStop(0, `hsla(${this.color}, 100%, 70%, 0.8)`);
+                gradient.addColorStop(1, `hsla(${this.color}, 100%, 70%, 0)`);
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+            }
+        }
+        
+        function drawWaveFunction() {
+            waveCtx.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
+            
+            const centerY = waveCanvas.height / 2;
+            const amplitude = 30;
+            const frequency = 0.02;
+            
+            waveCtx.strokeStyle = '#ff0080';
+            waveCtx.lineWidth = 2;
+            waveCtx.beginPath();
+            
+            for (let x = 0; x < waveCanvas.width; x++) {
+                const y = centerY + Math.sin(x * frequency + time * 0.1) * amplitude;
+                if (x === 0) {
+                    waveCtx.moveTo(x, y);
+                } else {
+                    waveCtx.lineTo(x, y);
+                }
+            }
+            
+            waveCtx.stroke();
+            
+            // 量子確率分布
+            waveCtx.strokeStyle = '#8000ff';
+            waveCtx.lineWidth = 1;
+            waveCtx.beginPath();
+            
+            for (let x = 0; x < waveCanvas.width; x++) {
+                const probability = Math.pow(Math.sin(x * frequency + time * 0.1), 2);
+                const y = centerY + probability * amplitude;
+                if (x === 0) {
+                    waveCtx.moveTo(x, y);
+                } else {
+                    waveCtx.lineTo(x, y);
+                }
+            }
+            
+            waveCtx.stroke();
+        }
+        
+        function drawExperimentSetup() {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            
+            switch (experimentMode) {
+                case 'doubleSlitExperiment':
+                    // スリットの描画
+                    const centerY = canvas.height / 2;
+                    const slitSeparation = 100;
+                    const slitWidth = 50;
+                    
+                    ctx.fillRect(canvas.width / 3 - 5, 0, 10, centerY - slitSeparation / 2 - slitWidth);
+                    ctx.fillRect(canvas.width / 3 - 5, centerY - slitSeparation / 2 + slitWidth, 10, slitSeparation - 2 * slitWidth);
+                    ctx.fillRect(canvas.width / 3 - 5, centerY + slitSeparation / 2 + slitWidth, 10, canvas.height - (centerY + slitSeparation / 2 + slitWidth));
+                    break;
+                    
+                case 'quantumTunneling':
+                    // 障壁の描画
+                    const barrierX = canvas.width / 2;
+                    const barrierWidth = 20;
+                    const barrierHeight = canvas.height / 3;
+                    const barrierY = canvas.height / 2 - barrierHeight / 2;
+                    
+                    ctx.fillRect(barrierX, barrierY, barrierWidth, barrierHeight);
+                    break;
+            }
+        }
+        
+        function updateStats() {
+            const collapseRate = (observedCount / particles.length) * 100;
+            const entanglement = parseFloat(document.getElementById('entanglement').value);
+            
+            document.getElementById('collapseRate').textContent = Math.round(collapseRate) + '%';
+            document.getElementById('entanglementCoeff').textContent = entanglement.toFixed(2);
+            document.getElementById('observedParticles').textContent = observedCount;
+            
+            // 干渉パターンの判定
+            let interferencePattern = 'Normal';
+            if (experimentMode === 'doubleSlitExperiment') {
+                interferencePattern = 'Double-Slit';
+            } else if (experimentMode === 'quantumTunneling') {
+                interferencePattern = 'Tunneling';
+            } else if (experimentMode === 'superposition') {
+                interferencePattern = 'Superposition';
+            }
+            
+            document.getElementById('interferencePattern').textContent = interferencePattern;
+        }
+        
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            time++;
+            observedCount = 0;
+            
+            // 実験セットアップの描画
+            drawExperimentSetup();
+            
+            // 量子場の更新と描画
+            quantumFields = quantumFields.filter(field => {
+                field.update();
+                field.draw();
+                return field.radius <= field.maxRadius;
+            });
+            
+            // 粒子の更新と描画
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            
+            // 波動関数の描画
+            drawWaveFunction();
+            
+            // 統計の更新
+            updateStats();
+            
+            requestAnimationFrame(animate);
+        }
+        
+        function initParticles() {
+            const count = parseInt(document.getElementById('particleCount').value);
+            particles = [];
+            
+            for (let i = 0; i < count; i++) {
+                particles.push(new QuantumParticle());
+            }
+            
+            // 量子もつれの設定
+            const entanglementStrength = parseFloat(document.getElementById('entanglement').value);
+            const entangledPairs = Math.floor(count * entanglementStrength / 2);
+            
+            for (let i = 0; i < entangledPairs * 2; i += 2) {
+                if (particles[i] && particles[i + 1]) {
+                    particles[i].entangled = particles[i + 1];
+                    particles[i + 1].entangled = particles[i];
+                }
+            }
+        }
+        
+        function toggleExperiment(mode) {
+            experimentMode = mode;
+            
+            // ボタンのアクティブ状態更新
+            document.querySelectorAll('button').forEach(btn => {
+                btn.style.background = 'linear-gradient(45deg, #ff0080, #8000ff)';
+            });
+            
+            event.target.style.background = 'linear-gradient(45deg, #00ff80, #0080ff)';
+        }
+        
+        function addQuantumField() {
+            quantumFields.push(new QuantumField(
+                Math.random() * canvas.width,
+                Math.random() * canvas.height
+            ));
+        }
+        
+        function resetSimulation() {
+            initParticles();
+            quantumFields = [];
+            observedCount = 0;
+        }
+        
+        // マウスイベント
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+        });
+        
+        // タッチイベント
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            mouseX = touch.clientX - rect.left;
+            mouseY = touch.clientY - rect.top;
+        });
+        
+        // クリックで量子場生成
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            quantumFields.push(new QuantumField(x, y));
+        });
+        
+        // スライダーイベント
+        document.getElementById('particleCount').addEventListener('input', function() {
+            document.getElementById('particleCountValue').textContent = this.value;
+            initParticles();
+        });
+        
+        document.getElementById('entanglement').addEventListener('input', function() {
+            document.getElementById('entanglementValue').textContent = this.value;
+            initParticles();
+        });
+        
+        document.getElementById('uncertainty').addEventListener('input', function() {
+            document.getElementById('uncertaintyValue').textContent = this.value;
+        });
+        
+        document.getElementById('observation').addEventListener('input', function() {
+            document.getElementById('observationValue').textContent = this.value;
+        });
+        
+        // 初期化
+        initParticles();
+        animate();
+    </script>
+</body>
+</html> 

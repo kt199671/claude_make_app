@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ニューラルネットワーク可視化</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: white;
+            font-family: 'Arial', sans-serif;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #00ff88;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 14px;
+            color: #00ff88;
+            text-align: center;
+        }
+
+        input[type="range"] {
+            width: 120px;
+            appearance: none;
+            height: 8px;
+            border-radius: 5px;
+            background: #333;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #00ff88, #0088ff);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        button {
+            padding: 12px 24px;
+            background: linear-gradient(45deg, #00ff88, #0088ff);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+        }
+
+        .network-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        canvas {
+            border: 2px solid #00ff88;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .stat-title {
+            color: #00ff88;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .dataset-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .dataset-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #00ff88;
+            color: #00ff88;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dataset-btn.active {
+            background: #00ff88;
+            color: #0f0f23;
+        }
+
+        .dataset-btn:hover {
+            background: rgba(0, 255, 136, 0.2);
+        }
+
+        .info-panel {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            canvas {
+                width: 90vw;
+                height: 50vh;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 ニューラルネットワーク可視化</h1>
+        
+        <div class="info-panel">
+            <h3>🚀 AIの学習過程をリアルタイムで観察！</h3>
+            <p>ニューロンの活性化、重みの変化、データの流れを美しいビジュアルで体験できます。</p>
+            <p>✨ リアルタイムデータ処理 | 🎨 美しい可視化エフェクト | 🔬 学習アルゴリズムの理解</p>
+        </div>
+
+        <div class="dataset-controls">
+            <button class="dataset-btn active" onclick="selectDataset('xor')">XORパターン</button>
+            <button class="dataset-btn" onclick="selectDataset('circle')">円形分類</button>
+            <button class="dataset-btn" onclick="selectDataset('spiral')">螺旋データ</button>
+            <button class="dataset-btn" onclick="selectDataset('random')">ランダムデータ</button>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label>隠れ層のサイズ</label>
+                <input type="range" id="hiddenSize" min="3" max="20" value="8">
+                <span id="hiddenSizeValue">8</span>
+            </div>
+            
+            <div class="control-group">
+                <label>学習率</label>
+                <input type="range" id="learningRate" min="0.001" max="0.1" step="0.001" value="0.01">
+                <span id="learningRateValue">0.01</span>
+            </div>
+            
+            <div class="control-group">
+                <label>アニメーション速度</label>
+                <input type="range" id="animSpeed" min="1" max="50" value="10">
+                <span id="animSpeedValue">10</span>
+            </div>
+            
+            <button onclick="toggleTraining()">▶️ 学習開始</button>
+            <button onclick="resetNetwork()">🔄 リセット</button>
+            <button onclick="addDataPoint()">➕ データ追加</button>
+        </div>
+
+        <div class="network-container">
+            <canvas id="networkCanvas" width="800" height="500"></canvas>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-title">エポック数</div>
+                <div class="stat-value" id="epochCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">損失関数</div>
+                <div class="stat-value" id="lossValue">0.00</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">精度</div>
+                <div class="stat-value" id="accuracyValue">0%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">処理速度</div>
+                <div class="stat-value" id="speedValue">0 FPS</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('networkCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let network = null;
+        let trainingData = [];
+        let isTraining = false;
+        let currentDataset = 'xor';
+        let epochs = 0;
+        let animationId = null;
+        let lastTime = 0;
+        let fps = 0;
+        
+        class NeuralNetwork {
+            constructor(inputSize, hiddenSize, outputSize) {
+                this.inputSize = inputSize;
+                this.hiddenSize = hiddenSize;
+                this.outputSize = outputSize;
+                
+                // 重みの初期化
+                this.weightsInputHidden = this.randomMatrix(inputSize, hiddenSize);
+                this.weightsHiddenOutput = this.randomMatrix(hiddenSize, outputSize);
+                
+                // バイアスの初期化
+                this.biasHidden = this.randomArray(hiddenSize);
+                this.biasOutput = this.randomArray(outputSize);
+                
+                // 活性化の記録用
+                this.lastInputs = [];
+                this.lastHidden = [];
+                this.lastOutput = [];
+            }
+            
+            randomMatrix(rows, cols) {
+                const matrix = [];
+                for (let i = 0; i < rows; i++) {
+                    matrix[i] = [];
+                    for (let j = 0; j < cols; j++) {
+                        matrix[i][j] = (Math.random() - 0.5) * 2;
+                    }
+                }
+                return matrix;
+            }
+            
+            randomArray(size) {
+                const array = [];
+                for (let i = 0; i < size; i++) {
+                    array[i] = (Math.random() - 0.5) * 2;
+                }
+                return array;
+            }
+            
+            sigmoid(x) {
+                return 1 / (1 + Math.exp(-x));
+            }
+            
+            forward(inputs) {
+                this.lastInputs = [...inputs];
+                
+                // 隠れ層の計算
+                this.lastHidden = [];
+                for (let j = 0; j < this.hiddenSize; j++) {
+                    let sum = this.biasHidden[j];
+                    for (let i = 0; i < this.inputSize; i++) {
+                        sum += inputs[i] * this.weightsInputHidden[i][j];
+                    }
+                    this.lastHidden[j] = this.sigmoid(sum);
+                }
+                
+                // 出力層の計算
+                this.lastOutput = [];
+                for (let k = 0; k < this.outputSize; k++) {
+                    let sum = this.biasOutput[k];
+                    for (let j = 0; j < this.hiddenSize; j++) {
+                        sum += this.lastHidden[j] * this.weightsHiddenOutput[j][k];
+                    }
+                    this.lastOutput[k] = this.sigmoid(sum);
+                }
+                
+                return [...this.lastOutput];
+            }
+            
+            train(inputs, targets, learningRate) {
+                // 順伝播
+                const outputs = this.forward(inputs);
+                
+                // 出力層のエラー計算
+                const outputErrors = [];
+                for (let k = 0; k < this.outputSize; k++) {
+                    outputErrors[k] = targets[k] - outputs[k];
+                }
+                
+                // 隠れ層のエラー計算
+                const hiddenErrors = [];
+                for (let j = 0; j < this.hiddenSize; j++) {
+                    let error = 0;
+                    for (let k = 0; k < this.outputSize; k++) {
+                        error += outputErrors[k] * this.weightsHiddenOutput[j][k];
+                    }
+                    hiddenErrors[j] = error;
+                }
+                
+                // 重みの更新（出力層）
+                for (let j = 0; j < this.hiddenSize; j++) {
+                    for (let k = 0; k < this.outputSize; k++) {
+                        const delta = outputErrors[k] * outputs[k] * (1 - outputs[k]) * this.lastHidden[j];
+                        this.weightsHiddenOutput[j][k] += learningRate * delta;
+                    }
+                }
+                
+                // 重みの更新（隠れ層）
+                for (let i = 0; i < this.inputSize; i++) {
+                    for (let j = 0; j < this.hiddenSize; j++) {
+                        const delta = hiddenErrors[j] * this.lastHidden[j] * (1 - this.lastHidden[j]) * inputs[i];
+                        this.weightsInputHidden[i][j] += learningRate * delta;
+                    }
+                }
+                
+                // バイアスの更新
+                for (let k = 0; k < this.outputSize; k++) {
+                    const delta = outputErrors[k] * outputs[k] * (1 - outputs[k]);
+                    this.biasOutput[k] += learningRate * delta;
+                }
+                
+                for (let j = 0; j < this.hiddenSize; j++) {
+                    const delta = hiddenErrors[j] * this.lastHidden[j] * (1 - this.lastHidden[j]);
+                    this.biasHidden[j] += learningRate * delta;
+                }
+            }
+        }
+        
+        function generateDataset(type, count = 100) {
+            const data = [];
+            for (let i = 0; i < count; i++) {
+                let input, output;
+                
+                switch (type) {
+                    case 'xor':
+                        input = [Math.round(Math.random()), Math.round(Math.random())];
+                        output = [input[0] ^ input[1]];
+                        break;
+                    case 'circle':
+                        const x = (Math.random() - 0.5) * 4;
+                        const y = (Math.random() - 0.5) * 4;
+                        const distance = Math.sqrt(x * x + y * y);
+                        input = [(x + 2) / 4, (y + 2) / 4];
+                        output = [distance < 1.5 ? 1 : 0];
+                        break;
+                    case 'spiral':
+                        const angle = Math.random() * 4 * Math.PI;
+                        const radius = Math.random() * 0.5;
+                        const sx = radius * Math.cos(angle);
+                        const sy = radius * Math.sin(angle);
+                        input = [(sx + 1) / 2, (sy + 1) / 2];
+                        output = [Math.floor(angle / (2 * Math.PI)) % 2];
+                        break;
+                    case 'random':
+                        input = [Math.random(), Math.random()];
+                        output = [Math.random() > 0.5 ? 1 : 0];
+                        break;
+                }
+                
+                data.push({ input, output });
+            }
+            return data;
+        }
+        
+        function drawNetwork() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (!network) return;
+            
+            const inputX = 100;
+            const hiddenX = 400;
+            const outputX = 700;
+            const inputY = canvas.height / 2;
+            const nodeRadius = 20;
+            
+            // ニューロンの位置計算
+            const inputPositions = [];
+            for (let i = 0; i < network.inputSize; i++) {
+                inputPositions.push({
+                    x: inputX,
+                    y: inputY + (i - (network.inputSize - 1) / 2) * 60
+                });
+            }
+            
+            const hiddenPositions = [];
+            for (let i = 0; i < network.hiddenSize; i++) {
+                hiddenPositions.push({
+                    x: hiddenX,
+                    y: inputY + (i - (network.hiddenSize - 1) / 2) * 40
+                });
+            }
+            
+            const outputPositions = [];
+            for (let i = 0; i < network.outputSize; i++) {
+                outputPositions.push({
+                    x: outputX,
+                    y: inputY + (i - (network.outputSize - 1) / 2) * 60
+                });
+            }
+            
+            // 接続線の描画
+            for (let i = 0; i < network.inputSize; i++) {
+                for (let j = 0; j < network.hiddenSize; j++) {
+                    const weight = network.weightsInputHidden[i][j];
+                    const opacity = Math.abs(weight);
+                    const color = weight > 0 ? `rgba(0, 255, 136, ${opacity})` : `rgba(255, 0, 136, ${opacity})`;
+                    
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = Math.abs(weight) * 5 + 1;
+                    ctx.beginPath();
+                    ctx.moveTo(inputPositions[i].x + nodeRadius, inputPositions[i].y);
+                    ctx.lineTo(hiddenPositions[j].x - nodeRadius, hiddenPositions[j].y);
+                    ctx.stroke();
+                }
+            }
+            
+            for (let j = 0; j < network.hiddenSize; j++) {
+                for (let k = 0; k < network.outputSize; k++) {
+                    const weight = network.weightsHiddenOutput[j][k];
+                    const opacity = Math.abs(weight);
+                    const color = weight > 0 ? `rgba(0, 255, 136, ${opacity})` : `rgba(255, 0, 136, ${opacity})`;
+                    
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = Math.abs(weight) * 5 + 1;
+                    ctx.beginPath();
+                    ctx.moveTo(hiddenPositions[j].x + nodeRadius, hiddenPositions[j].y);
+                    ctx.lineTo(outputPositions[k].x - nodeRadius, outputPositions[k].y);
+                    ctx.stroke();
+                }
+            }
+            
+            // ニューロンの描画
+            // 入力層
+            for (let i = 0; i < network.inputSize; i++) {
+                const activation = network.lastInputs[i] || 0;
+                const intensity = activation;
+                
+                ctx.fillStyle = `rgba(0, 136, 255, ${0.3 + intensity * 0.7})`;
+                ctx.strokeStyle = '#0088ff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(inputPositions[i].x, inputPositions[i].y, nodeRadius, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.stroke();
+                
+                ctx.fillStyle = 'white';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(`I${i}`, inputPositions[i].x, inputPositions[i].y + 4);
+            }
+            
+            // 隠れ層
+            for (let i = 0; i < network.hiddenSize; i++) {
+                const activation = network.lastHidden[i] || 0;
+                
+                ctx.fillStyle = `rgba(0, 255, 136, ${0.3 + activation * 0.7})`;
+                ctx.strokeStyle = '#00ff88';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(hiddenPositions[i].x, hiddenPositions[i].y, nodeRadius, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.stroke();
+                
+                ctx.fillStyle = 'white';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(`H${i}`, hiddenPositions[i].x, hiddenPositions[i].y + 4);
+            }
+            
+            // 出力層
+            for (let i = 0; i < network.outputSize; i++) {
+                const activation = network.lastOutput[i] || 0;
+                
+                ctx.fillStyle = `rgba(255, 136, 0, ${0.3 + activation * 0.7})`;
+                ctx.strokeStyle = '#ff8800';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(outputPositions[i].x, outputPositions[i].y, nodeRadius, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.stroke();
+                
+                ctx.fillStyle = 'white';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(`O${i}`, outputPositions[i].x, outputPositions[i].y + 4);
+            }
+            
+            // データポイントの描画
+            const dataX = 50;
+            const dataY = 50;
+            const dataSize = 200;
+            
+            ctx.strokeStyle = '#555';
+            ctx.strokeRect(dataX, dataY, dataSize, dataSize);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.fillRect(dataX, dataY, dataSize, dataSize);
+            
+            trainingData.forEach(data => {
+                const x = dataX + data.input[0] * dataSize;
+                const y = dataY + data.input[1] * dataSize;
+                const color = data.output[0] > 0.5 ? '#00ff88' : '#ff0080';
+                
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+            
+            ctx.fillStyle = 'white';
+            ctx.font = '14px Arial';
+            ctx.fillText('Training Data', dataX, dataY - 10);
+        }
+        
+        function animate(currentTime) {
+            const deltaTime = currentTime - lastTime;
+            lastTime = currentTime;
+            
+            if (deltaTime > 0) {
+                fps = Math.round(1000 / deltaTime);
+                document.getElementById('speedValue').textContent = fps + ' FPS';
+            }
+            
+            if (isTraining && network && trainingData.length > 0) {
+                const speed = parseInt(document.getElementById('animSpeed').value);
+                const learningRate = parseFloat(document.getElementById('learningRate').value);
+                
+                for (let i = 0; i < speed; i++) {
+                    const randomData = trainingData[Math.floor(Math.random() * trainingData.length)];
+                    network.train(randomData.input, randomData.output, learningRate);
+                    epochs++;
+                }
+                
+                // 統計の更新
+                if (epochs % 100 === 0) {
+                    updateStats();
+                }
+            }
+            
+            drawNetwork();
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        function updateStats() {
+            document.getElementById('epochCount').textContent = epochs;
+            
+            // 損失関数の計算
+            let totalLoss = 0;
+            let correctPredictions = 0;
+            
+            trainingData.forEach(data => {
+                const output = network.forward(data.input);
+                const loss = Math.pow(output[0] - data.output[0], 2);
+                totalLoss += loss;
+                
+                const prediction = output[0] > 0.5 ? 1 : 0;
+                if (prediction === data.output[0]) {
+                    correctPredictions++;
+                }
+            });
+            
+            const avgLoss = totalLoss / trainingData.length;
+            const accuracy = (correctPredictions / trainingData.length) * 100;
+            
+            document.getElementById('lossValue').textContent = avgLoss.toFixed(4);
+            document.getElementById('accuracyValue').textContent = Math.round(accuracy) + '%';
+        }
+        
+        function selectDataset(type) {
+            currentDataset = type;
+            trainingData = generateDataset(type);
+            epochs = 0;
+            
+            document.querySelectorAll('.dataset-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            updateStats();
+        }
+        
+        function toggleTraining() {
+            isTraining = !isTraining;
+            const button = event.target;
+            
+            if (isTraining) {
+                button.textContent = '⏸️ 停止';
+                button.style.background = 'linear-gradient(45deg, #ff4040, #ff8040)';
+            } else {
+                button.textContent = '▶️ 学習開始';
+                button.style.background = 'linear-gradient(45deg, #00ff88, #0088ff)';
+            }
+        }
+        
+        function resetNetwork() {
+            const hiddenSize = parseInt(document.getElementById('hiddenSize').value);
+            network = new NeuralNetwork(2, hiddenSize, 1);
+            epochs = 0;
+            isTraining = false;
+            
+            const playButton = document.querySelector('button[onclick="toggleTraining()"]');
+            playButton.textContent = '▶️ 学習開始';
+            playButton.style.background = 'linear-gradient(45deg, #00ff88, #0088ff)';
+            
+            updateStats();
+        }
+        
+        function addDataPoint() {
+            const newData = generateDataset(currentDataset, 1);
+            trainingData.push(...newData);
+        }
+        
+        // スライダーのイベントリスナー
+        document.getElementById('hiddenSize').addEventListener('input', function() {
+            document.getElementById('hiddenSizeValue').textContent = this.value;
+        });
+        
+        document.getElementById('learningRate').addEventListener('input', function() {
+            document.getElementById('learningRateValue').textContent = this.value;
+        });
+        
+        document.getElementById('animSpeed').addEventListener('input', function() {
+            document.getElementById('animSpeedValue').textContent = this.value;
+        });
+        
+        // キャンバスクリックでデータポイント追加
+        canvas.addEventListener('click', function(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const dataX = 50;
+            const dataY = 50;
+            const dataSize = 200;
+            
+            if (x >= dataX && x <= dataX + dataSize && y >= dataY && y <= dataY + dataSize) {
+                const inputX = (x - dataX) / dataSize;
+                const inputY = (y - dataY) / dataSize;
+                const output = Math.random() > 0.5 ? 1 : 0;
+                
+                trainingData.push({
+                    input: [inputX, inputY],
+                    output: [output]
+                });
+            }
+        });
+        
+        // 初期化
+        resetNetwork();
+        selectDataset('xor');
+        animate(0);
+    </script>
+</body>
+</html> 

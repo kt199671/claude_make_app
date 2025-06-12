@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNA配列パズル</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a4d2e 0%, #2d7d32 25%, #4caf50 50%, #81c784 75%, #c8e6c9 100%);
+            color: white;
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #4caf50, #8bc34a, #cddc39, #ffeb3b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .info-panel {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 2px solid #4caf50;
+        }
+
+        .game-area {
+            display: grid;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .dna-strand {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #4caf50;
+            backdrop-filter: blur(10px);
+        }
+
+        .strand-title {
+            color: #4caf50;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .bases-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .base {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .base.A {
+            background: linear-gradient(45deg, #ff5722, #ff7043);
+            color: white;
+        }
+
+        .base.T {
+            background: linear-gradient(45deg, #2196f3, #42a5f5);
+            color: white;
+        }
+
+        .base.G {
+            background: linear-gradient(45deg, #4caf50, #66bb6a);
+            color: white;
+        }
+
+        .base.C {
+            background: linear-gradient(45deg, #ff9800, #ffb74d);
+            color: white;
+        }
+
+        .base:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .base.selected {
+            border-color: #ffeb3b;
+            transform: scale(1.05);
+        }
+
+        .base.correct {
+            border-color: #4caf50;
+            animation: pulse 1s ease-in-out;
+        }
+
+        .base.incorrect {
+            border-color: #f44336;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #4caf50, #66bb6a);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .difficulty-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .difficulty-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #4caf50;
+            color: #4caf50;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .difficulty-btn.active {
+            background: #4caf50;
+            color: white;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid #4caf50;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-title {
+            color: #4caf50;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #4caf50, #8bc34a);
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .hint {
+            background: rgba(255, 235, 59, 0.1);
+            border: 2px solid #ffeb3b;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            color: #ffeb3b;
+        }
+
+        .sequence-display {
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            text-align: center;
+            margin: 15px 0;
+            letter-spacing: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .bases-container {
+                gap: 3px;
+            }
+            
+            .base {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧬 DNA配列パズル</h1>
+        
+        <div class="info-panel">
+            <h3>🔬 遺伝子工学の世界へようこそ！</h3>
+            <p>DNAの塩基配列を正しく組み合わせて、完全な遺伝子を作成しよう。</p>
+            <p><strong>A</strong>（アデニン）、<strong>T</strong>（チミン）、<strong>G</strong>（グアニン）、<strong>C</strong>（シトシン）</p>
+            <p>🧬 A-T、G-C の相補的結合を利用して二重らせんを完成させよう！</p>
+        </div>
+
+        <div class="difficulty-buttons">
+            <button class="difficulty-btn active" onclick="setDifficulty('easy')">初級 (8塩基)</button>
+            <button class="difficulty-btn" onclick="setDifficulty('medium')">中級 (12塩基)</button>
+            <button class="difficulty-btn" onclick="setDifficulty('hard')">上級 (16塩基)</button>
+            <button class="difficulty-btn" onclick="setDifficulty('expert')">専門家 (20塩基)</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-title">完成度</div>
+                <div class="stat-value" id="completionRate">0%</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">正解数</div>
+                <div class="stat-value" id="correctCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">試行回数</div>
+                <div class="stat-value" id="attemptCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">精度</div>
+                <div class="stat-value" id="accuracy">100%</div>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="dna-strand">
+                <div class="strand-title">🧬 5' → 3' 鎖 (テンプレート)</div>
+                <div class="sequence-display" id="templateSequence"></div>
+                <div class="bases-container" id="templateStrand"></div>
+            </div>
+
+            <div class="dna-strand">
+                <div class="strand-title">🧬 3' → 5' 鎖 (相補鎖) - あなたが作成</div>
+                <div class="sequence-display" id="complementSequence"></div>
+                <div class="bases-container" id="complementStrand"></div>
+                
+                <div class="hint" id="hintBox" style="display: none;">
+                    <strong>💡 ヒント:</strong> <span id="hintText"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button onclick="checkSequence()">✅ 配列チェック</button>
+            <button onclick="showHint()">💡 ヒント</button>
+            <button onclick="generateNewSequence()">🔄 新しい配列</button>
+            <button onclick="autoComplete()">🤖 自動完成</button>
+            <button onclick="resetGame()">🆕 リセット</button>
+        </div>
+    </div>
+
+    <script>
+        let currentDifficulty = 'easy';
+        let templateSequence = [];
+        let userSequence = [];
+        let selectedBaseIndex = -1;
+        let correctCount = 0;
+        let attemptCount = 0;
+        let gameComplete = false;
+        
+        const difficultyLengths = {
+            'easy': 8,
+            'medium': 12,
+            'hard': 16,
+            'expert': 20
+        };
+        
+        const complementaryBases = {
+            'A': 'T',
+            'T': 'A',
+            'G': 'C',
+            'C': 'G'
+        };
+        
+        const hints = {
+            'A': 'アデニンはチミンと結合します (A-T)',
+            'T': 'チミンはアデニンと結合します (T-A)',
+            'G': 'グアニンはシトシンと結合します (G-C)',
+            'C': 'シトシンはグアニンと結合します (C-G)'
+        };
+        
+        function setDifficulty(level) {
+            currentDifficulty = level;
+            
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            generateNewSequence();
+        }
+        
+        function generateRandomSequence(length) {
+            const bases = ['A', 'T', 'G', 'C'];
+            const sequence = [];
+            
+            for (let i = 0; i < length; i++) {
+                sequence.push(bases[Math.floor(Math.random() * bases.length)]);
+            }
+            
+            return sequence;
+        }
+        
+        function generateNewSequence() {
+            const length = difficultyLengths[currentDifficulty];
+            templateSequence = generateRandomSequence(length);
+            userSequence = new Array(length).fill('?');
+            selectedBaseIndex = -1;
+            gameComplete = false;
+            
+            renderStrands();
+            updateStats();
+            hideHint();
+        }
+        
+        function renderStrands() {
+            const templateContainer = document.getElementById('templateStrand');
+            const complementContainer = document.getElementById('complementStrand');
+            
+            // テンプレート鎖の表示
+            templateContainer.innerHTML = '';
+            templateSequence.forEach((base, index) => {
+                const baseElement = document.createElement('div');
+                baseElement.className = `base ${base}`;
+                baseElement.textContent = base;
+                baseElement.onclick = () => selectTemplateBase(index);
+                templateContainer.appendChild(baseElement);
+            });
+            
+            // 相補鎖の表示
+            complementContainer.innerHTML = '';
+            userSequence.forEach((base, index) => {
+                const baseElement = document.createElement('div');
+                baseElement.className = `base ${base === '?' ? '' : base}`;
+                baseElement.textContent = base;
+                baseElement.onclick = () => selectComplementBase(index);
+                
+                if (selectedBaseIndex === index) {
+                    baseElement.classList.add('selected');
+                }
+                
+                complementContainer.appendChild(baseElement);
+            });
+            
+            // 配列の文字列表示
+            document.getElementById('templateSequence').textContent = templateSequence.join(' - ');
+            document.getElementById('complementSequence').textContent = userSequence.join(' - ');
+        }
+        
+        function selectTemplateBase(index) {
+            const correctComplement = complementaryBases[templateSequence[index]];
+            
+            if (selectedBaseIndex !== -1) {
+                userSequence[selectedBaseIndex] = correctComplement;
+                selectedBaseIndex = -1;
+                attemptCount++;
+                renderStrands();
+                checkCompletion();
+            } else {
+                // ヒント表示
+                showSpecificHint(templateSequence[index]);
+            }
+        }
+        
+        function selectComplementBase(index) {
+            selectedBaseIndex = selectedBaseIndex === index ? -1 : index;
+            renderStrands();
+        }
+        
+        function checkSequence() {
+            let allCorrect = true;
+            let correctThisCheck = 0;
+            
+            userSequence.forEach((userBase, index) => {
+                const templateBase = templateSequence[index];
+                const correctBase = complementaryBases[templateBase];
+                const baseElement = document.getElementById('complementStrand').children[index];
+                
+                if (userBase === correctBase) {
+                    baseElement.classList.add('correct');
+                    baseElement.classList.remove('incorrect');
+                    correctThisCheck++;
+                } else if (userBase !== '?') {
+                    baseElement.classList.add('incorrect');
+                    baseElement.classList.remove('correct');
+                    allCorrect = false;
+                } else {
+                    allCorrect = false;
+                }
+            });
+            
+            correctCount = correctThisCheck;
+            attemptCount++;
+            updateStats();
+            
+            if (allCorrect && !userSequence.includes('?')) {
+                gameComplete = true;
+                setTimeout(() => {
+                    alert('🎉 おめでとうございます！DNA配列が完成しました！');
+                }, 500);
+            }
+            
+            // アニメーションをリセット
+            setTimeout(() => {
+                document.querySelectorAll('.base').forEach(base => {
+                    base.classList.remove('correct', 'incorrect');
+                });
+            }, 1000);
+        }
+        
+        function checkCompletion() {
+            let correctThisCheck = 0;
+            
+            userSequence.forEach((userBase, index) => {
+                const templateBase = templateSequence[index];
+                const correctBase = complementaryBases[templateBase];
+                
+                if (userBase === correctBase) {
+                    correctThisCheck++;
+                }
+            });
+            
+            correctCount = correctThisCheck;
+            updateStats();
+            
+            if (!userSequence.includes('?')) {
+                checkSequence();
+            }
+        }
+        
+        function showHint() {
+            if (selectedBaseIndex !== -1) {
+                const templateBase = templateSequence[selectedBaseIndex];
+                showSpecificHint(templateBase);
+            } else {
+                // 最初の未完成の位置のヒントを表示
+                const firstIncompleteIndex = userSequence.findIndex(base => base === '?');
+                if (firstIncompleteIndex !== -1) {
+                    const templateBase = templateSequence[firstIncompleteIndex];
+                    showSpecificHint(templateBase);
+                    selectedBaseIndex = firstIncompleteIndex;
+                    renderStrands();
+                }
+            }
+        }
+        
+        function showSpecificHint(templateBase) {
+            const hintBox = document.getElementById('hintBox');
+            const hintText = document.getElementById('hintText');
+            
+            hintText.textContent = hints[templateBase];
+            hintBox.style.display = 'block';
+            
+            setTimeout(() => {
+                hintBox.style.display = 'none';
+            }, 3000);
+        }
+        
+        function hideHint() {
+            document.getElementById('hintBox').style.display = 'none';
+        }
+        
+        function autoComplete() {
+            userSequence = templateSequence.map(base => complementaryBases[base]);
+            correctCount = userSequence.length;
+            attemptCount++;
+            gameComplete = true;
+            
+            renderStrands();
+            updateStats();
+            
+            setTimeout(() => {
+                alert('🤖 自動完成しました！実際の研究でも学習しよう！');
+            }, 500);
+        }
+        
+        function resetGame() {
+            correctCount = 0;
+            attemptCount = 0;
+            generateNewSequence();
+        }
+        
+        function updateStats() {
+            const totalBases = templateSequence.length;
+            const completionRate = Math.round((correctCount / totalBases) * 100);
+            const accuracy = attemptCount > 0 ? Math.round((correctCount / attemptCount) * 100) : 100;
+            
+            document.getElementById('completionRate').textContent = completionRate + '%';
+            document.getElementById('progressFill').style.width = completionRate + '%';
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('attemptCount').textContent = attemptCount;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+        }
+        
+        // キーボードショートカット
+        document.addEventListener('keydown', (e) => {
+            if (selectedBaseIndex !== -1) {
+                const key = e.key.toUpperCase();
+                if (['A', 'T', 'G', 'C'].includes(key)) {
+                    userSequence[selectedBaseIndex] = key;
+                    selectedBaseIndex = -1;
+                    attemptCount++;
+                    renderStrands();
+                    checkCompletion();
+                }
+            }
+            
+            if (e.key === 'Enter') {
+                checkSequence();
+            } else if (e.key === 'h' || e.key === 'H') {
+                showHint();
+            } else if (e.key === 'r' || e.key === 'R') {
+                generateNewSequence();
+            }
+        });
+        
+        // 初期化
+        generateNewSequence();
+    </script>
+</body>
+</html> 

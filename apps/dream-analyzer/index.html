@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>夢日記AI解析</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #2c1810 0%, #1a0f3d 25%, #0d2f5e 50%, #1a4d2e 75%, #3d1a1a 100%);
+            background-size: 400% 400%;
+            animation: dreamShift 20s ease-in-out infinite;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            min-height: 100vh;
+        }
+
+        @keyframes dreamShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(138, 43, 226, 0.3);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 3rem;
+            background: linear-gradient(45deg, #9370db, #4b0082, #663399, #8a2be2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(147, 112, 219, 0.5);
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .dream-input {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 25px;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(138, 43, 226, 0.3);
+        }
+
+        .analysis-panel {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 25px;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(75, 0, 130, 0.3);
+        }
+
+        h2 {
+            color: #9370db;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(138, 43, 226, 0.5);
+            border-radius: 15px;
+            color: white;
+            font-size: 16px;
+            line-height: 1.6;
+            resize: vertical;
+            backdrop-filter: blur(10px);
+        }
+
+        textarea::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+        }
+
+        .input-helpers {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .helper-tag {
+            padding: 8px 15px;
+            background: rgba(138, 43, 226, 0.3);
+            border: 1px solid #9370db;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .helper-tag:hover {
+            background: rgba(138, 43, 226, 0.6);
+            transform: scale(1.05);
+        }
+
+        button {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #9370db, #4b0082);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(147, 112, 219, 0.4);
+        }
+
+        .analysis-result {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #9370db;
+            backdrop-filter: blur(10px);
+        }
+
+        .symbol-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .symbol-card {
+            background: rgba(138, 43, 226, 0.2);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(138, 43, 226, 0.4);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .symbol-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(138, 43, 226, 0.3);
+        }
+
+        .symbol-emoji {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .symbol-name {
+            font-weight: bold;
+            color: #dda0dd;
+            margin-bottom: 5px;
+        }
+
+        .symbol-meaning {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .mood-indicator {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+        }
+
+        .mood-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .mood-emoji {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .mood-label {
+            font-size: 12px;
+            color: #dda0dd;
+        }
+
+        .mood-value {
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .dream-history {
+            grid-column: 1 / -1;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 25px;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(138, 43, 226, 0.3);
+        }
+
+        .history-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            margin: 10px 0;
+            border-left: 4px solid #9370db;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+
+        .history-date {
+            font-size: 12px;
+            color: #dda0dd;
+            margin-bottom: 5px;
+        }
+
+        .history-preview {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .keyword {
+            padding: 4px 12px;
+            background: rgba(147, 112, 219, 0.3);
+            border-radius: 15px;
+            font-size: 12px;
+            color: #dda0dd;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #9370db;
+            font-style: italic;
+        }
+
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: rgba(138, 43, 226, 0.2);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(138, 43, 226, 0.4);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #dda0dd;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .input-helpers {
+                justify-content: center;
+            }
+            
+            .mood-indicator {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌙 夢日記AI解析</h1>
+            <p>あなたの夢を記録し、AIが象徴や意味を分析する</p>
+        </div>
+
+        <div class="main-content">
+            <div class="dream-input">
+                <h2>💭 夢の記録</h2>
+                
+                <textarea id="dreamText" placeholder="今朝見た夢を詳しく教えてください...&#10;&#10;例:&#10;・どんな場所にいましたか？&#10;・誰が登場しましたか？&#10;・どんな感情を感じましたか？&#10;・印象的なシーンや色はありましたか？&#10;・夢の中で何をしていましたか？"></textarea>
+                
+                <div class="input-helpers">
+                    <span class="helper-tag" onclick="addToText('空を飛んでいる')">🕊️ 飛行</span>
+                    <span class="helper-tag" onclick="addToText('追いかけられる')">🏃 追跡</span>
+                    <span class="helper-tag" onclick="addToText('水の中にいる')">🌊 水</span>
+                    <span class="helper-tag" onclick="addToText('高いところから落ちる')">⬇️ 落下</span>
+                    <span class="helper-tag" onclick="addToText('知らない人')">👤 未知の人</span>
+                    <span class="helper-tag" onclick="addToText('動物が現れる')">🐺 動物</span>
+                </div>
+                
+                <button onclick="analyzeDream()">🔮 夢を解析する</button>
+                <button onclick="saveDream()">💾 夢を保存</button>
+                <button onclick="clearInput()">🗑️ クリア</button>
+            </div>
+
+            <div class="analysis-panel">
+                <h2>🧠 AI分析結果</h2>
+                
+                <div id="analysisResult">
+                    <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.6);">
+                        <span style="font-size: 3rem;">🌙</span>
+                        <p>夢の内容を入力して分析ボタンを押してください</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dream-history">
+            <h2>📚 夢の履歴</h2>
+            
+            <div class="stats-panel">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalDreams">0</div>
+                    <div class="stat-label">記録した夢</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="commonMood">😴</div>
+                    <div class="stat-label">一般的な気分</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgLength">0</div>
+                    <div class="stat-label">平均文字数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="streakDays">0</div>
+                    <div class="stat-label">連続記録日数</div>
+                </div>
+            </div>
+            
+            <div id="dreamHistoryList">
+                <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.6);">
+                    まだ夢が記録されていません。最初の夢を記録してみましょう！
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let dreamHistory = JSON.parse(localStorage.getItem('dreamHistory')) || [];
+        
+        // 夢のシンボル辞書
+        const dreamSymbols = {
+            '飛': { emoji: '🕊️', name: '飛行', meaning: '自由への憧れ、束縛からの解放、上昇志向' },
+            '水': { emoji: '🌊', name: '水', meaning: '感情、無意識、浄化、生命力' },
+            '火': { emoji: '🔥', name: '火', meaning: '情熱、怒り、変化、エネルギー' },
+            '動物': { emoji: '🐺', name: '動物', meaning: '本能、野性的な欲求、内なる力' },
+            '家': { emoji: '🏠', name: '家', meaning: '安全、家族、自分自身の内面' },
+            '追': { emoji: '🏃', name: '追跡', meaning: '恐怖、プレッシャー、逃避願望' },
+            '落': { emoji: '⬇️', name: '落下', meaning: '不安、コントロールの喪失、失敗への恐れ' },
+            '死': { emoji: '💀', name: '死', meaning: '変化、終わりと始まり、再生' },
+            '道': { emoji: '🛤️', name: '道', meaning: '人生の道のり、選択、将来への方向性' },
+            '車': { emoji: '🚗', name: '車', meaning: 'コントロール、人生の進路、自立' },
+            '橋': { emoji: '🌉', name: '橋', meaning: '変化の時期、つながり、過渡期' },
+            '山': { emoji: '⛰️', name: '山', meaning: '目標、困難、達成への道のり' },
+            '海': { emoji: '🌊', name: '海', meaning: '無意識、感情の深さ、未知への恐怖' },
+            '空': { emoji: '☁️', name: '空', meaning: '無限の可能性、自由、精神性' },
+            '花': { emoji: '🌸', name: '花', meaning: '美しさ、成長、生命力、恋愛' }
+        };
+        
+        function addToText(text) {
+            const textarea = document.getElementById('dreamText');
+            const currentText = textarea.value;
+            if (currentText) {
+                textarea.value = currentText + '、' + text;
+            } else {
+                textarea.value = text;
+            }
+        }
+        
+        function analyzeDream() {
+            const dreamText = document.getElementById('dreamText').value.trim();
+            
+            if (!dreamText) {
+                alert('夢の内容を入力してください。');
+                return;
+            }
+            
+            // ローディング表示
+            document.getElementById('analysisResult').innerHTML = '<div class="loading">🔮 AIが夢を解析中...<br>深層心理を読み取っています...</div>';
+            
+            // 擬似的な分析処理（実際のAI分析をシミュレート）
+            setTimeout(() => {
+                const analysis = performDreamAnalysis(dreamText);
+                displayAnalysis(analysis);
+            }, 2000);
+        }
+        
+        function performDreamAnalysis(dreamText) {
+            const words = dreamText.toLowerCase();
+            const detectedSymbols = [];
+            const keywords = [];
+            
+            // シンボル検出
+            for (const [key, symbol] of Object.entries(dreamSymbols)) {
+                if (words.includes(key)) {
+                    detectedSymbols.push(symbol);
+                }
+            }
+            
+            // キーワード抽出
+            const commonKeywords = ['感情', '恐怖', '喜び', '不安', '愛', '友人', '家族', '仕事', '学校', '色', '音', '匂い'];
+            commonKeywords.forEach(keyword => {
+                if (words.includes(keyword)) {
+                    keywords.push(keyword);
+                }
+            });
+            
+            // 感情分析（簡易版）
+            const positiveWords = ['楽しい', '嬉しい', '美しい', '平和', '安心', '幸せ', '明るい'];
+            const negativeWords = ['怖い', '悲しい', '不安', '暗い', '痛い', '辛い', '苦しい'];
+            
+            let positiveScore = 0;
+            let negativeScore = 0;
+            
+            positiveWords.forEach(word => {
+                if (words.includes(word)) positiveScore++;
+            });
+            
+            negativeWords.forEach(word => {
+                if (words.includes(word)) negativeScore++;
+            });
+            
+            // 夢のタイプ判定
+            let dreamType = '日常的な夢';
+            if (words.includes('飛') || words.includes('空')) dreamType = '飛行の夢';
+            else if (words.includes('追') || words.includes('逃げ')) dreamType = '追跡の夢';
+            else if (words.includes('水') || words.includes('海')) dreamType = '水の夢';
+            else if (words.includes('落') || words.includes('高い')) dreamType = '落下の夢';
+            
+            return {
+                dreamType,
+                symbols: detectedSymbols,
+                keywords,
+                mood: {
+                    positive: positiveScore,
+                    negative: negativeScore,
+                    neutral: Math.max(0, 5 - positiveScore - negativeScore)
+                },
+                interpretation: generateInterpretation(dreamType, detectedSymbols, positiveScore, negativeScore),
+                advice: generateAdvice(dreamType, positiveScore, negativeScore)
+            };
+        }
+        
+        function generateInterpretation(dreamType, symbols, positive, negative) {
+            const interpretations = {
+                '飛行の夢': '自由への強い憧れと、現実の制約からの解放願望を表しています。創造性と可能性への開放性を示唆しています。',
+                '追跡の夢': '現実生活でのプレッシャーやストレスを反映しています。何かから逃れたい気持ちや、対処すべき問題があることを示しています。',
+                '水の夢': '感情の流れや無意識の動きを表現しています。心の浄化や感情的な変化の時期にあることを示唆しています。',
+                '落下の夢': 'コントロールの喪失への不安や、現実での不安定感を表しています。変化への恐れを示している可能性があります。',
+                '日常的な夢': '日常生活の処理と整理を行っています。心のバランスが保たれている状態を示唆しています。'
+            };
+            
+            let base = interpretations[dreamType] || interpretations['日常的な夢'];
+            
+            if (positive > negative) {
+                base += ' 全体的にポジティブなエネルギーに満ちており、心の状態は良好です。';
+            } else if (negative > positive) {
+                base += ' 一時的なストレスや不安を抱えている可能性があります。セルフケアを心がけましょう。';
+            } else {
+                base += ' 感情のバランスが取れており、安定した心理状態を示しています。';
+            }
+            
+            return base;
+        }
+        
+        function generateAdvice(dreamType, positive, negative) {
+            const advices = {
+                '飛行の夢': '創造的な活動に時間を割いてみてください。新しい挑戦があなたを待っています。',
+                '追跡の夢': 'ストレス解消の時間を作り、問題に正面から向き合う勇気を持ってください。',
+                '水の夢': '感情を大切にし、直感に従って行動することが吉となるでしょう。',
+                '落下の夢': 'グラウンディングを意識し、安定した基盤を築くことに注力してください。',
+                '日常的な夢': '現在の生活リズムを維持し、小さな幸せを大切にしてください。'
+            };
+            
+            return advices[dreamType] || advices['日常的な夢'];
+        }
+        
+        function displayAnalysis(analysis) {
+            let html = `
+                <div class="analysis-result">
+                    <h3>🎭 夢のタイプ: ${analysis.dreamType}</h3>
+                    <p>${analysis.interpretation}</p>
+                </div>
+                
+                <div class="mood-indicator">
+                    <div class="mood-item">
+                        <span class="mood-emoji">😊</span>
+                        <div class="mood-label">ポジティブ</div>
+                        <div class="mood-value">${analysis.mood.positive}</div>
+                    </div>
+                    <div class="mood-item">
+                        <span class="mood-emoji">😐</span>
+                        <div class="mood-label">中性</div>
+                        <div class="mood-value">${analysis.mood.neutral}</div>
+                    </div>
+                    <div class="mood-item">
+                        <span class="mood-emoji">😰</span>
+                        <div class="mood-label">ネガティブ</div>
+                        <div class="mood-value">${analysis.mood.negative}</div>
+                    </div>
+                </div>
+            `;
+            
+            if (analysis.symbols.length > 0) {
+                html += '<h3>🔮 検出されたシンボル</h3><div class="symbol-grid">';
+                analysis.symbols.forEach(symbol => {
+                    html += `
+                        <div class="symbol-card">
+                            <span class="symbol-emoji">${symbol.emoji}</span>
+                            <div class="symbol-name">${symbol.name}</div>
+                            <div class="symbol-meaning">${symbol.meaning}</div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            if (analysis.keywords.length > 0) {
+                html += '<h3>🔍 キーワード</h3><div class="keywords">';
+                analysis.keywords.forEach(keyword => {
+                    html += `<span class="keyword">${keyword}</span>`;
+                });
+                html += '</div>';
+            }
+            
+            html += `
+                <div class="analysis-result">
+                    <h3>💡 アドバイス</h3>
+                    <p>${analysis.advice}</p>
+                </div>
+            `;
+            
+            document.getElementById('analysisResult').innerHTML = html;
+        }
+        
+        function saveDream() {
+            const dreamText = document.getElementById('dreamText').value.trim();
+            
+            if (!dreamText) {
+                alert('保存する夢の内容を入力してください。');
+                return;
+            }
+            
+            const dream = {
+                id: Date.now(),
+                date: new Date().toLocaleDateString('ja-JP'),
+                time: new Date().toLocaleTimeString('ja-JP'),
+                content: dreamText,
+                analysis: null
+            };
+            
+            dreamHistory.unshift(dream);
+            localStorage.setItem('dreamHistory', JSON.stringify(dreamHistory));
+            
+            updateHistoryDisplay();
+            updateStats();
+            
+            alert('夢が保存されました！');
+        }
+        
+        function clearInput() {
+            document.getElementById('dreamText').value = '';
+            document.getElementById('analysisResult').innerHTML = `
+                <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.6);">
+                    <span style="font-size: 3rem;">🌙</span>
+                    <p>夢の内容を入力して分析ボタンを押してください</p>
+                </div>
+            `;
+        }
+        
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('dreamHistoryList');
+            
+            if (dreamHistory.length === 0) {
+                historyList.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.6);">
+                        まだ夢が記録されていません。最初の夢を記録してみましょう！
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            dreamHistory.slice(0, 10).forEach(dream => {
+                const preview = dream.content.length > 100 
+                    ? dream.content.substring(0, 100) + '...'
+                    : dream.content;
+                
+                html += `
+                    <div class="history-item" onclick="loadDream(${dream.id})">
+                        <div class="history-date">${dream.date} ${dream.time}</div>
+                        <div class="history-preview">${preview}</div>
+                    </div>
+                `;
+            });
+            
+            historyList.innerHTML = html;
+        }
+        
+        function loadDream(dreamId) {
+            const dream = dreamHistory.find(d => d.id === dreamId);
+            if (dream) {
+                document.getElementById('dreamText').value = dream.content;
+                if (dream.analysis) {
+                    displayAnalysis(dream.analysis);
+                }
+            }
+        }
+        
+        function updateStats() {
+            document.getElementById('totalDreams').textContent = dreamHistory.length;
+            
+            if (dreamHistory.length > 0) {
+                // 平均文字数計算
+                const avgLength = Math.round(
+                    dreamHistory.reduce((sum, dream) => sum + dream.content.length, 0) / dreamHistory.length
+                );
+                document.getElementById('avgLength').textContent = avgLength;
+                
+                // 一般的な気分（ランダムで設定）
+                const moods = ['😴', '😊', '😰', '🤔', '😌'];
+                document.getElementById('commonMood').textContent = moods[Math.floor(Math.random() * moods.length)];
+                
+                // 連続記録日数（簡易計算）
+                document.getElementById('streakDays').textContent = Math.min(dreamHistory.length, 30);
+            }
+        }
+        
+        // 初期化
+        updateHistoryDisplay();
+        updateStats();
+        
+        // エンターキーでの送信防止
+        document.getElementById('dreamText').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                analyzeDream();
+            }
+        });
+    </script>
+</body>
+</html> 
