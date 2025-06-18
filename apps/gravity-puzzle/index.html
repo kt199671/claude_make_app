@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌌 重力パズル - Gravity Puzzle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            color: #ffffff;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00d4ff, #ff00ff, #ffff00);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease-in-out infinite;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .game-info {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .info-item {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 15px;
+            border: 2px solid #00d4ff;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+            text-align: center;
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            color: #00d4ff;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .game-canvas {
+            border: 3px solid #00d4ff;
+            border-radius: 15px;
+            box-shadow: 
+                0 0 30px rgba(0, 212, 255, 0.5),
+                inset 0 0 30px rgba(0, 212, 255, 0.1);
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            align-items: center;
+        }
+
+        .gravity-controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 150px;
+            height: 150px;
+        }
+
+        .gravity-btn {
+            background: linear-gradient(145deg, #2a2a3e, #1a1a2e);
+            border: 2px solid #00d4ff;
+            border-radius: 10px;
+            color: #00d4ff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gravity-btn:hover {
+            background: linear-gradient(145deg, #3a3a4e, #2a2a3e);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+            transform: scale(1.05);
+        }
+
+        .gravity-btn.active {
+            background: linear-gradient(145deg, #00d4ff, #0099cc);
+            color: #000;
+            box-shadow: 0 0 25px rgba(0, 212, 255, 0.7);
+        }
+
+        .gravity-btn:nth-child(1) { grid-column: 2; grid-row: 1; } /* Up */
+        .gravity-btn:nth-child(2) { grid-column: 1; grid-row: 2; } /* Left */
+        .gravity-btn:nth-child(3) { grid-column: 3; grid-row: 2; } /* Right */
+        .gravity-btn:nth-child(4) { grid-column: 2; grid-row: 3; } /* Down */
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .action-btn {
+            padding: 12px 25px;
+            background: linear-gradient(145deg, #ff6b6b, #ee5a5a);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .action-btn.next-btn {
+            background: linear-gradient(145deg, #4ecdc4, #44a08d);
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+        }
+
+        .action-btn.next-btn:hover {
+            box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+        }
+
+        .level-complete {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, rgba(0, 212, 255, 0.95), rgba(0, 153, 204, 0.95));
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(0, 212, 255, 0.6);
+            z-index: 1000;
+            display: none;
+        }
+
+        .level-complete h2 {
+            margin-bottom: 15px;
+            font-size: 2rem;
+            color: #000;
+        }
+
+        .level-complete p {
+            margin-bottom: 20px;
+            color: #000;
+            font-size: 1.1rem;
+        }
+
+        .instructions {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #00d4ff;
+            max-width: 300px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: #ffffff;
+        }
+
+        .instructions h3 {
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .gravity-controls {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .instructions {
+                position: relative;
+                margin-bottom: 20px;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="instructions">
+            <h3>🎮 操作方法</h3>
+            <p>• 矢印ボタンで重力方向を変更<br>
+            • 青いボールを緑のゴールまで導こう<br>
+            • 赤い障害物を避けて進む<br>
+            • 物理法則を使って謎を解け！</p>
+        </div>
+
+        <h1 class="title">🌌 重力パズル</h1>
+        
+        <div class="game-info">
+            <div class="info-item">
+                <div class="info-label">レベル</div>
+                <div class="info-value" id="level-display">1</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">移動回数</div>
+                <div class="info-value" id="moves-display">0</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">重力方向</div>
+                <div class="info-value" id="gravity-display">⬇️</div>
+            </div>
+        </div>
+
+        <canvas class="game-canvas" id="gameCanvas" width="600" height="600"></canvas>
+        
+        <div class="controls">
+            <div class="gravity-controls">
+                <button class="gravity-btn" data-direction="up">⬆️</button>
+                <button class="gravity-btn" data-direction="left">⬅️</button>
+                <button class="gravity-btn" data-direction="right">➡️</button>
+                <button class="gravity-btn active" data-direction="down">⬇️</button>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn" onclick="resetLevel()">🔄 リセット</button>
+                <button class="action-btn next-btn" onclick="nextLevel()" id="nextBtn" style="display: none;">➡️ 次のレベル</button>
+            </div>
+        </div>
+        
+        <div class="level-complete" id="levelComplete">
+            <h2>🎉 レベルクリア！</h2>
+            <p id="completionMessage">素晴らしい！</p>
+            <button class="action-btn next-btn" onclick="nextLevel()">次のレベルへ ➡️</button>
+        </div>
+    </div>
+
+    <script>
+        // Game variables
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let currentLevel = 1;
+        let moves = 0;
+        let gravity = { x: 0, y: 1 }; // Down by default
+        let ball = { x: 50, y: 50, vx: 0, vy: 0, radius: 15 };
+        let goal = { x: 550, y: 550, radius: 20 };
+        let obstacles = [];
+        let levelComplete = false;
+        let animationFrame;
+
+        // Level definitions
+        const levels = [
+            {
+                ball: { x: 50, y: 50 },
+                goal: { x: 550, y: 550 },
+                obstacles: [
+                    { x: 200, y: 200, width: 200, height: 20 },
+                    { x: 300, y: 400, width: 20, height: 150 }
+                ]
+            },
+            {
+                ball: { x: 50, y: 300 },
+                goal: { x: 550, y: 100 },
+                obstacles: [
+                    { x: 150, y: 0, width: 20, height: 250 },
+                    { x: 150, y: 350, width: 20, height: 250 },
+                    { x: 400, y: 150, width: 20, height: 300 }
+                ]
+            },
+            {
+                ball: { x: 300, y: 50 },
+                goal: { x: 300, y: 550 },
+                obstacles: [
+                    { x: 0, y: 150, width: 250, height: 20 },
+                    { x: 350, y: 150, width: 250, height: 20 },
+                    { x: 0, y: 430, width: 250, height: 20 },
+                    { x: 350, y: 430, width: 250, height: 20 }
+                ]
+            },
+            {
+                ball: { x: 50, y: 50 },
+                goal: { x: 550, y: 550 },
+                obstacles: [
+                    { x: 100, y: 100, width: 400, height: 20 },
+                    { x: 100, y: 200, width: 20, height: 300 },
+                    { x: 480, y: 200, width: 20, height: 300 },
+                    { x: 200, y: 480, width: 200, height: 20 }
+                ]
+            },
+            {
+                ball: { x: 300, y: 300 },
+                goal: { x: 50, y: 50 },
+                obstacles: [
+                    { x: 0, y: 100, width: 200, height: 20 },
+                    { x: 250, y: 100, width: 200, height: 20 },
+                    { x: 500, y: 100, width: 100, height: 20 },
+                    { x: 100, y: 200, width: 20, height: 100 },
+                    { x: 400, y: 200, width: 20, height: 100 },
+                    { x: 0, y: 400, width: 150, height: 20 },
+                    { x: 200, y: 400, width: 200, height: 20 },
+                    { x: 450, y: 400, width: 150, height: 20 }
+                ]
+            }
+        ];
+
+        // Initialize game
+        function initGame() {
+            loadLevel(currentLevel);
+            updateDisplay();
+            gameLoop();
+        }
+
+        // Load level
+        function loadLevel(levelNum) {
+            if (levelNum > levels.length) {
+                alert('🎉 おめでとうございます！全レベルクリアしました！');
+                currentLevel = 1;
+                levelNum = 1;
+            }
+            
+            const level = levels[levelNum - 1];
+            ball = { ...level.ball, vx: 0, vy: 0, radius: 15 };
+            goal = { ...level.goal, radius: 20 };
+            obstacles = [...level.obstacles];
+            levelComplete = false;
+            moves = 0;
+            
+            document.getElementById('levelComplete').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'none';
+        }
+
+        // Update display
+        function updateDisplay() {
+            document.getElementById('level-display').textContent = currentLevel;
+            document.getElementById('moves-display').textContent = moves;
+            
+            const gravityIcons = {
+                'up': '⬆️',
+                'down': '⬇️',
+                'left': '⬅️',
+                'right': '➡️'
+            };
+            
+            let direction = 'down';
+            if (gravity.y === -1) direction = 'up';
+            else if (gravity.x === -1) direction = 'left';
+            else if (gravity.x === 1) direction = 'right';
+            
+            document.getElementById('gravity-display').textContent = gravityIcons[direction];
+        }
+
+        // Physics update
+        function updatePhysics() {
+            if (levelComplete) return;
+
+            // Apply gravity
+            const gravityStrength = 0.3;
+            ball.vx += gravity.x * gravityStrength;
+            ball.vy += gravity.y * gravityStrength;
+
+            // Apply friction
+            ball.vx *= 0.98;
+            ball.vy *= 0.98;
+
+            // Update position
+            ball.x += ball.vx;
+            ball.y += ball.vy;
+
+            // Collision with walls
+            if (ball.x - ball.radius < 0) {
+                ball.x = ball.radius;
+                ball.vx = -ball.vx * 0.7;
+            }
+            if (ball.x + ball.radius > canvas.width) {
+                ball.x = canvas.width - ball.radius;
+                ball.vx = -ball.vx * 0.7;
+            }
+            if (ball.y - ball.radius < 0) {
+                ball.y = ball.radius;
+                ball.vy = -ball.vy * 0.7;
+            }
+            if (ball.y + ball.radius > canvas.height) {
+                ball.y = canvas.height - ball.radius;
+                ball.vy = -ball.vy * 0.7;
+            }
+
+            // Collision with obstacles
+            obstacles.forEach(obstacle => {
+                if (ball.x + ball.radius > obstacle.x &&
+                    ball.x - ball.radius < obstacle.x + obstacle.width &&
+                    ball.y + ball.radius > obstacle.y &&
+                    ball.y - ball.radius < obstacle.y + obstacle.height) {
+                    
+                    // Simple collision response
+                    const centerX = obstacle.x + obstacle.width / 2;
+                    const centerY = obstacle.y + obstacle.height / 2;
+                    
+                    if (Math.abs(ball.x - centerX) > Math.abs(ball.y - centerY)) {
+                        ball.vx = -ball.vx * 0.7;
+                        if (ball.x < centerX) {
+                            ball.x = obstacle.x - ball.radius;
+                        } else {
+                            ball.x = obstacle.x + obstacle.width + ball.radius;
+                        }
+                    } else {
+                        ball.vy = -ball.vy * 0.7;
+                        if (ball.y < centerY) {
+                            ball.y = obstacle.y - ball.radius;
+                        } else {
+                            ball.y = obstacle.y + obstacle.height + ball.radius;
+                        }
+                    }
+                }
+            });
+
+            // Check goal collision
+            const distToGoal = Math.sqrt(
+                Math.pow(ball.x - goal.x, 2) + Math.pow(ball.y - goal.y, 2)
+            );
+            
+            if (distToGoal < ball.radius + goal.radius && !levelComplete) {
+                levelComplete = true;
+                showLevelComplete();
+            }
+        }
+
+        // Render game
+        function render() {
+            // Clear canvas
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw grid
+            ctx.strokeStyle = 'rgba(0, 212, 255, 0.1)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= canvas.width; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+            for (let i = 0; i <= canvas.height; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+
+            // Draw obstacles
+            obstacles.forEach(obstacle => {
+                const gradient = ctx.createLinearGradient(
+                    obstacle.x, obstacle.y,
+                    obstacle.x + obstacle.width, obstacle.y + obstacle.height
+                );
+                gradient.addColorStop(0, '#ff6b6b');
+                gradient.addColorStop(1, '#ee5a5a');
+                
+                ctx.fillStyle = gradient;
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+                
+                // Glow effect
+                ctx.shadowColor = '#ff6b6b';
+                ctx.shadowBlur = 10;
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+                ctx.shadowBlur = 0;
+            });
+
+            // Draw goal
+            const goalGradient = ctx.createRadialGradient(
+                goal.x, goal.y, 0,
+                goal.x, goal.y, goal.radius
+            );
+            goalGradient.addColorStop(0, '#4ecdc4');
+            goalGradient.addColorStop(1, '#44a08d');
+            
+            ctx.fillStyle = goalGradient;
+            ctx.beginPath();
+            ctx.arc(goal.x, goal.y, goal.radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Goal glow
+            ctx.shadowColor = '#4ecdc4';
+            ctx.shadowBlur = 15;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // Draw ball
+            const ballGradient = ctx.createRadialGradient(
+                ball.x - 5, ball.y - 5, 0,
+                ball.x, ball.y, ball.radius
+            );
+            ballGradient.addColorStop(0, '#ffffff');
+            ballGradient.addColorStop(0.3, '#00d4ff');
+            ballGradient.addColorStop(1, '#0099cc');
+            
+            ctx.fillStyle = ballGradient;
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Ball glow
+            ctx.shadowColor = '#00d4ff';
+            ctx.shadowBlur = 20;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // Draw velocity indicator
+            if (Math.abs(ball.vx) > 0.1 || Math.abs(ball.vy) > 0.1) {
+                ctx.strokeStyle = '#00d4ff';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(ball.x, ball.y);
+                ctx.lineTo(ball.x + ball.vx * 10, ball.y + ball.vy * 10);
+                ctx.stroke();
+            }
+        }
+
+        // Game loop
+        function gameLoop() {
+            updatePhysics();
+            render();
+            updateDisplay();
+            animationFrame = requestAnimationFrame(gameLoop);
+        }
+
+        // Show level complete
+        function showLevelComplete() {
+            const messages = [
+                '素晴らしい解法です！',
+                '物理法則をマスターしました！',
+                '重力を制御する天才！',
+                '完璧なタイミングでした！',
+                '見事な戦略でした！'
+            ];
+            
+            document.getElementById('completionMessage').textContent = 
+                messages[Math.floor(Math.random() * messages.length)] + 
+                ` (${moves}回の移動でクリア)`;
+            
+            document.getElementById('levelComplete').style.display = 'block';
+            document.getElementById('nextBtn').style.display = 'block';
+        }
+
+        // Event handlers
+        document.querySelectorAll('.gravity-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const direction = btn.getAttribute('data-direction');
+                
+                // Remove active class from all buttons
+                document.querySelectorAll('.gravity-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Set gravity
+                switch(direction) {
+                    case 'up':
+                        gravity = { x: 0, y: -1 };
+                        break;
+                    case 'down':
+                        gravity = { x: 0, y: 1 };
+                        break;
+                    case 'left':
+                        gravity = { x: -1, y: 0 };
+                        break;
+                    case 'right':
+                        gravity = { x: 1, y: 0 };
+                        break;
+                }
+                
+                moves++;
+                updateDisplay();
+            });
+        });
+
+        // Reset level
+        function resetLevel() {
+            loadLevel(currentLevel);
+            updateDisplay();
+        }
+
+        // Next level
+        function nextLevel() {
+            currentLevel++;
+            loadLevel(currentLevel);
+            updateDisplay();
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowUp':
+                    document.querySelector('[data-direction="up"]').click();
+                    e.preventDefault();
+                    break;
+                case 'ArrowDown':
+                    document.querySelector('[data-direction="down"]').click();
+                    e.preventDefault();
+                    break;
+                case 'ArrowLeft':
+                    document.querySelector('[data-direction="left"]').click();
+                    e.preventDefault();
+                    break;
+                case 'ArrowRight':
+                    document.querySelector('[data-direction="right"]').click();
+                    e.preventDefault();
+                    break;
+                case 'r':
+                case 'R':
+                    resetLevel();
+                    e.preventDefault();
+                    break;
+            }
+        });
+
+        // Initialize game when page loads
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>
