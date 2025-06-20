@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>時空メモリーマップ - AR生活記録・思い出検索アプリ</title>
+    
+    <!-- App Metadata -->
+    <meta name="app-name" content="時空メモリーマップ">
+    <meta name="app-version" content="1.0.0">
+    <meta name="app-created-by" content="Claude Sonnet 4">
+    <meta name="app-created-date" content="2025-06-20">
+    <meta name="app-model-id" content="claude-sonnet-4-20250514">
+    <meta name="app-category" content="AI・分析">
+    <meta name="app-tags" content="AR,AI,生活記録,思い出,ナビゲーション">
+    <meta name="app-target-users" content="10,000,000">
+    <meta name="app-last-modified" content="2025-06-20">
+    <meta name="app-description" content="AR技術で過去の思い出を現実空間に再現する革新的生活記録アプリ">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
@@ -350,6 +362,87 @@
             margin: 4rem 0;
         }
 
+        .metadata-section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 3rem 0;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .metadata-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .metadata-header:hover {
+            color: #60a5fa;
+        }
+
+        .metadata-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #60a5fa;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .metadata-toggle {
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .metadata-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.3s ease;
+        }
+
+        .metadata-content.expanded {
+            max-height: 500px;
+            margin-top: 1rem;
+        }
+
+        .metadata-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .metadata-label {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metadata-value {
+            font-size: 0.95rem;
+            color: white;
+            font-weight: 500;
+        }
+
+        .metadata-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin: 0.2rem 0.2rem 0.2rem 0;
+        }
+
         .cta-button {
             display: inline-block;
             padding: 16px 40px;
@@ -556,9 +649,116 @@
                 月間1000万ユーザーが愛用する革新的な思い出管理アプリ
             </p>
         </div>
+
+        <!-- App Metadata Section -->
+        <div class="metadata-section">
+            <div class="metadata-header" onclick="toggleMetadata()">
+                <div class="metadata-title">
+                    <span>🔍</span>
+                    アプリ情報・開発データ
+                </div>
+                <span class="metadata-toggle" id="metadataToggle">▼</span>
+            </div>
+            <div class="metadata-content" id="metadataContent">
+                <div class="metadata-item">
+                    <div class="metadata-label">アプリ名</div>
+                    <div class="metadata-value" id="metaAppName">-</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">バージョン</div>
+                    <div class="metadata-value" id="metaVersion">-</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">開発AI</div>
+                    <div class="metadata-value" id="metaCreatedBy">-</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">作成日</div>
+                    <div class="metadata-value" id="metaCreatedDate">-</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">モデルID</div>
+                    <div class="metadata-value" id="metaModelId">-</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">カテゴリ</div>
+                    <div class="metadata-value" id="metaCategory">-</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">想定ユーザー数</div>
+                    <div class="metadata-value" id="metaTargetUsers">-</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">最終更新</div>
+                    <div class="metadata-value" id="metaLastModified">-</div>
+                </div>
+                <div class="metadata-item" style="grid-column: 1 / -1;">
+                    <div class="metadata-label">タグ</div>
+                    <div class="metadata-value" id="metaTags">-</div>
+                </div>
+                <div class="metadata-item" style="grid-column: 1 / -1;">
+                    <div class="metadata-label">概要</div>
+                    <div class="metadata-value" id="metaDescription">-</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
+        // メタデータ管理
+        function loadAppMetadata() {
+            const metadata = {
+                appName: document.querySelector('meta[name="app-name"]')?.content || 'Unknown',
+                version: document.querySelector('meta[name="app-version"]')?.content || 'Unknown',
+                createdBy: document.querySelector('meta[name="app-created-by"]')?.content || 'Unknown',
+                createdDate: document.querySelector('meta[name="app-created-date"]')?.content || 'Unknown',
+                modelId: document.querySelector('meta[name="app-model-id"]')?.content || 'Unknown',
+                category: document.querySelector('meta[name="app-category"]')?.content || 'Unknown',
+                tags: document.querySelector('meta[name="app-tags"]')?.content || '',
+                targetUsers: document.querySelector('meta[name="app-target-users"]')?.content || 'Unknown',
+                lastModified: document.querySelector('meta[name="app-last-modified"]')?.content || 'Unknown',
+                description: document.querySelector('meta[name="app-description"]')?.content || 'Unknown'
+            };
+
+            // メタデータを表示
+            document.getElementById('metaAppName').textContent = metadata.appName;
+            document.getElementById('metaVersion').textContent = metadata.version;
+            document.getElementById('metaCreatedBy').textContent = metadata.createdBy;
+            document.getElementById('metaCreatedDate').textContent = metadata.createdDate;
+            document.getElementById('metaModelId').textContent = metadata.modelId;
+            document.getElementById('metaCategory').textContent = metadata.category;
+            document.getElementById('metaTargetUsers').textContent = parseInt(metadata.targetUsers).toLocaleString() + '人';
+            document.getElementById('metaLastModified').textContent = metadata.lastModified;
+            document.getElementById('metaDescription').textContent = metadata.description;
+
+            // タグをバッジ形式で表示
+            const tagsContainer = document.getElementById('metaTags');
+            if (metadata.tags) {
+                const tags = metadata.tags.split(',');
+                tagsContainer.innerHTML = tags.map(tag => 
+                    `<span class="metadata-badge">${tag.trim()}</span>`
+                ).join('');
+            } else {
+                tagsContainer.textContent = 'なし';
+            }
+        }
+
+        // メタデータトグル機能
+        function toggleMetadata() {
+            const content = document.getElementById('metadataContent');
+            const toggle = document.getElementById('metadataToggle');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                toggle.textContent = '▼';
+                toggle.style.transform = 'rotate(0deg)';
+            } else {
+                content.classList.add('expanded');
+                toggle.textContent = '▲';
+                toggle.style.transform = 'rotate(180deg)';
+            }
+        }
+
         // 星空アニメーション
         function createStars() {
             const starsContainer = document.querySelector('.stars');
@@ -701,6 +901,7 @@
 
         // 初期化
         createStars();
+        loadAppMetadata();
         setInterval(updateMemoryBubble, 5000);
 
         // パフォーマンス最適化: Intersection Observer
