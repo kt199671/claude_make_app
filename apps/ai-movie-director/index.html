@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 AI映画監督 - Claude作品集</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3c72 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #ff0080, #7928ca, #0070f3, #00dfd8);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px rgba(255, 0, 128, 0.5); }
+            to { text-shadow: 0 0 30px rgba(255, 0, 128, 0.8), 0 0 40px rgba(121, 40, 202, 0.3); }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 1rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .creation-panel, .preview-panel {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-input::placeholder, .form-textarea::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #ff0080;
+            box-shadow: 0 0 20px rgba(255, 0, 128, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: background 0.3s ease;
+        }
+
+        .checkbox-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            accent-color: #ff0080;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #ff0080 0%, #7928ca 50%, #0070f3 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 0, 128, 0.4);
+            margin-top: 1rem;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(255, 0, 128, 0.6);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .movie-preview {
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .movie-screen {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(45deg, #1a1a2e, #16213e);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .movie-screen.playing::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: scan 2s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .screen-content {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.1rem;
+        }
+
+        .movie-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff0080, #7928ca);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .movie-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-item {
+            text-align: center;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: white;
+        }
+
+        .script-content {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .script-scene {
+            margin-bottom: 2rem;
+            border-left: 3px solid #ff0080;
+            padding-left: 1rem;
+        }
+
+        .scene-header {
+            font-weight: 600;
+            color: #00dfd8;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .scene-action {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 1rem;
+            font-style: italic;
+            line-height: 1.6;
+        }
+
+        .dialogue {
+            margin-bottom: 1rem;
+        }
+
+        .character-name {
+            font-weight: 600;
+            color: #7928ca;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .character-line {
+            color: white;
+            padding-left: 1rem;
+            line-height: 1.6;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 2rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top: 4px solid #ff0080;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .control-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #ff0080;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #ff0080;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .creation-panel, .preview-panel {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-btn">← メイン</a>
+
+    <div class="container">
+        <div class="header">
+            <h1>🎬 AI映画監督</h1>
+            <p class="subtitle">AIがあなたのアイデアで短編映画を作ります</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 映画作成パネル -->
+            <div class="creation-panel">
+                <h2 class="section-title">🎭 映画を作成</h2>
+                
+                <div class="form-group">
+                    <label class="form-label">🎬 映画のジャンル</label>
+                    <select id="genre" class="form-select">
+                        <option value="">ジャンルを選択</option>
+                        <option value="action">アクション</option>
+                        <option value="comedy">コメディ</option>
+                        <option value="drama">ドラマ</option>
+                        <option value="horror">ホラー</option>
+                        <option value="romance">ロマンス</option>
+                        <option value="sci-fi">SF</option>
+                        <option value="fantasy">ファンタジー</option>
+                        <option value="mystery">ミステリー</option>
+                        <option value="animation">アニメーション</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">👥 主人公のタイプ</label>
+                    <select id="protagonist" class="form-select">
+                        <option value="">主人公を選択</option>
+                        <option value="detective">探偵</option>
+                        <option value="scientist">科学者</option>
+                        <option value="artist">芸術家</option>
+                        <option value="student">学生</option>
+                        <option value="warrior">戦士</option>
+                        <option value="robot">ロボット</option>
+                        <option value="alien">宇宙人</option>
+                        <option value="chef">料理人</option>
+                        <option value="teacher">教師</option>
+                        <option value="doctor">医師</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">🏠 舞台設定</label>
+                    <select id="setting" class="form-select">
+                        <option value="">舞台を選択</option>
+                        <option value="tokyo">現代の東京</option>
+                        <option value="space">宇宙船内</option>
+                        <option value="medieval">中世の城</option>
+                        <option value="school">学校</option>
+                        <option value="desert">砂漠</option>
+                        <option value="underwater">海底都市</option>
+                        <option value="future">未来都市</option>
+                        <option value="forest">魔法の森</option>
+                        <option value="lab">研究所</option>
+                        <option value="cafe">カフェ</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">⏱️ 映画の長さ</label>
+                    <select id="duration" class="form-select">
+                        <option value="short">ショート（3-5分）</option>
+                        <option value="medium">ミディアム（8-10分）</option>
+                        <option value="long">ロング（15-20分）</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">💭 追加のテーマやアイデア（任意）</label>
+                    <textarea id="theme" class="form-textarea" placeholder="例：時間旅行、友情、謎解き、恋愛など..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">🎨 映像スタイル</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="style" value="cinematic">
+                            <span>映画的</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="style" value="documentary">
+                            <span>ドキュメンタリー風</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="style" value="noir">
+                            <span>フィルムノワール</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="style" value="colorful">
+                            <span>カラフル</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="style" value="minimalist">
+                            <span>ミニマル</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="style" value="retro">
+                            <span>レトロ</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button id="generateBtn" class="generate-btn">🎬 映画を作成する</button>
+            </div>
+
+            <!-- プレビューパネル -->
+            <div class="preview-panel">
+                <h2 class="section-title">🍿 映画プレビュー</h2>
+                
+                <div class="movie-preview">
+                    <div id="movieScreen" class="movie-screen">
+                        <div class="screen-content">
+                            <p>左のフォームに入力して<br>「映画を作成する」をクリック！</p>
+                        </div>
+                    </div>
+                    
+                    <div id="movieDetails" style="display: none;">
+                        <div class="movie-title" id="movieTitle"></div>
+                        <div class="movie-info">
+                            <div class="info-item">
+                                <div class="info-label">ジャンル</div>
+                                <div class="info-value" id="movieGenre"></div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">長さ</div>
+                                <div class="info-value" id="movieDuration"></div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">主人公</div>
+                                <div class="info-value" id="movieProtagonist"></div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">舞台</div>
+                                <div class="info-value" id="movieSetting"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="controls">
+                            <button class="control-btn" onclick="playMovie()">▶️ 再生</button>
+                            <button class="control-btn" onclick="pauseMovie()">⏸️ 一時停止</button>
+                            <button class="control-btn" onclick="showScript()">📝 脚本を見る</button>
+                            <button class="control-btn" onclick="saveMovie()">💾 保存</button>
+                        </div>
+                    </div>
+
+                    <div id="scriptView" style="display: none;">
+                        <div class="script-content" id="scriptContent"></div>
+                        <div class="controls">
+                            <button class="control-btn" onclick="hideScript()">🔙 戻る</button>
+                            <button class="control-btn" onclick="exportScript()">📄 脚本をエクスポート</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMovie = null;
+        let isPlaying = false;
+
+        // 映画データベース
+        const movieTemplates = {
+            action: {
+                titles: ["疾風のヒーロー", "最後の戦い", "危険な任務", "爆破作戦", "救出劇"],
+                plots: [
+                    "敵のアジトに潜入し、人質を救出する",
+                    "爆弾を解除して街を救う",
+                    "追跡劇の末に真犯人を捕まえる"
+                ]
+            },
+            comedy: {
+                titles: ["おかしな一日", "笑いの魔法", "ドタバタ大作戦", "コメディの王様", "爆笑劇場"],
+                plots: [
+                    "勘違いから始まる愉快な大騒動",
+                    "失敗続きだが最後に成功する物語",
+                    "キャラクター同士の掛け合いが面白い日常"
+                ]
+            },
+            drama: {
+                titles: ["心の絆", "人生の選択", "真実の物語", "感動の軌跡", "希望の光"],
+                plots: [
+                    "困難を乗り越えて成長する感動的な物語",
+                    "家族の絆を描いた心温まるドラマ",
+                    "夢を追いかける青春の物語"
+                ]
+            },
+            horror: {
+                titles: ["恐怖の館", "闇の中で", "呪われた物語", "恐怖の夜", "悪夢の始まり"],
+                plots: [
+                    "古い屋敷で謎の現象に遭遇する",
+                    "呪いのアイテムが引き起こす恐怖",
+                    "闇に潜む何かから逃げ続ける"
+                ]
+            },
+            romance: {
+                titles: ["永遠の愛", "運命の出会い", "愛の物語", "心の距離", "恋の始まり"],
+                plots: [
+                    "偶然の出会いから始まる恋愛物語",
+                    "遠距離恋愛を乗り越える二人",
+                    "過去の恋人と再会する物語"
+                ]
+            },
+            "sci-fi": {
+                titles: ["未来への旅", "宇宙の謎", "タイムパラドックス", "AI革命", "異星人との遭遇"],
+                plots: [
+                    "未来の技術が引き起こす問題を解決する",
+                    "宇宙で新たな生命体を発見する",
+                    "時間旅行で歴史を変えようとする"
+                ]
+            },
+            fantasy: {
+                titles: ["魔法の冒険", "伝説の剣", "魔法使いの弟子", "ドラゴンの谷", "魔法の森"],
+                plots: [
+                    "魔法の力で世界を救う冒険",
+                    "伝説の宝物を探す旅",
+                    "魔法の修行を通じて成長する物語"
+                ]
+            },
+            mystery: {
+                titles: ["謎の事件", "消えた証拠", "密室の謎", "推理の時間", "真犯人を探せ"],
+                plots: [
+                    "複雑な手がかりを元に事件を解決する",
+                    "密室で起きた不可解な事件の真相",
+                    "容疑者たちの中から真犯人を見つける"
+                ]
+            },
+            animation: {
+                titles: ["キャラクターの大冒険", "友情物語", "成長の記録", "夢の世界", "魔法のアニメ"],
+                plots: [
+                    "個性豊かなキャラクターたちの冒険",
+                    "友達と力を合わせて困難を乗り越える",
+                    "想像力豊かな世界での物語"
+                ]
+            }
+        };
+
+        // 映画生成ボタンのイベント
+        document.getElementById('generateBtn').addEventListener('click', generateMovie);
+
+        function generateMovie() {
+            const genre = document.getElementById('genre').value;
+            const protagonist = document.getElementById('protagonist').value;
+            const setting = document.getElementById('setting').value;
+            const duration = document.getElementById('duration').value;
+            const theme = document.getElementById('theme').value;
+            const styles = Array.from(document.querySelectorAll('input[name="style"]:checked')).map(cb => cb.value);
+
+            if (!genre || !protagonist || !setting) {
+                alert('ジャンル、主人公、舞台を選択してください。');
+                return;
+            }
+
+            // ローディング表示
+            showLoading();
+
+            // 映画生成のシミュレーション
+            setTimeout(() => {
+                const movie = createMovie(genre, protagonist, setting, duration, theme, styles);
+                displayMovie(movie);
+                currentMovie = movie;
+            }, 3000);
+        }
+
+        function showLoading() {
+            const screen = document.getElementById('movieScreen');
+            screen.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <div>
+                        <p>AIが映画を作成中...</p>
+                        <p style="font-size: 0.9rem; opacity: 0.7;">脚本を書いています...</p>
+                    </div>
+                </div>
+            `;
+            screen.classList.add('playing');
+
+            // ローディングメッセージの更新
+            let messages = [
+                "脚本を書いています...",
+                "キャストを選んでいます...",
+                "撮影場所を決めています...",
+                "音楽を作曲しています...",
+                "編集しています..."
+            ];
+            
+            let messageIndex = 0;
+            const messageInterval = setInterval(() => {
+                messageIndex = (messageIndex + 1) % messages.length;
+                const loadingText = screen.querySelector('.loading p:last-child');
+                if (loadingText) {
+                    loadingText.textContent = messages[messageIndex];
+                }
+            }, 500);
+
+            setTimeout(() => {
+                clearInterval(messageInterval);
+            }, 3000);
+        }
+
+        function createMovie(genre, protagonist, setting, duration, theme, styles) {
+            const template = movieTemplates[genre];
+            const title = template.titles[Math.floor(Math.random() * template.titles.length)];
+            const plot = template.plots[Math.floor(Math.random() * template.plots.length)];
+
+            // 脚本生成
+            const script = generateScript(genre, protagonist, setting, plot, theme);
+
+            const movie = {
+                title: title,
+                genre: genre,
+                protagonist: protagonist,
+                setting: setting,
+                duration: duration,
+                theme: theme,
+                styles: styles,
+                plot: plot,
+                script: script,
+                createdAt: new Date()
+            };
+
+            return movie;
+        }
+
+        function generateScript(genre, protagonist, setting, plot, theme) {
+            const scenes = [];
+
+            // オープニング
+            scenes.push({
+                type: "FADE IN",
+                location: getLocationName(setting),
+                time: "朝",
+                action: `${getProtagonistName(protagonist)}が${getLocationName(setting)}にいる。${plot}の始まり。`,
+                dialogues: [
+                    {
+                        character: getProtagonistName(protagonist),
+                        line: getOpeningLine(genre, protagonist)
+                    }
+                ]
+            });
+
+            // 中間部
+            scenes.push({
+                type: "INT.",
+                location: getLocationName(setting),
+                time: "昼",
+                action: "状況が複雑になり、主人公は困難に直面する。",
+                dialogues: [
+                    {
+                        character: getProtagonistName(protagonist),
+                        line: getMiddleLine(genre)
+                    },
+                    {
+                        character: "謎の人物",
+                        line: "そう簡単にはいかないよ..."
+                    }
+                ]
+            });
+
+            // クライマックス
+            scenes.push({
+                type: "EXT.",
+                location: getLocationName(setting),
+                time: "夕方",
+                action: "最終的な対決。主人公は全力で問題に立ち向かう。",
+                dialogues: [
+                    {
+                        character: getProtagonistName(protagonist),
+                        line: getClimaxLine(genre)
+                    }
+                ]
+            });
+
+            // エンディング
+            scenes.push({
+                type: "FADE OUT",
+                location: getLocationName(setting),
+                time: "夜",
+                action: "問題が解決し、主人公は成長した姿を見せる。",
+                dialogues: [
+                    {
+                        character: getProtagonistName(protagonist),
+                        line: getEndingLine(genre)
+                    }
+                ]
+            });
+
+            return scenes;
+        }
+
+        function getProtagonistName(type) {
+            const names = {
+                detective: "探偵田中",
+                scientist: "博士山田",
+                artist: "画家佐藤",
+                student: "学生鈴木",
+                warrior: "戦士高橋",
+                robot: "ロボットR-01",
+                alien: "宇宙人ゼータ",
+                chef: "シェフ渡辺",
+                teacher: "先生中村",
+                doctor: "医師小林"
+            };
+            return names[type] || "主人公";
+        }
+
+        function getLocationName(setting) {
+            const locations = {
+                tokyo: "東京の街角",
+                space: "宇宙船のブリッジ",
+                medieval: "古い城の大広間",
+                school: "学校の教室",
+                desert: "砂漠のオアシス",
+                underwater: "海底都市",
+                future: "未来都市のビル",
+                forest: "魔法の森",
+                lab: "研究所",
+                cafe: "街角のカフェ"
+            };
+            return locations[setting] || "未知の場所";
+        }
+
+        function getOpeningLine(genre, protagonist) {
+            const lines = {
+                action: "今日も危険な任務が待っている...",
+                comedy: "今日は何か面白いことが起こりそうだ！",
+                drama: "人生って本当に予想がつかないものね。",
+                horror: "何かがおかしい...この場所には何かが潜んでいる。",
+                romance: "運命的な出会いって、本当にあるのかしら？",
+                "sci-fi": "この技術は人類の未来を変えるかもしれない。",
+                fantasy: "魔法の力を感じる...冒険の始まりだ。",
+                mystery: "この事件には隠された真実がある。",
+                animation: "今日は素晴らしい一日になりそう！"
+            };
+            return lines[genre] || "新しい物語の始まりだ。";
+        }
+
+        function getMiddleLine(genre) {
+            const lines = {
+                action: "この状況は予想以上に危険だ！",
+                comedy: "えー！そんなことになるなんて！",
+                drama: "これは簡単な選択じゃない...",
+                horror: "逃げなければ...でももう遅いかもしれない。",
+                romance: "こんな気持ちになるなんて思わなかった。",
+                "sci-fi": "計算が間違っていた。これは予想外の結果だ。",
+                fantasy: "魔法だけでは解決できない問題もある。",
+                mystery: "手がかりが繋がってきた...真実が見えてくる。",
+                animation: "みんなで力を合わせれば大丈夫！"
+            };
+            return lines[genre] || "状況が変わった。";
+        }
+
+        function getClimaxLine(genre) {
+            const lines = {
+                action: "今こそ全力で戦う時だ！",
+                comedy: "最後の手段だ！これで決まり！",
+                drama: "もう迷わない。この道を進む！",
+                horror: "恐怖に立ち向かう勇気を出そう！",
+                romance: "愛のために戦う！",
+                "sci-fi": "未来は僕たちの手にかかっている！",
+                fantasy: "魔法の真の力を解放する時だ！",
+                mystery: "真犯人はあなただ！",
+                animation: "みんなの思いを一つにして！"
+            };
+            return lines[genre] || "決着の時だ！";
+        }
+
+        function getEndingLine(genre) {
+            const lines = {
+                action: "任務完了。街に平和が戻った。",
+                comedy: "結果オーライ！笑って終わり！",
+                drama: "人生は続いていく。新しい明日に向かって。",
+                horror: "恐怖は去った...しかし油断は禁物だ。",
+                romance: "愛は全てを乗り越える。",
+                "sci-fi": "科学の力で未来を切り開こう。",
+                fantasy: "冒険は終わったが、魔法は永遠に。",
+                mystery: "事件は解決した。正義は勝つ。",
+                animation: "友情が最高の魔法だった！"
+            };
+            return lines[genre] || "そして物語は続く...";
+        }
+
+        function displayMovie(movie) {
+            const screen = document.getElementById('movieScreen');
+            const details = document.getElementById('movieDetails');
+            
+            screen.innerHTML = `
+                <div class="screen-content">
+                    <h3 style="color: #ff0080; font-size: 1.5rem; margin-bottom: 1rem;">${movie.title}</h3>
+                    <p style="color: rgba(255,255,255,0.8);">🎬 制作完了！</p>
+                    <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">下のコントロールで操作できます</p>
+                </div>
+            `;
+            screen.classList.remove('playing');
+
+            // 映画詳細を表示
+            document.getElementById('movieTitle').textContent = movie.title;
+            document.getElementById('movieGenre').textContent = getGenreName(movie.genre);
+            document.getElementById('movieDuration').textContent = getDurationName(movie.duration);
+            document.getElementById('movieProtagonist').textContent = getProtagonistName(movie.protagonist);
+            document.getElementById('movieSetting').textContent = getLocationName(movie.setting);
+
+            details.style.display = 'block';
+        }
+
+        function getGenreName(genre) {
+            const names = {
+                action: "アクション",
+                comedy: "コメディ",
+                drama: "ドラマ",
+                horror: "ホラー",
+                romance: "ロマンス",
+                "sci-fi": "SF",
+                fantasy: "ファンタジー",
+                mystery: "ミステリー",
+                animation: "アニメーション"
+            };
+            return names[genre] || genre;
+        }
+
+        function getDurationName(duration) {
+            const names = {
+                short: "3-5分",
+                medium: "8-10分",
+                long: "15-20分"
+            };
+            return names[duration] || duration;
+        }
+
+        function playMovie() {
+            if (!currentMovie) return;
+            
+            const screen = document.getElementById('movieScreen');
+            screen.classList.add('playing');
+            screen.innerHTML = `
+                <div class="screen-content">
+                    <h3 style="color: #ff0080; font-size: 1.5rem; margin-bottom: 1rem;">${currentMovie.title}</h3>
+                    <p style="color: rgba(255,255,255,0.8);">🎬 再生中...</p>
+                    <div style="margin-top: 1rem; font-size: 0.9rem; color: rgba(255,255,255,0.6);">
+                        <p>${getProtagonistName(currentMovie.protagonist)}の活躍をお楽しみください</p>
+                    </div>
+                </div>
+            `;
+            isPlaying = true;
+        }
+
+        function pauseMovie() {
+            const screen = document.getElementById('movieScreen');
+            screen.classList.remove('playing');
+            screen.innerHTML = `
+                <div class="screen-content">
+                    <h3 style="color: #ff0080; font-size: 1.5rem; margin-bottom: 1rem;">${currentMovie?.title || '映画'}</h3>
+                    <p style="color: rgba(255,255,255,0.8);">⏸️ 一時停止中</p>
+                </div>
+            `;
+            isPlaying = false;
+        }
+
+        function showScript() {
+            if (!currentMovie) return;
+
+            const scriptView = document.getElementById('scriptView');
+            const scriptContent = document.getElementById('scriptContent');
+            const movieDetails = document.getElementById('movieDetails');
+
+            let scriptHTML = '';
+            currentMovie.script.forEach((scene, index) => {
+                scriptHTML += `
+                    <div class="script-scene">
+                        <div class="scene-header">${scene.type} ${scene.location} - ${scene.time}</div>
+                        <div class="scene-action">${scene.action}</div>
+                `;
+                
+                scene.dialogues.forEach(dialogue => {
+                    scriptHTML += `
+                        <div class="dialogue">
+                            <div class="character-name">${dialogue.character}</div>
+                            <div class="character-line">${dialogue.line}</div>
+                        </div>
+                    `;
+                });
+                
+                scriptHTML += '</div>';
+            });
+
+            scriptContent.innerHTML = scriptHTML;
+            movieDetails.style.display = 'none';
+            scriptView.style.display = 'block';
+        }
+
+        function hideScript() {
+            document.getElementById('scriptView').style.display = 'none';
+            document.getElementById('movieDetails').style.display = 'block';
+        }
+
+        function exportScript() {
+            if (!currentMovie) return;
+
+            let scriptText = `${currentMovie.title}\n`;
+            scriptText += `作者: AI映画監督\n`;
+            scriptText += `ジャンル: ${getGenreName(currentMovie.genre)}\n`;
+            scriptText += `作成日: ${currentMovie.createdAt.toLocaleDateString()}\n\n`;
+
+            currentMovie.script.forEach(scene => {
+                scriptText += `${scene.type} ${scene.location} - ${scene.time}\n\n`;
+                scriptText += `${scene.action}\n\n`;
+                
+                scene.dialogues.forEach(dialogue => {
+                    scriptText += `${dialogue.character}\n`;
+                    scriptText += `    ${dialogue.line}\n\n`;
+                });
+                
+                scriptText += '\n';
+            });
+
+            const blob = new Blob([scriptText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentMovie.title}_脚本.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function saveMovie() {
+            if (!currentMovie) return;
+
+            const movies = JSON.parse(localStorage.getItem('aiMovieDirector_movies') || '[]');
+            movies.push(currentMovie);
+            localStorage.setItem('aiMovieDirector_movies', JSON.stringify(movies));
+
+            alert('映画が保存されました！');
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 既存の映画があれば復元（オプション）
+            const savedMovies = JSON.parse(localStorage.getItem('aiMovieDirector_movies') || '[]');
+            if (savedMovies.length > 0) {
+                console.log(`${savedMovies.length}本の映画が保存されています`);
+            }
+        });
+    </script>
+</body>
+</html>

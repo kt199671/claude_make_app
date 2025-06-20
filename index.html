@@ -578,8 +578,24 @@
     </header>
 
     <div class="container">
-        <div class="app-count" id="appCount">全 47 アプリ</div>
+        <div class="app-count" id="appCount">全 48 アプリ</div>
         <div class="apps-grid">
+            <!-- 🎬 AI映画監督 -->
+            <div class="app-card" data-category="ai" data-title="AI映画監督">
+                <div class="app-image">
+                    <span>🎬</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">AI映画監督</h2>
+                    <p class="app-description">
+                        AIがあなたのアイデアで短編映画を作成！ジャンル、主人公、舞台を選ぶだけで、
+                        完全な脚本と映像化シミュレーションを自動生成。9つのジャンル、10種類のキャラクター、
+                        10の舞台設定で無限の映画体験が可能！
+                    </p>
+                    <a href="apps/ai-movie-director/index.html" class="app-link">映画を作る</a>
+                </div>
+            </div>
+
             <!-- 🎵 ネオンビートメーカー -->
             <div class="app-card" data-category="music" data-title="ネオンビートメーカー">
                 <div class="app-image">
@@ -1390,6 +1406,7 @@
 
         // カテゴリマッピング（data-category属性がないカードのための一時的な分類）
         const categoryMapping = {
+            'AI映画監督': 'ai',
             'レトロ宇宙探査ゲーム': 'game',
             'AI音楽バトル': 'ai',
             '性格カラー診断': 'ai',
