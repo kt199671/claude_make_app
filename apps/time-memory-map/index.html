@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>時空メモリーマップ - AR生活記録・思い出検索アプリ</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: 
+                radial-gradient(ellipse at top, rgba(59, 130, 246, 0.15) 0%, transparent 70%),
+                linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3c72 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            position: relative;
+        }
+
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 30%, #1d4ed8 70%, #1e40af 100%);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            animation: gradientFlow 3s ease-in-out infinite;
+        }
+
+        @keyframes gradientFlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 3rem;
+            font-weight: 300;
+        }
+
+        .main-interface {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(25px);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 
+                0 20px 60px rgba(0,0,0,0.3),
+                inset 0 1px 0 rgba(255,255,255,0.1),
+                0 0 40px rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+            margin-bottom: 3rem;
+        }
+
+        .ar-viewport {
+            width: 100%;
+            height: 400px;
+            background: 
+                radial-gradient(circle at center, rgba(59, 130, 246, 0.2) 0%, rgba(0,0,0,0.5) 100%),
+                linear-gradient(45deg, #111827 0%, #1f2937 50%, #111827 100%);
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            box-shadow: inset 0 0 30px rgba(59, 130, 246, 0.1);
+        }
+
+        .ar-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .memory-bubble {
+            width: 120px;
+            height: 120px;
+            background: 
+                linear-gradient(135deg, rgba(96, 165, 250, 0.3) 0%, rgba(59, 130, 246, 0.5) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            animation: memoryFloat 4s ease-in-out infinite;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .memory-bubble::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: conic-gradient(from 0deg, transparent, rgba(59, 130, 246, 0.5), transparent);
+            border-radius: 50%;
+            z-index: -1;
+            animation: rotate 3s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes memoryFloat {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-20px) scale(1.05); }
+        }
+
+        .memory-bubble:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+        }
+
+        .memory-info {
+            margin-top: 1rem;
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+        }
+
+        .control-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .control-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .control-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #60a5fa;
+        }
+
+        .time-slider {
+            width: 100%;
+            margin: 1rem 0;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+
+        .memory-types {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .memory-type {
+            padding: 0.5rem 1rem;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .memory-type:hover,
+        .memory-type.active {
+            background: rgba(59, 130, 246, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .feature-card:hover::before {
+            left: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #60a5fa;
+        }
+
+        .feature-description {
+            color: rgba(255,255,255,0.8);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+
+        .stat-card {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+        }
+
+        .cta-section {
+            text-align: center;
+            margin: 4rem 0;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 16px 40px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+            border: 1px solid rgba(255,255,255,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(59, 130, 246, 0.6);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .main-interface {
+                padding: 2rem;
+            }
+            
+            .ar-viewport {
+                height: 300px;
+            }
+            
+            .control-panel {
+                grid-template-columns: 1fr;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-section {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars"></div>
+    
+    <div class="container">
+        <header>
+            <div class="logo">🌐</div>
+            <h1>時空メモリーマップ</h1>
+            <p class="subtitle">AR技術で過去の思い出を現実空間に再現 - 月間1000万ユーザーの革新的生活記録アプリ</p>
+        </header>
+
+        <div class="main-interface">
+            <div class="ar-viewport">
+                <div class="ar-overlay">
+                    <div class="memory-bubble" id="memoryBubble">
+                        <span id="memoryIcon">📸</span>
+                    </div>
+                    <div class="memory-info" id="memoryInfo">
+                        2023年3月15日 - 桜並木での思い出
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <div class="control-section">
+                    <div class="control-title">⏰ 時間軸操作</div>
+                    <div class="time-slider">
+                        <input type="range" min="2020" max="2024" value="2023" class="slider" id="timeSlider">
+                        <p>選択年: <span id="selectedYear">2023</span>年</p>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <div class="control-title">🏷️ 思い出タイプ</div>
+                    <div class="memory-types">
+                        <div class="memory-type active" data-type="all">すべて</div>
+                        <div class="memory-type" data-type="family">家族</div>
+                        <div class="memory-type" data-type="friends">友人</div>
+                        <div class="memory-type" data-type="travel">旅行</div>
+                        <div class="memory-type" data-type="work">仕事</div>
+                        <div class="memory-type" data-type="special">特別な日</div>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <div class="control-title">🎯 表示設定</div>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="arMode" checked> AR重畳表示
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="aiStory"> AI自動ストーリー生成
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="socialMemory"> 集合知メモリー表示
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-number" id="memoryCount">12,847</div>
+                <div class="stat-label">保存された思い出</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="aiStories">3,291</div>
+                <div class="stat-label">AI生成ストーリー</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="sharedMemories">847</div>
+                <div class="stat-label">共有された思い出</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="predictions">156</div>
+                <div class="stat-label">未来予測イベント</div>
+            </div>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <div class="feature-title">AR時空ナビゲーション</div>
+                <div class="feature-description">
+                    スマートフォンをかざすだけで、その場所で過去に撮影した写真や動画が3D空間に浮かび上がります。
+                    リアルタイムで過去の思い出を現実世界に重畳表示し、まるで時間を遡ったような体験を提供します。
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <div class="feature-title">AI思い出自動生成</div>
+                <div class="feature-description">
+                    日常の写真、動画、音声メモから自動的にストーリーを生成。
+                    感情分析と画像認識を組み合わせて、あなただけの特別な思い出アルバムを作成します。
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🌍</div>
+                <div class="feature-title">集合知メモリーマップ</div>
+                <div class="feature-description">
+                    同じ場所を訪れた他のユーザーの思い出も匿名で閲覧可能。
+                    プライバシーを保護しながら、場所に紐づいた集合的な記憶を共有できます。
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🔮</div>
+                <div class="feature-title">タイムライン予測</div>
+                <div class="feature-description">
+                    AIが過去のパターンを分析し、重要な記念日や特別なイベントを予測。
+                    大切な日を忘れることなく、事前に準備や計画を立てることができます。
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <div class="feature-title">バーチャル思い出共有</div>
+                <div class="feature-description">
+                    3D仮想空間で友人や家族と一緒に過去の思い出を再体験。
+                    距離を越えて、大切な人と特別な瞬間を共有できます。
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🔐</div>
+                <div class="feature-title">プライバシー保護</div>
+                <div class="feature-description">
+                    すべてのデータは端末内で暗号化され、ユーザーが完全にコントロール。
+                    高度な匿名化技術により、プライバシーを守りながらソーシャル機能を利用できます。
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <a href="#" class="cta-button" id="startButton">
+                🚀 時空メモリーマップを体験する
+            </a>
+            <p style="margin-top: 1rem; color: rgba(255,255,255,0.6); font-size: 0.9rem;">
+                月間1000万ユーザーが愛用する革新的な思い出管理アプリ
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // 星空アニメーション
+        function createStars() {
+            const starsContainer = document.querySelector('.stars');
+            const starCount = 100;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // メモリーバブルの動的更新
+        const memoryData = [
+            { icon: '📸', info: '2023年3月15日 - 桜並木での思い出', type: 'family' },
+            { icon: '🎂', info: '2023年7月22日 - 誕生日パーティー', type: 'special' },
+            { icon: '🏔️', info: '2023年8月10日 - 山登りの冒険', type: 'travel' },
+            { icon: '🎓', info: '2023年5月18日 - 卒業式の感動', type: 'special' },
+            { icon: '🌊', info: '2023年9月2日 - 海辺の夕日', type: 'travel' },
+            { icon: '🍕', info: '2023年11月30日 - 友人との夕食', type: 'friends' },
+            { icon: '💼', info: '2023年12月1日 - プロジェクト成功', type: 'work' }
+        ];
+
+        let currentMemoryIndex = 0;
+
+        function updateMemoryBubble() {
+            const memoryBubble = document.getElementById('memoryBubble');
+            const memoryIcon = document.getElementById('memoryIcon');
+            const memoryInfo = document.getElementById('memoryInfo');
+            
+            const currentMemory = memoryData[currentMemoryIndex];
+            memoryIcon.textContent = currentMemory.icon;
+            memoryInfo.textContent = currentMemory.info;
+            
+            currentMemoryIndex = (currentMemoryIndex + 1) % memoryData.length;
+        }
+
+        // 時間スライダー
+        const timeSlider = document.getElementById('timeSlider');
+        const selectedYear = document.getElementById('selectedYear');
+        
+        timeSlider.addEventListener('input', function() {
+            selectedYear.textContent = this.value;
+            updateMemoryBubble();
+        });
+
+        // メモリータイプフィルター
+        const memoryTypes = document.querySelectorAll('.memory-type');
+        
+        memoryTypes.forEach(type => {
+            type.addEventListener('click', function() {
+                memoryTypes.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                updateMemoryBubble();
+            });
+        });
+
+        // 統計カウンターアニメーション
+        function animateCounter(element, target, duration = 2000) {
+            let start = 0;
+            const increment = target / (duration / 16);
+            
+            function updateCounter() {
+                start += increment;
+                if (start < target) {
+                    element.textContent = Math.floor(start).toLocaleString();
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    element.textContent = target.toLocaleString();
+                }
+            }
+            
+            updateCounter();
+        }
+
+        // メモリーバブルクリックイベント
+        document.getElementById('memoryBubble').addEventListener('click', function() {
+            this.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                this.style.transform = '';
+                updateMemoryBubble();
+            }, 300);
+        });
+
+        // スタートボタンイベント
+        document.getElementById('startButton').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // エフェクト演出
+            this.style.transform = 'scale(0.95)';
+            this.textContent = '🎉 体験を開始中...';
+            
+            setTimeout(() => {
+                this.style.transform = '';
+                this.textContent = '✨ 時空メモリーマップ体験中！';
+                
+                // デモ効果
+                startDemo();
+            }, 500);
+        });
+
+        // デモモード
+        function startDemo() {
+            const arViewport = document.querySelector('.ar-viewport');
+            arViewport.style.background = 
+                'radial-gradient(circle at center, rgba(34, 197, 94, 0.3) 0%, rgba(0,0,0,0.5) 100%), linear-gradient(45deg, #111827 0%, #1f2937 50%, #111827 100%)';
+            
+            // カウンター更新
+            setTimeout(() => {
+                animateCounter(document.getElementById('memoryCount'), 15000);
+                animateCounter(document.getElementById('aiStories'), 4500);
+                animateCounter(document.getElementById('sharedMemories'), 1200);
+                animateCounter(document.getElementById('predictions'), 200);
+            }, 1000);
+        }
+
+        // 設定チェックボックスイベント
+        document.getElementById('arMode').addEventListener('change', function() {
+            const arViewport = document.querySelector('.ar-viewport');
+            if (this.checked) {
+                arViewport.style.borderColor = 'rgba(59, 130, 246, 0.5)';
+            } else {
+                arViewport.style.borderColor = 'rgba(100, 100, 100, 0.3)';
+            }
+        });
+
+        document.getElementById('aiStory').addEventListener('change', function() {
+            if (this.checked) {
+                document.getElementById('memoryInfo').style.background = 'rgba(59, 130, 246, 0.2)';
+                document.getElementById('memoryInfo').style.padding = '0.5rem';
+                document.getElementById('memoryInfo').style.borderRadius = '8px';
+            } else {
+                document.getElementById('memoryInfo').style.background = 'none';
+                document.getElementById('memoryInfo').style.padding = '0';
+            }
+        });
+
+        // 初期化
+        createStars();
+        setInterval(updateMemoryBubble, 5000);
+
+        // パフォーマンス最適化: Intersection Observer
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // 全ての feature-card を監視
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+
+        // レスポンシブ対応
+        function handleResize() {
+            const isMobile = window.innerWidth <= 768;
+            const arViewport = document.querySelector('.ar-viewport');
+            
+            if (isMobile) {
+                arViewport.style.height = '300px';
+            } else {
+                arViewport.style.height = '400px';
+            }
+        }
+
+        window.addEventListener('resize', handleResize);
+        handleResize();
+    </script>
+</body>
+</html>
