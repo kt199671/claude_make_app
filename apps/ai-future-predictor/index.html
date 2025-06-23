@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI未来予知ゲーム</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: linear-gradient(135deg, #0c0c1d 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3c72 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 背景パーティクルエフェクト */
+        .background-effects {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(138, 43, 226, 0.8);
+            border-radius: 50%;
+            animation: float 20s linear infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff0080, #7928ca, #0070f3, #00dfd8);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            animation: gradientShift 4s ease-in-out infinite, glow 2s ease-in-out infinite alternate;
+            position: relative;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px rgba(255, 0, 128, 0.3); }
+            to { text-shadow: 0 0 40px rgba(255, 0, 128, 0.6), 0 0 60px rgba(121, 40, 202, 0.3); }
+        }
+
+        .subtitle {
+            font-size: 1.4rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 300;
+            margin-bottom: 2rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .scenario-panel, .prediction-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .panel-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #00dfd8;
+            text-align: center;
+        }
+
+        .scenario-selector {
+            margin-bottom: 25px;
+        }
+
+        .scenario-selector label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .scenario-selector select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .scenario-selector select:focus {
+            border-color: #ff0080;
+            box-shadow: 0 0 20px rgba(255, 0, 128, 0.3);
+        }
+
+        .scenario-selector option {
+            background: #1a1a2e;
+            color: white;
+        }
+
+        .time-slider {
+            margin-bottom: 25px;
+        }
+
+        .time-slider label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .slider-container {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff0080, #7928ca);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 0, 128, 0.5);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff0080, #7928ca);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(255, 0, 128, 0.5);
+        }
+
+        .time-display {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #00dfd8;
+        }
+
+        .predict-button {
+            width: 100%;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #ff0080 0%, #7928ca 50%, #0070f3 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(255, 0, 128, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .predict-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .predict-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(255, 0, 128, 0.6);
+        }
+
+        .predict-button:hover::before {
+            left: 100%;
+        }
+
+        .predict-button:active {
+            transform: translateY(0);
+        }
+
+        .predict-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .prediction-result {
+            min-height: 300px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #ff0080;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .prediction-content {
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        .prediction-category {
+            display: inline-block;
+            background: rgba(255, 0, 128, 0.2);
+            color: #ff0080;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .confidence-meter {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .confidence-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 8px;
+        }
+
+        .confidence-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff0080, #00dfd8);
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+
+        .stats-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            margin-top: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00dfd8;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 1000;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .scenario-panel, .prediction-panel {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-effects" id="backgroundEffects"></div>
+    
+    <a href="../../index.html" class="back-button">← 戻る</a>
+    
+    <div class="container">
+        <header>
+            <h1>🔮 AI未来予知ゲーム</h1>
+            <p class="subtitle">Claudeの推論能力で未来を予測！シナリオを選んで時間を設定し、AIが導く驚きの未来を体験しよう</p>
+        </header>
+
+        <div class="main-content">
+            <div class="scenario-panel">
+                <h2 class="panel-title">🎯 予測シナリオ設定</h2>
+                
+                <div class="scenario-selector">
+                    <label for="scenarioType">シナリオカテゴリ:</label>
+                    <select id="scenarioType">
+                        <option value="technology">🚀 テクノロジー</option>
+                        <option value="society">🌍 社会・文化</option>
+                        <option value="environment">🌱 環境・気候</option>
+                        <option value="economy">💰 経済・ビジネス</option>
+                        <option value="science">🔬 科学・医学</option>
+                        <option value="space">🌌 宇宙・探査</option>
+                        <option value="personal">👤 個人の未来</option>
+                        <option value="entertainment">🎮 エンタメ・文化</option>
+                    </select>
+                </div>
+
+                <div class="scenario-selector">
+                    <label for="specificScenario">具体的シナリオ:</label>
+                    <select id="specificScenario">
+                        <option value="ai_development">AI技術の発展</option>
+                        <option value="quantum_computing">量子コンピューティング</option>
+                        <option value="autonomous_vehicles">自動運転車の普及</option>
+                        <option value="virtual_reality">VR/AR技術</option>
+                        <option value="biotechnology">バイオテクノロジー</option>
+                    </select>
+                </div>
+
+                <div class="time-slider">
+                    <label for="timeRange">予測期間:</label>
+                    <div class="slider-container">
+                        <input type="range" id="timeRange" min="1" max="50" value="10" class="slider">
+                    </div>
+                    <div class="time-display" id="timeDisplay">10年後</div>
+                </div>
+
+                <button class="predict-button" id="predictButton">
+                    🔮 未来を予測する
+                </button>
+            </div>
+
+            <div class="prediction-panel">
+                <h2 class="panel-title">🎭 AI予測結果</h2>
+                
+                <div class="prediction-result" id="predictionResult">
+                    <div class="loading" id="loading">
+                        <div class="loading-spinner"></div>
+                        <p>AIが未来を分析中...</p>
+                    </div>
+                    
+                    <div class="prediction-content" id="predictionContent">
+                        <p style="text-align: center; color: rgba(255,255,255,0.6); padding: 40px;">
+                            シナリオを選択して「未来を予測する」ボタンを押してください。<br>
+                            AIが高度な推論能力を使って未来を予測します！
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-panel">
+            <h2 class="panel-title">📊 予測統計</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalPredictions">0</div>
+                    <div class="stat-label">総予測回数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="avgConfidence">0%</div>
+                    <div class="stat-label">平均信頼度</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="favoriteCategory">-</div>
+                    <div class="stat-label">人気カテゴリ</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="longestPrediction">0年</div>
+                    <div class="stat-label">最長予測期間</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // グローバル変数
+        let stats = {
+            totalPredictions: 0,
+            confidenceSum: 0,
+            categoryCount: {},
+            longestPrediction: 0
+        };
+
+        // シナリオデータ
+        const scenarioData = {
+            technology: {
+                ai_development: "AI技術の発展",
+                quantum_computing: "量子コンピューティング",
+                autonomous_vehicles: "自動運転車の普及",
+                virtual_reality: "VR/AR技術",
+                biotechnology: "バイオテクノロジー",
+                robotics: "ロボティクス",
+                blockchain: "ブロックチェーン技術"
+            },
+            society: {
+                remote_work: "リモートワークの普及",
+                urban_planning: "都市計画の変化",
+                education_system: "教育システムの革新",
+                social_media: "ソーシャルメディアの進化",
+                demographics: "人口動態の変化"
+            },
+            environment: {
+                climate_change: "気候変動対策",
+                renewable_energy: "再生可能エネルギー",
+                biodiversity: "生物多様性保護",
+                ocean_pollution: "海洋汚染対策",
+                sustainable_living: "持続可能な生活"
+            },
+            economy: {
+                cryptocurrency: "暗号通貨の普及",
+                gig_economy: "ギグエコノミー",
+                automation_jobs: "自動化と雇用",
+                global_trade: "国際貿易の変化",
+                digital_economy: "デジタル経済"
+            },
+            science: {
+                gene_therapy: "遺伝子治療",
+                space_medicine: "宇宙医学",
+                neuroscience: "脳科学の進歩",
+                materials_science: "材料科学",
+                fusion_energy: "核融合エネルギー"
+            },
+            space: {
+                mars_colonization: "火星植民地化",
+                space_tourism: "宇宙旅行",
+                asteroid_mining: "小惑星採掘",
+                space_elevator: "宇宙エレベーター",
+                alien_contact: "地球外生命体との接触"
+            },
+            personal: {
+                career_future: "キャリアの未来",
+                health_longevity: "健康と長寿",
+                relationships: "人間関係の変化",
+                lifestyle: "ライフスタイル",
+                learning: "学習と成長"
+            },
+            entertainment: {
+                gaming_industry: "ゲーム業界",
+                streaming_media: "ストリーミングメディア",
+                virtual_concerts: "バーチャルコンサート",
+                sports_evolution: "スポーツの進化",
+                content_creation: "コンテンツ制作"
+            }
+        };
+
+        // DOM要素の取得
+        const scenarioTypeSelect = document.getElementById('scenarioType');
+        const specificScenarioSelect = document.getElementById('specificScenario');
+        const timeRangeSlider = document.getElementById('timeRange');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const predictButton = document.getElementById('predictButton');
+        const loading = document.getElementById('loading');
+        const predictionContent = document.getElementById('predictionContent');
+
+        // 統計表示要素
+        const totalPredictionsEl = document.getElementById('totalPredictions');
+        const avgConfidenceEl = document.getElementById('avgConfidence');
+        const favoriteCategoryEl = document.getElementById('favoriteCategory');
+        const longestPredictionEl = document.getElementById('longestPrediction');
+
+        // イベントリスナーの設定
+        scenarioTypeSelect.addEventListener('change', updateSpecificScenarios);
+        timeRangeSlider.addEventListener('input', updateTimeDisplay);
+        predictButton.addEventListener('click', generatePrediction);
+
+        // 背景パーティクル生成
+        function createParticles() {
+            const container = document.getElementById('backgroundEffects');
+            
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 20 + 10) + 's';
+                
+                const colors = ['rgba(138, 43, 226, 0.8)', 'rgba(255, 0, 128, 0.8)', 'rgba(0, 112, 243, 0.8)', 'rgba(0, 223, 216, 0.8)'];
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                
+                container.appendChild(particle);
+            }
+        }
+
+        // 具体的シナリオの更新
+        function updateSpecificScenarios() {
+            const category = scenarioTypeSelect.value;
+            const scenarios = scenarioData[category];
+            
+            specificScenarioSelect.innerHTML = '';
+            
+            for (const [key, value] of Object.entries(scenarios)) {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = value;
+                specificScenarioSelect.appendChild(option);
+            }
+        }
+
+        // 時間表示の更新
+        function updateTimeDisplay() {
+            const years = timeRangeSlider.value;
+            timeDisplay.textContent = `${years}年後`;
+        }
+
+        // AI予測生成（シミュレート）
+        async function generatePrediction() {
+            const category = scenarioTypeSelect.value;
+            const scenario = specificScenarioSelect.value;
+            const timeFrame = parseInt(timeRangeSlider.value);
+            
+            // ローディング表示
+            loading.style.display = 'block';
+            predictionContent.style.display = 'none';
+            predictButton.disabled = true;
+            
+            // 予測生成をシミュレート（2-4秒の遅延）
+            const delay = Math.random() * 2000 + 2000;
+            
+            setTimeout(() => {
+                const prediction = generateAIPrediction(category, scenario, timeFrame);
+                displayPrediction(prediction);
+                updateStats(category, timeFrame, prediction.confidence);
+                
+                loading.style.display = 'none';
+                predictionContent.style.display = 'block';
+                predictButton.disabled = false;
+            }, delay);
+        }
+
+        // AI予測の生成ロジック
+        function generateAIPrediction(category, scenario, timeFrame) {
+            const predictions = {
+                technology: {
+                    ai_development: [
+                        `${timeFrame}年後、AIは人間と区別がつかないレベルの汎用知能を獲得し、創造的な分野でも人間を上回る成果を生み出している。`,
+                        `自動プログラミングが一般化し、ソフトウェア開発の90%がAIによって行われるようになる。`,
+                        `AIアシスタントが各個人の専属秘書として機能し、日常生活のあらゆる決定をサポートしている。`
+                    ],
+                    quantum_computing: [
+                        `量子コンピューターが商用化され、現在のスーパーコンピューターを凌駕する計算能力で新薬開発や気候予測を革新する。`,
+                        `量子暗号化により、完全に安全な通信システムが構築され、サイバーセキュリティが根本的に変革される。`,
+                        `量子シミュレーションにより、分子レベルでの精密な材料設計が可能になり、夢の新素材が実現する。`
+                    ]
+                },
+                society: {
+                    remote_work: [
+                        `完全リモートワークが標準となり、物理的オフィスは特別なコラボレーション空間としてのみ使用される。`,
+                        `VR/ARワークスペースが普及し、世界中の同僚と同じ仮想空間で自然に協働できるようになる。`,
+                        `地理的制約がなくなることで、才能の世界的な分散と機会の平等化が進む。`
+                    ]
+                },
+                environment: {
+                    climate_change: [
+                        `大気中のCO2を直接回収する技術が大規模展開され、地球の炭素循環が人工的に制御される。`,
+                        `再生可能エネルギーが全エネルギー需要の80%を占め、化石燃料は特殊用途のみに限定される。`,
+                        `気候変動の影響を受けた地域では、大規模な都市移転プロジェクトが実施される。`
+                    ]
+                }
+            };
+
+            const categoryPredictions = predictions[category];
+            if (!categoryPredictions || !categoryPredictions[scenario]) {
+                return generateGenericPrediction(category, scenario, timeFrame);
+            }
+
+            const scenarioPredictions = categoryPredictions[scenario];
+            const basePrediction = scenarioPredictions[Math.floor(Math.random() * scenarioPredictions.length)];
+            
+            // 時間枠に応じて予測を調整
+            let adjustedPrediction = basePrediction;
+            if (timeFrame <= 5) {
+                adjustedPrediction = `短期的には、` + adjustedPrediction.toLowerCase();
+            } else if (timeFrame >= 20) {
+                adjustedPrediction = `長期的な視点では、` + adjustedPrediction + ` さらに、この変化は社会全体の構造を根本的に変革し、新たな倫理的課題や機会を生み出すでしょう。`;
+            }
+
+            const confidence = Math.floor(Math.random() * 30 + 60); // 60-90%
+            const impact = Math.floor(Math.random() * 3) + 3; // 3-5
+            
+            return {
+                text: adjustedPrediction,
+                confidence: confidence,
+                impact: impact,
+                category: getCategoryDisplayName(category),
+                scenario: specificScenarioSelect.options[specificScenarioSelect.selectedIndex].text
+            };
+        }
+
+        // 汎用予測生成
+        function generateGenericPrediction(category, scenario, timeFrame) {
+            const genericTexts = [
+                `${timeFrame}年後、この分野では革新的な技術breakthrough が起こり、現在の常識を覆す変化が生まれるでしょう。`,
+                `人工知能と機械学習の進歩により、${timeFrame}年以内にこの領域で予想外の発展が見られる可能性が高いです。`,
+                `社会のデジタル化が進む中、${timeFrame}年後にはこの分野で新しいビジネスモデルやサービスが主流になっているでしょう。`
+            ];
+            
+            return {
+                text: genericTexts[Math.floor(Math.random() * genericTexts.length)],
+                confidence: Math.floor(Math.random() * 25 + 50),
+                impact: Math.floor(Math.random() * 3) + 2,
+                category: getCategoryDisplayName(category),
+                scenario: specificScenarioSelect.options[specificScenarioSelect.selectedIndex].text
+            };
+        }
+
+        // 予測結果の表示
+        function displayPrediction(prediction) {
+            predictionContent.innerHTML = `
+                <div class="prediction-category">${prediction.category}</div>
+                <h3 style="color: #00dfd8; margin-bottom: 15px;">${prediction.scenario}</h3>
+                <p>${prediction.text}</p>
+                <div class="confidence-meter">
+                    <div class="confidence-label">AI信頼度: ${prediction.confidence}%</div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" style="width: ${prediction.confidence}%"></div>
+                    </div>
+                </div>
+                <div style="margin-top: 15px; font-size: 0.9rem; color: rgba(255,255,255,0.7);">
+                    影響度: ${'★'.repeat(prediction.impact)}${'☆'.repeat(5-prediction.impact)}
+                </div>
+            `;
+        }
+
+        // 統計の更新
+        function updateStats(category, timeFrame, confidence) {
+            stats.totalPredictions++;
+            stats.confidenceSum += confidence;
+            stats.categoryCount[category] = (stats.categoryCount[category] || 0) + 1;
+            stats.longestPrediction = Math.max(stats.longestPrediction, timeFrame);
+            
+            // 統計表示の更新
+            totalPredictionsEl.textContent = stats.totalPredictions;
+            avgConfidenceEl.textContent = Math.round(stats.confidenceSum / stats.totalPredictions) + '%';
+            
+            // 人気カテゴリの計算
+            let maxCategory = '';
+            let maxCount = 0;
+            for (const [cat, count] of Object.entries(stats.categoryCount)) {
+                if (count > maxCount) {
+                    maxCount = count;
+                    maxCategory = cat;
+                }
+            }
+            favoriteCategoryEl.textContent = getCategoryDisplayName(maxCategory);
+            longestPredictionEl.textContent = stats.longestPrediction + '年';
+        }
+
+        // カテゴリ表示名の取得
+        function getCategoryDisplayName(category) {
+            const displayNames = {
+                technology: 'テクノロジー',
+                society: '社会・文化',
+                environment: '環境・気候',
+                economy: '経済・ビジネス',
+                science: '科学・医学',
+                space: '宇宙・探査',
+                personal: '個人の未来',
+                entertainment: 'エンタメ・文化'
+            };
+            return displayNames[category] || category;
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            updateSpecificScenarios();
+            updateTimeDisplay();
+        });
+    </script>
+</body>
+</html>

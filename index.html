@@ -578,8 +578,24 @@
     </header>
 
     <div class="container">
-        <div class="app-count" id="appCount">全 49 アプリ</div>
+        <div class="app-count" id="appCount">全 50 アプリ</div>
         <div class="apps-grid">
+            <!-- 🔮 AI未来予知ゲーム -->
+            <div class="app-card" data-category="ai" data-title="AI未来予知ゲーム">
+                <div class="app-image">
+                    <span>🔮</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">AI未来予知ゲーム</h2>
+                    <p class="app-description">
+                        Claudeの推論能力で未来を予測する革新的ゲーム！8つのカテゴリから選択し、
+                        1-50年後の未来をAIが分析・予測。テクノロジー、社会、環境など多様な分野の
+                        未来シナリオを体験し、AI信頼度と影響度で結果を評価！
+                    </p>
+                    <a href="apps/ai-future-predictor/index.html" class="app-link">未来を予測</a>
+                </div>
+            </div>
+
             <!-- 🌐 時空メモリーマップ -->
             <div class="app-card" data-category="ai" data-title="時空メモリーマップ">
                 <div class="app-image">
@@ -1422,6 +1438,7 @@
 
         // カテゴリマッピング（data-category属性がないカードのための一時的な分類）
         const categoryMapping = {
+            'AI未来予知ゲーム': 'ai',
             'AI映画監督': 'ai',
             'レトロ宇宙探査ゲーム': 'game',
             'AI音楽バトル': 'ai',
