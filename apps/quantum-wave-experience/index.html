@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>量子波動エフェクト体験 - 意識と波動の共鳴</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: radial-gradient(ellipse at center, #001122 0%, #000408 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: white;
+            position: relative;
+        }
+
+        .quantum-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .wave-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(0, 100, 255, 0.1) 0%, transparent 70%);
+        }
+
+        .control-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .title {
+            font-family: 'Orbitron', monospace;
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: rainbowShift 3s ease-in-out infinite;
+        }
+
+        @keyframes rainbowShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .control-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #00ffff;
+            font-weight: 500;
+        }
+
+        .control-slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .control-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+
+        .wave-mode-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .mode-btn {
+            background: linear-gradient(45deg, rgba(0, 255, 255, 0.2), rgba(255, 0, 255, 0.2));
+            border: 1px solid rgba(0, 255, 255, 0.5);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .mode-btn:hover {
+            background: linear-gradient(45deg, rgba(0, 255, 255, 0.4), rgba(255, 0, 255, 0.4));
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+        }
+
+        .info-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .frequency-display {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            color: #00ffff;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        .wave-info {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.4;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: radial-gradient(circle, #00ffff 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .control-panel {
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                padding: 15px;
+            }
+            
+            .title {
+                font-size: 1.5rem;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-panel {
+                bottom: 10px;
+                left: 10px;
+                right: 10px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quantum-container">
+        <canvas id="waveCanvas" class="wave-canvas"></canvas>
+        
+        <div class="control-panel">
+            <h1 class="title">量子波動エフェクト体験</h1>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label class="control-label">周波数 (Hz)</label>
+                    <input type="range" id="frequency" class="control-slider" min="0.1" max="50" step="0.1" value="5">
+                </div>
+                <div class="control-group">
+                    <label class="control-label">振幅</label>
+                    <input type="range" id="amplitude" class="control-slider" min="10" max="200" step="5" value="100">
+                </div>
+                <div class="control-group">
+                    <label class="control-label">波の数</label>
+                    <input type="range" id="waveCount" class="control-slider" min="1" max="20" step="1" value="5">
+                </div>
+                <div class="control-group">
+                    <label class="control-label">色相シフト</label>
+                    <input type="range" id="colorShift" class="control-slider" min="0" max="360" step="1" value="180">
+                </div>
+            </div>
+            
+            <div class="wave-mode-buttons">
+                <button class="mode-btn active" data-mode="sine">正弦波</button>
+                <button class="mode-btn" data-mode="interference">干渉波</button>
+                <button class="mode-btn" data-mode="quantum">量子もつれ</button>
+                <button class="mode-btn" data-mode="chaos">カオス波</button>
+                <button class="mode-btn" data-mode="mandala">波動曼荼羅</button>
+            </div>
+        </div>
+        
+        <div class="info-panel">
+            <div class="frequency-display" id="frequencyDisplay">5.0 Hz</div>
+            <div class="wave-info" id="waveInfo">
+                正弦波モード: 基本的な波動パターンを体験しています。周波数を調整して意識の状態を変化させましょう。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class QuantumWaveExperience {
+            constructor() {
+                this.canvas = document.getElementById('waveCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.setupCanvas();
+                
+                this.time = 0;
+                this.particles = [];
+                this.mode = 'sine';
+                
+                this.frequency = 5;
+                this.amplitude = 100;
+                this.waveCount = 5;
+                this.colorShift = 180;
+                
+                this.setupControls();
+                this.setupModeButtons();
+                this.animate();
+                this.createParticles();
+            }
+            
+            setupCanvas() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+                
+                window.addEventListener('resize', () => {
+                    this.canvas.width = window.innerWidth;
+                    this.canvas.height = window.innerHeight;
+                });
+            }
+            
+            setupControls() {
+                const controls = ['frequency', 'amplitude', 'waveCount', 'colorShift'];
+                controls.forEach(control => {
+                    const slider = document.getElementById(control);
+                    slider.addEventListener('input', (e) => {
+                        this[control] = parseFloat(e.target.value);
+                        this.updateDisplay();
+                    });
+                });
+            }
+            
+            setupModeButtons() {
+                const buttons = document.querySelectorAll('.mode-btn');
+                buttons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        buttons.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.mode = btn.dataset.mode;
+                        this.updateWaveInfo();
+                    });
+                });
+            }
+            
+            updateDisplay() {
+                document.getElementById('frequencyDisplay').textContent = `${this.frequency.toFixed(1)} Hz`;
+            }
+            
+            updateWaveInfo() {
+                const info = {
+                    sine: '正弦波モード: 基本的な波動パターンを体験しています。周波数を調整して意識の状態を変化させましょう。',
+                    interference: '干渉波モード: 複数の波が重なり合い、美しい干渉パターンを形成しています。',
+                    quantum: '量子もつれモード: 量子の神秘的な相関関係を波動で表現。遠く離れた粒子が瞬時に影響し合います。',
+                    chaos: 'カオス波モード: 複雑系の美しさを波動で体現。予測不可能でありながら秩序を持つパターン。',
+                    mandala: '波動曼荼羅モード: 円形の対称性を持つ神聖な波動パターン。瞑想的な体験を提供します。'
+                };
+                document.getElementById('waveInfo').textContent = info[this.mode];
+            }
+            
+            createParticles() {
+                for (let i = 0; i < 50; i++) {
+                    this.particles.push({
+                        x: Math.random() * this.canvas.width,
+                        y: Math.random() * this.canvas.height,
+                        vx: (Math.random() - 0.5) * 2,
+                        vy: (Math.random() - 0.5) * 2,
+                        life: Math.random()
+                    });
+                }
+            }
+            
+            drawSineWave() {
+                const centerY = this.canvas.height / 2;
+                const centerX = this.canvas.width / 2;
+                
+                for (let w = 0; w < this.waveCount; w++) {
+                    this.ctx.beginPath();
+                    this.ctx.strokeStyle = `hsl(${(this.colorShift + w * 60) % 360}, 70%, 60%)`;
+                    this.ctx.lineWidth = 3;
+                    this.ctx.globalAlpha = 0.8;
+                    
+                    for (let x = 0; x < this.canvas.width; x += 2) {
+                        const y = centerY + Math.sin((x / this.canvas.width) * Math.PI * 2 * (w + 1) + this.time * this.frequency) * this.amplitude;
+                        if (x === 0) {
+                            this.ctx.moveTo(x, y);
+                        } else {
+                            this.ctx.lineTo(x, y);
+                        }
+                    }
+                    this.ctx.stroke();
+                }
+            }
+            
+            drawInterference() {
+                const centerY = this.canvas.height / 2;
+                const centerX = this.canvas.width / 2;
+                
+                this.ctx.globalAlpha = 0.6;
+                
+                for (let x = 0; x < this.canvas.width; x += 4) {
+                    for (let y = 0; y < this.canvas.height; y += 4) {
+                        let wave = 0;
+                        for (let w = 0; w < this.waveCount; w++) {
+                            const dist1 = Math.sqrt((x - centerX - 200)** 2 + (y - centerY)** 2);
+                            const dist2 = Math.sqrt((x - centerX + 200)** 2 + (y - centerY)** 2);
+                            wave += Math.sin(dist1 * 0.02 + this.time * this.frequency) + 
+                                   Math.sin(dist2 * 0.02 + this.time * this.frequency);
+                        }
+                        
+                        const intensity = (wave + this.waveCount * 2) / (this.waveCount * 4);
+                        const hue = (this.colorShift + intensity * 360) % 360;
+                        this.ctx.fillStyle = `hsla(${hue}, 70%, 60%, ${intensity * 0.8})`;
+                        this.ctx.fillRect(x, y, 4, 4);
+                    }
+                }
+            }
+            
+            drawQuantum() {
+                const centerX = this.canvas.width / 2;
+                const centerY = this.canvas.height / 2;
+                
+                for (let i = 0; i < this.waveCount * 10; i++) {
+                    const angle = (i / (this.waveCount * 10)) * Math.PI * 2;
+                    const radius = 200 + Math.sin(this.time * this.frequency + i) * this.amplitude;
+                    
+                    const x = centerX + Math.cos(angle) * radius;
+                    const y = centerY + Math.sin(angle) * radius;
+                    
+                    const entangledX = centerX - Math.cos(angle + Math.PI) * radius;
+                    const entangledY = centerY - Math.sin(angle + Math.PI) * radius;
+                    
+                    this.ctx.beginPath();
+                    this.ctx.strokeStyle = `hsl(${(this.colorShift + i * 10) % 360}, 70%, 60%)`;
+                    this.ctx.lineWidth = 2;
+                    this.ctx.globalAlpha = 0.6;
+                    this.ctx.moveTo(x, y);
+                    this.ctx.lineTo(entangledX, entangledY);
+                    this.ctx.stroke();
+                    
+                    this.ctx.beginPath();
+                    this.ctx.fillStyle = `hsl(${(this.colorShift + i * 10) % 360}, 70%, 70%)`;
+                    this.ctx.globalAlpha = 0.8;
+                    this.ctx.arc(x, y, 3, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+            }
+            
+            drawChaos() {
+                const centerX = this.canvas.width / 2;
+                const centerY = this.canvas.height / 2;
+                
+                this.ctx.globalAlpha = 0.7;
+                
+                for (let i = 0; i < this.waveCount * 20; i++) {
+                    const t = this.time * this.frequency + i * 0.1;
+                    const x = centerX + Math.sin(t) * this.amplitude * Math.cos(t * 0.3);
+                    const y = centerY + Math.cos(t) * this.amplitude * Math.sin(t * 0.7);
+                    
+                    this.ctx.beginPath();
+                    this.ctx.fillStyle = `hsl(${(this.colorShift + t * 50) % 360}, 80%, 60%)`;
+                    this.ctx.arc(x, y, 2, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+            }
+            
+            drawMandala() {
+                const centerX = this.canvas.width / 2;
+                const centerY = this.canvas.height / 2;
+                
+                this.ctx.globalAlpha = 0.8;
+                
+                for (let layer = 1; layer <= this.waveCount; layer++) {
+                    for (let i = 0; i < 360; i += 5) {
+                        const angle = i * Math.PI / 180;
+                        const radius = layer * 30 + Math.sin(this.time * this.frequency + layer + i * 0.1) * this.amplitude * 0.5;
+                        
+                        const x = centerX + Math.cos(angle) * radius;
+                        const y = centerY + Math.sin(angle) * radius;
+                        
+                        this.ctx.beginPath();
+                        this.ctx.fillStyle = `hsl(${(this.colorShift + layer * 60 + i) % 360}, 70%, 60%)`;
+                        this.ctx.arc(x, y, 2, 0, Math.PI * 2);
+                        this.ctx.fill();
+                    }
+                }
+            }
+            
+            updateParticles() {
+                this.particles.forEach(particle => {
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    particle.life -= 0.01;
+                    
+                    if (particle.x < 0 || particle.x > this.canvas.width) particle.vx *= -1;
+                    if (particle.y < 0 || particle.y > this.canvas.height) particle.vy *= -1;
+                    
+                    if (particle.life <= 0) {
+                        particle.x = Math.random() * this.canvas.width;
+                        particle.y = Math.random() * this.canvas.height;
+                        particle.life = 1;
+                    }
+                    
+                    this.ctx.beginPath();
+                    this.ctx.fillStyle = `rgba(0, 255, 255, ${particle.life * 0.5})`;
+                    this.ctx.arc(particle.x, particle.y, 1, 0, Math.PI * 2);
+                    this.ctx.fill();
+                });
+            }
+            
+            animate() {
+                this.ctx.fillStyle = 'rgba(0, 5, 15, 0.1)';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                switch (this.mode) {
+                    case 'sine':
+                        this.drawSineWave();
+                        break;
+                    case 'interference':
+                        this.drawInterference();
+                        break;
+                    case 'quantum':
+                        this.drawQuantum();
+                        break;
+                    case 'chaos':
+                        this.drawChaos();
+                        break;
+                    case 'mandala':
+                        this.drawMandala();
+                        break;
+                }
+                
+                this.updateParticles();
+                this.time += 0.05;
+                
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+        
+        window.addEventListener('load', () => {
+            new QuantumWaveExperience();
+        });
+    </script>
+</body>
+</html>

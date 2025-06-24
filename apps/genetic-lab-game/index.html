@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>遺伝子組み換えラボゲーム - 生命の設計図を操る</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: linear-gradient(135deg, #0a4d3a 0%, #1a5d4a 25%, #2d7a5a 50%, #3e9e6a 75%, #4fb87a 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: white;
+            position: relative;
+        }
+
+        .dna-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(79, 184, 122, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(45, 122, 90, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+            animation: dnaFloat 8s ease-in-out infinite;
+        }
+
+        @keyframes dnaFloat {
+            0%, 100% { opacity: 0.3; transform: translateY(0px); }
+            50% { opacity: 0.7; transform: translateY(-10px); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+
+        .main-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #4fb87a, #3e9e6a, #2d7a5a, #1a5d4a);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            animation: gradientShift 3s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(79, 184, 122, 0.3);
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: #4fb87a;
+            margin-bottom: 20px;
+        }
+
+        .lab-area {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .dna-workspace {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(79, 184, 122, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .dna-strand {
+            position: relative;
+            height: 400px;
+            background: linear-gradient(180deg, rgba(79, 184, 122, 0.1) 0%, rgba(45, 122, 90, 0.1) 100%);
+            border-radius: 15px;
+            border: 2px solid rgba(79, 184, 122, 0.4);
+            overflow: hidden;
+        }
+
+        .dna-helix {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #4fb87a, #3e9e6a);
+            animation: helix-spin 4s linear infinite;
+        }
+
+        @keyframes helix-spin {
+            0% { transform: translateX(-50%) rotate(0deg); }
+            100% { transform: translateX(-50%) rotate(360deg); }
+        }
+
+        .nucleotide {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .nucleotide:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 20px rgba(79, 184, 122, 0.8);
+        }
+
+        .nucleotide.A {
+            background: linear-gradient(45deg, #ff6b6b, #ff5252);
+            color: white;
+        }
+
+        .nucleotide.T {
+            background: linear-gradient(45deg, #4ecdc4, #26a69a);
+            color: white;
+        }
+
+        .nucleotide.G {
+            background: linear-gradient(45deg, #45b7d1, #2196f3);
+            color: white;
+        }
+
+        .nucleotide.C {
+            background: linear-gradient(45deg, #f093fb, #f441a5);
+            color: white;
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(79, 184, 122, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .panel-section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #4fb87a;
+            border-bottom: 2px solid rgba(79, 184, 122, 0.3);
+            padding-bottom: 8px;
+        }
+
+        .nucleotide-palette {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .palette-nucleotide {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            margin: 0 auto;
+        }
+
+        .palette-nucleotide:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(79, 184, 122, 0.6);
+        }
+
+        .palette-nucleotide.selected {
+            box-shadow: 0 0 25px rgba(79, 184, 122, 1);
+            border-color: #4fb87a;
+        }
+
+        .organism-viewer {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid rgba(79, 184, 122, 0.2);
+        }
+
+        .organism-display {
+            font-size: 4rem;
+            margin-bottom: 10px;
+            transition: all 0.5s ease;
+        }
+
+        .organism-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #4fb87a;
+            margin-bottom: 5px;
+        }
+
+        .organism-traits {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.4;
+        }
+
+        .lab-controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .lab-btn {
+            background: linear-gradient(135deg, #4fb87a, #3e9e6a);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(79, 184, 122, 0.4);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .lab-btn:hover {
+            background: linear-gradient(135deg, #5cc891, #4fb87a);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(79, 184, 122, 0.6);
+        }
+
+        .experiment-log {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid rgba(79, 184, 122, 0.2);
+        }
+
+        .log-entry {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            background: rgba(79, 184, 122, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid #4fb87a;
+            font-size: 0.9rem;
+            line-height: 1.3;
+        }
+
+        .stats-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 15px;
+            border: 1px solid rgba(79, 184, 122, 0.2);
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .stat-value {
+            color: #4fb87a;
+            font-family: 'Orbitron', monospace;
+            font-weight: 600;
+        }
+
+        .sequence-display {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-family: 'Orbitron', monospace;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            text-align: center;
+            border: 1px solid rgba(79, 184, 122, 0.3);
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .sequence-letter {
+            margin: 2px;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .mutation-effect {
+            position: absolute;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4fb87a;
+            pointer-events: none;
+            animation: mutation-pop 1s ease-out;
+        }
+
+        @keyframes mutation-pop {
+            0% { transform: scale(0) rotate(0deg); opacity: 1; }
+            50% { transform: scale(1.5) rotate(180deg); opacity: 0.8; }
+            100% { transform: scale(0) rotate(360deg); opacity: 0; }
+        }
+
+        @media (max-width: 768px) {
+            .lab-area {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .main-title {
+                font-size: 2rem;
+            }
+            
+            .dna-strand {
+                height: 300px;
+            }
+            
+            .nucleotide-palette {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .lab-controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dna-bg"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="main-title">遺伝子組み換えラボ</h1>
+            <p class="subtitle">生命の設計図を操り、新しい生物を創造しよう</p>
+        </div>
+
+        <div class="lab-area">
+            <div class="dna-workspace">
+                <h3 class="section-title">DNA編集エリア</h3>
+                <div class="sequence-display" id="sequenceDisplay">
+                    クリックでDNA配列を編集開始
+                </div>
+                <div class="dna-strand" id="dnaStrand">
+                    <div class="dna-helix"></div>
+                    <!-- Nucleotides will be dynamically added here -->
+                </div>
+                
+                <div class="lab-controls">
+                    <button class="lab-btn" onclick="generateRandomDNA()">🎲 ランダムDNA生成</button>
+                    <button class="lab-btn" onclick="runEvolution()">🧬 進化シミュレーション</button>
+                    <button class="lab-btn" onclick="analyzeDNA()">🔬 DNA解析</button>
+                    <button class="lab-btn" onclick="clearLab()">🗑️ ラボをリセット</button>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <div class="panel-section">
+                    <h3 class="section-title">塩基選択</h3>
+                    <div class="nucleotide-palette">
+                        <div class="palette-nucleotide A" onclick="selectNucleotide('A')">A</div>
+                        <div class="palette-nucleotide T" onclick="selectNucleotide('T')">T</div>
+                        <div class="palette-nucleotide G" onclick="selectNucleotide('G')">G</div>
+                        <div class="palette-nucleotide C" onclick="selectNucleotide('C')">C</div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3 class="section-title">生成された生物</h3>
+                    <div class="organism-viewer">
+                        <div class="organism-display" id="organismDisplay">🦠</div>
+                        <div class="organism-name" id="organismName">微生物</div>
+                        <div class="organism-traits" id="organismTraits">基本的な単細胞生物</div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3 class="section-title">実験統計</h3>
+                    <div class="stats-panel">
+                        <div class="stat-item">
+                            <span class="stat-label">配列長:</span>
+                            <span class="stat-value" id="sequenceLength">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">GC含量:</span>
+                            <span class="stat-value" id="gcContent">0%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">実験回数:</span>
+                            <span class="stat-value" id="experimentCount">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">成功率:</span>
+                            <span class="stat-value" id="successRate">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3 class="section-title">実験ログ</h3>
+                    <div class="experiment-log" id="experimentLog">
+                        <div class="log-entry">実験を開始してください...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class GeneticLabGame {
+            constructor() {
+                this.dnaSequence = [];
+                this.selectedNucleotide = 'A';
+                this.experimentCount = 0;
+                this.successCount = 0;
+                this.currentOrganism = null;
+                
+                this.organisms = {
+                    basic: { emoji: '🦠', name: '微生物', traits: '基本的な単細胞生物' },
+                    bacteria: { emoji: '🦠', name: 'バクテリア', traits: '抗生物質に耐性を持つ' },
+                    virus: { emoji: '🦠', name: 'ウイルス', traits: '高い感染力を持つ' },
+                    plant: { emoji: '🌱', name: '植物', traits: '光合成能力を持つ' },
+                    flower: { emoji: '🌸', name: '花', traits: '美しい色彩と香り' },
+                    tree: { emoji: '🌳', name: '大樹', traits: '長寿命で酸素を大量生産' },
+                    fish: { emoji: '🐟', name: '魚類', traits: '水中での高い機動性' },
+                    bird: { emoji: '🐦', name: '鳥類', traits: '飛行能力と優れた視力' },
+                    mammal: { emoji: '🐭', name: '哺乳類', traits: '高い知能と社会性' },
+                    dragon: { emoji: '🐉', name: 'ドラゴン', traits: '伝説の力を秘めた生物' },
+                    alien: { emoji: '👽', name: '異星生物', traits: '未知の能力を持つ' },
+                    robot: { emoji: '🤖', name: 'バイオロボット', traits: '人工知能と生体組織の融合' }
+                };
+                
+                this.initializeLab();
+                this.selectNucleotide('A');
+            }
+            
+            initializeLab() {
+                this.generateInitialDNA();
+                this.updateDisplay();
+            }
+            
+            generateInitialDNA() {
+                const nucleotides = ['A', 'T', 'G', 'C'];
+                this.dnaSequence = [];
+                
+                for (let i = 0; i < 8; i++) {
+                    this.dnaSequence.push(nucleotides[Math.floor(Math.random() * nucleotides.length)]);
+                }
+                
+                this.updateDNAStrand();
+                this.analyzeSequence();
+            }
+            
+            selectNucleotide(nucleotide) {
+                this.selectedNucleotide = nucleotide;
+                
+                // Update visual selection
+                document.querySelectorAll('.palette-nucleotide').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                document.querySelector(`.palette-nucleotide.${nucleotide}`).classList.add('selected');
+            }
+            
+            updateDNAStrand() {
+                const strand = document.getElementById('dnaStrand');
+                const existingNucleotides = strand.querySelectorAll('.nucleotide');
+                existingNucleotides.forEach(el => el.remove());
+                
+                this.dnaSequence.forEach((nucleotide, index) => {
+                    const nucleotideEl = document.createElement('div');
+                    nucleotideEl.className = `nucleotide ${nucleotide}`;
+                    nucleotideEl.textContent = nucleotide;
+                    nucleotideEl.style.left = (index % 2 === 0 ? 20 : 60) + '%';
+                    nucleotideEl.style.top = (index * 45 + 20) + 'px';
+                    nucleotideEl.onclick = () => this.replaceNucleotide(index);
+                    strand.appendChild(nucleotideEl);
+                });
+                
+                this.updateSequenceDisplay();
+            }
+            
+            updateSequenceDisplay() {
+                const display = document.getElementById('sequenceDisplay');
+                display.innerHTML = '';
+                
+                this.dnaSequence.forEach(nucleotide => {
+                    const letter = document.createElement('span');
+                    letter.className = `sequence-letter ${nucleotide}`;
+                    letter.textContent = nucleotide;
+                    letter.style.backgroundColor = this.getNucleotideColor(nucleotide);
+                    display.appendChild(letter);
+                });
+            }
+            
+            getNucleotideColor(nucleotide) {
+                const colors = {
+                    'A': '#ff6b6b',
+                    'T': '#4ecdc4',
+                    'G': '#45b7d1',
+                    'C': '#f093fb'
+                };
+                return colors[nucleotide] || '#ffffff';
+            }
+            
+            replaceNucleotide(index) {
+                const oldNucleotide = this.dnaSequence[index];
+                this.dnaSequence[index] = this.selectedNucleotide;
+                
+                this.updateDNAStrand();
+                this.analyzeSequence();
+                this.createMutationEffect(index);
+                this.logExperiment(`塩基 ${oldNucleotide} を ${this.selectedNucleotide} に変異させました`);
+            }
+            
+            createMutationEffect(index) {
+                const effect = document.createElement('div');
+                effect.className = 'mutation-effect';
+                effect.textContent = '💥';
+                effect.style.left = Math.random() * 200 + 'px';
+                effect.style.top = Math.random() * 200 + 'px';
+                
+                document.getElementById('dnaStrand').appendChild(effect);
+                
+                setTimeout(() => {
+                    effect.remove();
+                }, 1000);
+            }
+            
+            generateRandomDNA() {
+                const nucleotides = ['A', 'T', 'G', 'C'];
+                const length = Math.floor(Math.random() * 8) + 6;
+                this.dnaSequence = [];
+                
+                for (let i = 0; i < length; i++) {
+                    this.dnaSequence.push(nucleotides[Math.floor(Math.random() * nucleotides.length)]);
+                }
+                
+                this.updateDNAStrand();
+                this.analyzeSequence();
+                this.logExperiment('新しいランダムDNA配列を生成しました');
+            }
+            
+            runEvolution() {
+                this.experimentCount++;
+                
+                // Simulate evolution by making random mutations
+                const mutationCount = Math.floor(Math.random() * 3) + 1;
+                
+                for (let i = 0; i < mutationCount; i++) {
+                    const index = Math.floor(Math.random() * this.dnaSequence.length);
+                    const nucleotides = ['A', 'T', 'G', 'C'];
+                    this.dnaSequence[index] = nucleotides[Math.floor(Math.random() * nucleotides.length)];
+                }
+                
+                this.updateDNAStrand();
+                this.analyzeSequence();
+                this.logExperiment(`進化シミュレーション実行: ${mutationCount}個の変異が発生`);
+                
+                // Check if evolution was successful
+                if (Math.random() > 0.3) {
+                    this.successCount++;
+                    this.logExperiment('✅ 進化に成功！新しい特性を獲得しました');
+                } else {
+                    this.logExperiment('❌ 進化に失敗。有害な変異でした');
+                }
+                
+                this.updateStats();
+            }
+            
+            analyzeDNA() {
+                this.experimentCount++;
+                
+                const sequence = this.dnaSequence.join('');
+                const gcContent = this.calculateGCContent();
+                const organism = this.predictOrganism();
+                
+                this.currentOrganism = organism;
+                this.updateOrganismDisplay();
+                
+                this.logExperiment(`DNA解析完了: ${organism.name}の特徴を発見`);
+                this.successCount++;
+                this.updateStats();
+            }
+            
+            calculateGCContent() {
+                const gcCount = this.dnaSequence.filter(n => n === 'G' || n === 'C').length;
+                return Math.round((gcCount / this.dnaSequence.length) * 100);
+            }
+            
+            predictOrganism() {
+                const sequence = this.dnaSequence.join('');
+                const gcContent = this.calculateGCContent();
+                const length = this.dnaSequence.length;
+                
+                // Simple algorithm to determine organism based on sequence characteristics
+                if (sequence.includes('ATGC') && gcContent > 60) {
+                    return this.organisms.dragon;
+                } else if (sequence.includes('AAAA') || sequence.includes('TTTT')) {
+                    return this.organisms.alien;
+                } else if (gcContent > 70 && length > 10) {
+                    return this.organisms.robot;
+                } else if (sequence.includes('ATCG') && gcContent > 50) {
+                    return this.organisms.mammal;
+                } else if (sequence.includes('GCGC')) {
+                    return this.organisms.bird;
+                } else if (gcContent > 50) {
+                    return this.organisms.fish;
+                } else if (sequence.includes('CGTA')) {
+                    return this.organisms.tree;
+                } else if (sequence.includes('TACG')) {
+                    return this.organisms.flower;
+                } else if (gcContent < 30) {
+                    return this.organisms.virus;
+                } else if (length > 8) {
+                    return this.organisms.plant;
+                } else if (gcContent > 40) {
+                    return this.organisms.bacteria;
+                } else {
+                    return this.organisms.basic;
+                }
+            }
+            
+            updateOrganismDisplay() {
+                if (this.currentOrganism) {
+                    document.getElementById('organismDisplay').textContent = this.currentOrganism.emoji;
+                    document.getElementById('organismName').textContent = this.currentOrganism.name;
+                    document.getElementById('organismTraits').textContent = this.currentOrganism.traits;
+                }
+            }
+            
+            updateStats() {
+                document.getElementById('sequenceLength').textContent = this.dnaSequence.length;
+                document.getElementById('gcContent').textContent = this.calculateGCContent() + '%';
+                document.getElementById('experimentCount').textContent = this.experimentCount;
+                
+                const successRate = this.experimentCount > 0 ? 
+                    Math.round((this.successCount / this.experimentCount) * 100) : 0;
+                document.getElementById('successRate').textContent = successRate + '%';
+            }
+            
+            updateDisplay() {
+                this.updateDNAStrand();
+                this.updateStats();
+                this.analyzeSequence();
+            }
+            
+            analyzeSequence() {
+                if (this.dnaSequence.length > 0) {
+                    this.currentOrganism = this.predictOrganism();
+                    this.updateOrganismDisplay();
+                }
+            }
+            
+            logExperiment(message) {
+                const log = document.getElementById('experimentLog');
+                const entry = document.createElement('div');
+                entry.className = 'log-entry';
+                entry.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+                
+                log.insertBefore(entry, log.firstChild);
+                
+                // Keep only last 10 entries
+                while (log.children.length > 10) {
+                    log.removeChild(log.lastChild);
+                }
+            }
+            
+            clearLab() {
+                this.dnaSequence = [];
+                this.experimentCount = 0;
+                this.successCount = 0;
+                this.currentOrganism = this.organisms.basic;
+                
+                this.updateDisplay();
+                
+                document.getElementById('experimentLog').innerHTML = 
+                    '<div class="log-entry">実験を開始してください...</div>';
+                
+                this.logExperiment('ラボがリセットされました');
+            }
+        }
+        
+        // Initialize the lab
+        let lab;
+        window.addEventListener('load', () => {
+            lab = new GeneticLabGame();
+        });
+        
+        // Global functions for HTML onclick events
+        function selectNucleotide(nucleotide) {
+            lab.selectNucleotide(nucleotide);
+        }
+        
+        function generateRandomDNA() {
+            lab.generateRandomDNA();
+        }
+        
+        function runEvolution() {
+            lab.runEvolution();
+        }
+        
+        function analyzeDNA() {
+            lab.analyzeDNA();
+        }
+        
+        function clearLab() {
+            lab.clearLab();
+        }
+    </script>
+</body>
+</html>

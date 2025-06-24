@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宇宙創造シミュレーター - ビッグバンから銀河まで</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: radial-gradient(ellipse at center, #000428 0%, #004e92 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: white;
+            position: relative;
+        }
+
+        .universe-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .space-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(0, 4, 40, 0.8) 0%, rgba(0, 0, 0, 1) 100%);
+            cursor: crosshair;
+        }
+
+        .control-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 300px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(15px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+        }
+
+        .title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #f093fb);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .creation-tools {
+            margin-bottom: 20px;
+        }
+
+        .tool-group {
+            margin-bottom: 15px;
+        }
+
+        .tool-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #4ecdc4;
+            font-weight: 500;
+        }
+
+        .tool-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .tool-btn {
+            background: linear-gradient(135deg, rgba(78, 205, 196, 0.2), rgba(69, 183, 209, 0.2));
+            border: 1px solid rgba(78, 205, 196, 0.5);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .tool-btn:hover {
+            background: linear-gradient(135deg, rgba(78, 205, 196, 0.4), rgba(69, 183, 209, 0.4));
+            box-shadow: 0 0 15px rgba(78, 205, 196, 0.3);
+        }
+
+        .tool-btn.active {
+            background: linear-gradient(135deg, #4ecdc4, #45b7d1);
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.6);
+        }
+
+        .parameter-controls {
+            margin-bottom: 20px;
+        }
+
+        .parameter {
+            margin-bottom: 15px;
+        }
+
+        .parameter-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .parameter-slider {
+            width: 100%;
+            height: 5px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .parameter-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #4ecdc4, #45b7d1);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+        }
+
+        .universe-stats {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .stat-value {
+            color: #4ecdc4;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(135deg, #7c8df0, #8b5ac7);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .time-control {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(15px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            z-index: 100;
+        }
+
+        .time-display {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            color: #4ecdc4;
+            text-align: center;
+            min-width: 200px;
+        }
+
+        .time-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .time-btn {
+            background: linear-gradient(135deg, rgba(78, 205, 196, 0.2), rgba(69, 183, 209, 0.2));
+            border: 1px solid rgba(78, 205, 196, 0.5);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .time-btn:hover {
+            background: linear-gradient(135deg, rgba(78, 205, 196, 0.4), rgba(69, 183, 209, 0.4));
+        }
+
+        .info-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 250px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(15px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+        }
+
+        .event-log {
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+
+        .event-item {
+            margin-bottom: 10px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            border-left: 3px solid #4ecdc4;
+        }
+
+        .stellar-object {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            transition: all 0.5s ease;
+        }
+
+        .star {
+            background: radial-gradient(circle, #fff 0%, #ffeb3b 50%, #ff9800 100%);
+            box-shadow: 0 0 20px rgba(255, 235, 59, 0.8);
+            animation: twinkle 2s ease-in-out infinite alternate;
+        }
+
+        .planet {
+            background: radial-gradient(circle, #2196f3 0%, #1976d2 100%);
+            box-shadow: 0 0 10px rgba(33, 150, 243, 0.6);
+        }
+
+        .blackhole {
+            background: radial-gradient(circle, #000 0%, #424242 50%, #000 100%);
+            box-shadow: 0 0 30px rgba(156, 39, 176, 0.8);
+            animation: pulse 1s ease-in-out infinite alternate;
+        }
+
+        .nebula {
+            background: radial-gradient(circle, rgba(233, 30, 99, 0.6) 0%, rgba(156, 39, 176, 0.4) 50%, rgba(103, 58, 183, 0.2) 100%);
+            border-radius: 50%;
+            filter: blur(10px);
+        }
+
+        @keyframes twinkle {
+            from { opacity: 0.7; transform: scale(1); }
+            to { opacity: 1; transform: scale(1.1); }
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.2); }
+        }
+
+        @media (max-width: 768px) {
+            .control-panel, .info-panel {
+                width: 90%;
+                position: relative;
+                margin: 10px auto;
+            }
+            
+            .time-control {
+                position: relative;
+                transform: none;
+                margin: 20px auto;
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .universe-container {
+                flex-direction: column;
+                overflow-y: auto;
+                height: auto;
+                min-height: 100vh;
+            }
+            
+            .space-canvas {
+                position: relative;
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="universe-container">
+        <canvas id="universeCanvas" class="space-canvas"></canvas>
+        
+        <div class="control-panel">
+            <h2 class="title">宇宙創造ツール</h2>
+            
+            <div class="creation-tools">
+                <div class="tool-group">
+                    <label class="tool-label">天体を作成</label>
+                    <div class="tool-buttons">
+                        <button class="tool-btn active" data-tool="star">⭐ 恒星</button>
+                        <button class="tool-btn" data-tool="planet">🪐 惑星</button>
+                        <button class="tool-btn" data-tool="blackhole">🌑 ブラックホール</button>
+                        <button class="tool-btn" data-tool="nebula">🌌 星雲</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="parameter-controls">
+                <div class="parameter">
+                    <div class="parameter-label">
+                        <span>サイズ</span>
+                        <span id="sizeValue">20</span>
+                    </div>
+                    <input type="range" id="sizeSlider" class="parameter-slider" min="5" max="100" value="20">
+                </div>
+                <div class="parameter">
+                    <div class="parameter-label">
+                        <span>重力</span>
+                        <span id="gravityValue">50</span>
+                    </div>
+                    <input type="range" id="gravitySlider" class="parameter-slider" min="1" max="100" value="50">
+                </div>
+                <div class="parameter">
+                    <div class="parameter-label">
+                        <span>エネルギー</span>
+                        <span id="energyValue">75</span>
+                    </div>
+                    <input type="range" id="energySlider" class="parameter-slider" min="1" max="100" value="75">
+                </div>
+            </div>
+            
+            <div class="universe-stats">
+                <div class="stat-item">
+                    <span class="stat-label">天体数:</span>
+                    <span class="stat-value" id="objectCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">銀河年齢:</span>
+                    <span class="stat-value" id="universeAge">0年</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">エネルギー密度:</span>
+                    <span class="stat-value" id="energyDensity">0%</span>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn" onclick="simulateBigBang()">🎆 ビッグバン</button>
+                <button class="action-btn" onclick="clearUniverse()">🗑️ 宇宙をリセット</button>
+                <button class="action-btn" onclick="saveUniverse()">💾 宇宙を保存</button>
+            </div>
+        </div>
+        
+        <div class="time-control">
+            <div class="time-buttons">
+                <button class="time-btn" onclick="setTimeSpeed(0)">⏸️ 停止</button>
+                <button class="time-btn" onclick="setTimeSpeed(1)">▶️ 標準</button>
+                <button class="time-btn" onclick="setTimeSpeed(5)">⏩ 5倍速</button>
+                <button class="time-btn" onclick="setTimeSpeed(20)">⏭️ 20倍速</button>
+            </div>
+            <div class="time-display" id="timeDisplay">
+                宇宙誕生から 0年
+            </div>
+        </div>
+        
+        <div class="info-panel">
+            <h3 style="color: #4ecdc4; margin-bottom: 15px; font-size: 1.1rem;">宇宙の歴史</h3>
+            <div class="event-log" id="eventLog">
+                <div class="event-item">
+                    宇宙が静寂に包まれています...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class UniverseCreator {
+            constructor() {
+                this.canvas = document.getElementById('universeCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.setupCanvas();
+                
+                this.objects = [];
+                this.time = 0;
+                this.timeSpeed = 1;
+                this.selectedTool = 'star';
+                this.isSimulating = false;
+                
+                this.parameters = {
+                    size: 20,
+                    gravity: 50,
+                    energy: 75
+                };
+                
+                this.setupEventListeners();
+                this.animate();
+            }
+            
+            setupCanvas() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+                
+                window.addEventListener('resize', () => {
+                    this.canvas.width = window.innerWidth;
+                    this.canvas.height = window.innerHeight;
+                });
+            }
+            
+            setupEventListeners() {
+                // Tool selection
+                document.querySelectorAll('.tool-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.selectedTool = btn.dataset.tool;
+                    });
+                });
+                
+                // Parameter controls
+                const sliders = ['size', 'gravity', 'energy'];
+                sliders.forEach(param => {
+                    const slider = document.getElementById(param + 'Slider');
+                    const value = document.getElementById(param + 'Value');
+                    
+                    slider.addEventListener('input', (e) => {
+                        this.parameters[param] = parseInt(e.target.value);
+                        value.textContent = e.target.value;
+                    });
+                });
+                
+                // Canvas click
+                this.canvas.addEventListener('click', (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    this.createObject(x, y);
+                });
+            }
+            
+            createObject(x, y) {
+                const object = {
+                    x: x,
+                    y: y,
+                    size: this.parameters.size,
+                    type: this.selectedTool,
+                    gravity: this.parameters.gravity,
+                    energy: this.parameters.energy,
+                    age: 0,
+                    vx: (Math.random() - 0.5) * 2,
+                    vy: (Math.random() - 0.5) * 2,
+                    id: Date.now() + Math.random()
+                };
+                
+                this.objects.push(object);
+                this.updateStats();
+                this.logEvent(`新しい${this.getObjectName(this.selectedTool)}が誕生しました`);
+            }
+            
+            getObjectName(type) {
+                const names = {
+                    star: '恒星',
+                    planet: '惑星',
+                    blackhole: 'ブラックホール',
+                    nebula: '星雲'
+                };
+                return names[type] || '天体';
+            }
+            
+            drawObject(obj) {
+                this.ctx.save();
+                
+                const alpha = Math.min(1, obj.energy / 100);
+                this.ctx.globalAlpha = alpha;
+                
+                switch (obj.type) {
+                    case 'star':
+                        this.drawStar(obj);
+                        break;
+                    case 'planet':
+                        this.drawPlanet(obj);
+                        break;
+                    case 'blackhole':
+                        this.drawBlackhole(obj);
+                        break;
+                    case 'nebula':
+                        this.drawNebula(obj);
+                        break;
+                }
+                
+                this.ctx.restore();
+            }
+            
+            drawStar(obj) {
+                const gradient = this.ctx.createRadialGradient(obj.x, obj.y, 0, obj.x, obj.y, obj.size);
+                gradient.addColorStop(0, `rgba(255, 255, 255, ${obj.energy / 100})`);
+                gradient.addColorStop(0.5, `rgba(255, 235, 59, ${obj.energy / 150})`);
+                gradient.addColorStop(1, `rgba(255, 152, 0, ${obj.energy / 200})`);
+                
+                this.ctx.fillStyle = gradient;
+                this.ctx.beginPath();
+                this.ctx.arc(obj.x, obj.y, obj.size, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                // Glow effect
+                this.ctx.shadowColor = '#ffeb3b';
+                this.ctx.shadowBlur = obj.size;
+                this.ctx.beginPath();
+                this.ctx.arc(obj.x, obj.y, obj.size * 0.5, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+            
+            drawPlanet(obj) {
+                const gradient = this.ctx.createRadialGradient(obj.x, obj.y, 0, obj.x, obj.y, obj.size);
+                gradient.addColorStop(0, '#2196f3');
+                gradient.addColorStop(0.7, '#1976d2');
+                gradient.addColorStop(1, '#0d47a1');
+                
+                this.ctx.fillStyle = gradient;
+                this.ctx.beginPath();
+                this.ctx.arc(obj.x, obj.y, obj.size, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                // Atmosphere
+                this.ctx.strokeStyle = `rgba(33, 150, 243, ${obj.energy / 300})`;
+                this.ctx.lineWidth = 3;
+                this.ctx.beginPath();
+                this.ctx.arc(obj.x, obj.y, obj.size + 5, 0, Math.PI * 2);
+                this.ctx.stroke();
+            }
+            
+            drawBlackhole(obj) {
+                // Event horizon
+                const gradient = this.ctx.createRadialGradient(obj.x, obj.y, 0, obj.x, obj.y, obj.size);
+                gradient.addColorStop(0, 'rgba(0, 0, 0, 1)');
+                gradient.addColorStop(0.7, 'rgba(66, 66, 66, 0.8)');
+                gradient.addColorStop(1, 'rgba(156, 39, 176, 0.3)');
+                
+                this.ctx.fillStyle = gradient;
+                this.ctx.beginPath();
+                this.ctx.arc(obj.x, obj.y, obj.size, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                // Accretion disk
+                for (let i = 0; i < 3; i++) {
+                    this.ctx.strokeStyle = `rgba(156, 39, 176, ${0.3 - i * 0.1})`;
+                    this.ctx.lineWidth = 2;
+                    this.ctx.beginPath();
+                    this.ctx.arc(obj.x, obj.y, obj.size + (i + 1) * 10, 0, Math.PI * 2);
+                    this.ctx.stroke();
+                }
+            }
+            
+            drawNebula(obj) {
+                const gradient = this.ctx.createRadialGradient(obj.x, obj.y, 0, obj.x, obj.y, obj.size);
+                gradient.addColorStop(0, `rgba(233, 30, 99, ${obj.energy / 200})`);
+                gradient.addColorStop(0.5, `rgba(156, 39, 176, ${obj.energy / 300})`);
+                gradient.addColorStop(1, `rgba(103, 58, 183, ${obj.energy / 400})`);
+                
+                this.ctx.fillStyle = gradient;
+                this.ctx.filter = 'blur(5px)';
+                this.ctx.beginPath();
+                this.ctx.arc(obj.x, obj.y, obj.size, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.filter = 'none';
+            }
+            
+            updateObjects() {
+                this.objects.forEach(obj => {
+                    // Age objects
+                    obj.age += this.timeSpeed;
+                    
+                    // Move objects
+                    obj.x += obj.vx * this.timeSpeed;
+                    obj.y += obj.vy * this.timeSpeed;
+                    
+                    // Boundary check
+                    if (obj.x < 0 || obj.x > this.canvas.width) obj.vx *= -1;
+                    if (obj.y < 0 || obj.y > this.canvas.height) obj.vy *= -1;
+                    
+                    // Energy decay for stars
+                    if (obj.type === 'star' && obj.age > 1000) {
+                        obj.energy -= 0.1 * this.timeSpeed;
+                        if (obj.energy <= 0) {
+                            this.objects = this.objects.filter(o => o.id !== obj.id);
+                            this.logEvent(`恒星が超新星爆発を起こしました`);
+                        }
+                    }
+                    
+                    // Gravitational interactions
+                    this.applyGravity(obj);
+                });
+            }
+            
+            applyGravity(obj1) {
+                this.objects.forEach(obj2 => {
+                    if (obj1.id === obj2.id) return;
+                    
+                    const dx = obj2.x - obj1.x;
+                    const dy = obj2.y - obj1.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < obj1.size + obj2.size && obj1.type === 'blackhole') {
+                        // Black hole absorption
+                        this.objects = this.objects.filter(o => o.id !== obj2.id);
+                        obj1.size += obj2.size * 0.1;
+                        this.logEvent(`ブラックホールが${this.getObjectName(obj2.type)}を吸収しました`);
+                        return;
+                    }
+                    
+                    const force = (obj1.gravity * obj2.gravity) / (distance * distance) * 0.001;
+                    const fx = (dx / distance) * force;
+                    const fy = (dy / distance) * force;
+                    
+                    obj1.vx += fx;
+                    obj1.vy += fy;
+                });
+            }
+            
+            simulateBigBang() {
+                const centerX = this.canvas.width / 2;
+                const centerY = this.canvas.height / 2;
+                
+                // Create initial matter
+                for (let i = 0; i < 20; i++) {
+                    const angle = (i / 20) * Math.PI * 2;
+                    const distance = 50 + Math.random() * 100;
+                    const x = centerX + Math.cos(angle) * distance;
+                    const y = centerY + Math.sin(angle) * distance;
+                    
+                    const object = {
+                        x: x,
+                        y: y,
+                        size: 5 + Math.random() * 15,
+                        type: Math.random() > 0.7 ? 'star' : 'nebula',
+                        gravity: 30 + Math.random() * 40,
+                        energy: 80 + Math.random() * 20,
+                        age: 0,
+                        vx: Math.cos(angle) * (2 + Math.random() * 3),
+                        vy: Math.sin(angle) * (2 + Math.random() * 3),
+                        id: Date.now() + Math.random() + i
+                    };
+                    
+                    this.objects.push(object);
+                }
+                
+                this.time = 0;
+                this.updateStats();
+                this.logEvent('🎆 ビッグバンが発生！宇宙の創造が始まりました');
+            }
+            
+            clearUniverse() {
+                this.objects = [];
+                this.time = 0;
+                this.updateStats();
+                this.logEvent('🗑️ 宇宙がリセットされました');
+                document.getElementById('eventLog').innerHTML = '<div class="event-item">宇宙が静寂に包まれています...</div>';
+            }
+            
+            saveUniverse() {
+                const universeData = {
+                    objects: this.objects,
+                    time: this.time,
+                    timestamp: new Date().toISOString()
+                };
+                
+                const dataStr = JSON.stringify(universeData, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                const url = URL.createObjectURL(dataBlob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `universe_${Date.now()}.json`;
+                link.click();
+                
+                this.logEvent('💾 宇宙データが保存されました');
+            }
+            
+            updateStats() {
+                document.getElementById('objectCount').textContent = this.objects.length;
+                document.getElementById('universeAge').textContent = Math.floor(this.time).toLocaleString();
+                
+                const totalEnergy = this.objects.reduce((sum, obj) => sum + obj.energy, 0);
+                const energyDensity = Math.min(100, totalEnergy / 100);
+                document.getElementById('energyDensity').textContent = Math.floor(energyDensity) + '%';
+            }
+            
+            logEvent(message) {
+                const eventLog = document.getElementById('eventLog');
+                const eventItem = document.createElement('div');
+                eventItem.className = 'event-item';
+                eventItem.textContent = `${Math.floor(this.time)}年: ${message}`;
+                
+                eventLog.insertBefore(eventItem, eventLog.firstChild);
+                
+                // Keep only last 10 events
+                while (eventLog.children.length > 10) {
+                    eventLog.removeChild(eventLog.lastChild);
+                }
+            }
+            
+            setTimeSpeed(speed) {
+                this.timeSpeed = speed;
+                document.querySelectorAll('.time-btn').forEach(btn => {
+                    btn.style.background = 'linear-gradient(135deg, rgba(78, 205, 196, 0.2), rgba(69, 183, 209, 0.2))';
+                });
+                
+                if (speed === 0) {
+                    document.querySelector('[onclick="setTimeSpeed(0)"]').style.background = 
+                        'linear-gradient(135deg, rgba(78, 205, 196, 0.4), rgba(69, 183, 209, 0.4))';
+                }
+            }
+            
+            animate() {
+                // Clear canvas
+                this.ctx.fillStyle = 'rgba(0, 4, 40, 0.1)';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Draw stars background
+                this.drawStarfield();
+                
+                // Update and draw objects
+                if (this.timeSpeed > 0) {
+                    this.updateObjects();
+                    this.time += this.timeSpeed;
+                }
+                
+                this.objects.forEach(obj => this.drawObject(obj));
+                
+                // Update time display
+                document.getElementById('timeDisplay').textContent = 
+                    `宇宙誕生から ${Math.floor(this.time).toLocaleString()}年`;
+                
+                this.updateStats();
+                
+                requestAnimationFrame(() => this.animate());
+            }
+            
+            drawStarfield() {
+                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                for (let i = 0; i < 100; i++) {
+                    const x = (this.time * 0.1 + i * 137.5) % this.canvas.width;
+                    const y = (this.time * 0.05 + i * 78.3) % this.canvas.height;
+                    this.ctx.fillRect(x, y, 1, 1);
+                }
+            }
+        }
+        
+        // Initialize universe
+        let universe;
+        window.addEventListener('load', () => {
+            universe = new UniverseCreator();
+        });
+        
+        // Global functions
+        function simulateBigBang() {
+            universe.simulateBigBang();
+        }
+        
+        function clearUniverse() {
+            universe.clearUniverse();
+        }
+        
+        function saveUniverse() {
+            universe.saveUniverse();
+        }
+        
+        function setTimeSpeed(speed) {
+            universe.setTimeSpeed(speed);
+        }
+    </script>
+</body>
+</html>

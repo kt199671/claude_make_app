@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>バーチャルサーカス体験 - 魔法の大舞台</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: linear-gradient(135deg, #8B0000 0%, #4B0082 50%, #000080 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: white;
+            position: relative;
+        }
+
+        .circus-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 50% 20%, rgba(255, 215, 0, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 20% 80%, rgba(255, 20, 147, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0, 191, 255, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+            animation: circusLights 4s ease-in-out infinite;
+        }
+
+        @keyframes circusLights {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        .circus-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border-bottom: 3px solid #FFD700;
+        }
+
+        .main-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #FFD700, #FF1493, #00BFFF, #FF6347);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            animation: gradientShift 3s ease-in-out infinite, circus-glow 2s ease-in-out infinite alternate;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes circus-glow {
+            from { filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5)); }
+            to { filter: drop-shadow(0 0 30px rgba(255, 20, 147, 0.8)); }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #FFD700;
+            margin-bottom: 20px;
+        }
+
+        .stage-area {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .circus-ring {
+            width: 400px;
+            height: 400px;
+            border: 5px solid #FFD700;
+            border-radius: 50%;
+            position: relative;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+            box-shadow: 
+                0 0 50px rgba(255, 215, 0, 0.5),
+                inset 0 0 50px rgba(255, 215, 0, 0.2);
+            animation: ring-pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes ring-pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 50px rgba(255, 215, 0, 0.5), inset 0 0 50px rgba(255, 215, 0, 0.2); }
+            50% { transform: scale(1.05); box-shadow: 0 0 80px rgba(255, 215, 0, 0.8), inset 0 0 80px rgba(255, 215, 0, 0.4); }
+        }
+
+        .performer {
+            position: absolute;
+            font-size: 3rem;
+            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            cursor: pointer;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+        }
+
+        .performer:hover {
+            transform: scale(1.2) rotate(10deg);
+            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));
+        }
+
+        .acrobat {
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: acrobat-flip 4s ease-in-out infinite;
+        }
+
+        @keyframes acrobat-flip {
+            0%, 100% { transform: translateX(-50%) rotate(0deg); }
+            25% { transform: translateX(-50%) rotate(180deg) translateY(-50px); }
+            50% { transform: translateX(-50%) rotate(360deg); }
+            75% { transform: translateX(-50%) rotate(180deg) translateY(-30px); }
+        }
+
+        .lion-tamer {
+            bottom: 20%;
+            left: 30%;
+            animation: tamer-dance 3s ease-in-out infinite;
+        }
+
+        @keyframes tamer-dance {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        .lion {
+            bottom: 20%;
+            right: 30%;
+            animation: lion-roar 5s ease-in-out infinite;
+        }
+
+        @keyframes lion-roar {
+            0%, 90%, 100% { transform: scale(1); }
+            95% { transform: scale(1.3); }
+        }
+
+        .elephant {
+            top: 60%;
+            left: 10%;
+            animation: elephant-march 6s linear infinite;
+        }
+
+        @keyframes elephant-march {
+            0% { transform: translateX(0px); }
+            50% { transform: translateX(300px); }
+            100% { transform: translateX(0px); }
+        }
+
+        .juggler {
+            top: 40%;
+            right: 10%;
+            animation: juggler-throw 2s ease-in-out infinite;
+        }
+
+        @keyframes juggler-throw {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-30px) rotate(-15deg); }
+            75% { transform: translateY(-10px) rotate(15deg); }
+        }
+
+        .controls-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 2px solid #FFD700;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .show-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .show-btn {
+            background: linear-gradient(135deg, #FFD700, #FF1493);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .show-btn:hover {
+            background: linear-gradient(135deg, #FFA500, #FF69B4);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.6);
+        }
+
+        .show-btn.active {
+            background: linear-gradient(135deg, #FF6347, #8B0000);
+            box-shadow: 0 0 30px rgba(255, 99, 71, 0.8);
+        }
+
+        .performance-info {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #FFD700;
+            margin-bottom: 15px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .audience-meter {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .meter-label {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #FFD700;
+            font-weight: 600;
+        }
+
+        .meter-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .meter-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FF6347, #FFD700, #00BFFF);
+            border-radius: 10px;
+            transition: width 1s ease;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            position: relative;
+        }
+
+        .meter-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shimmer 2s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .special-effects {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #FFD700;
+            animation: confetti-fall 3s linear infinite;
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        .spotlight {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            transition: all 0.5s ease;
+        }
+
+        .firework {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: #FFD700;
+            border-radius: 50%;
+            animation: firework-burst 1s ease-out;
+        }
+
+        @keyframes firework-burst {
+            0% { transform: scale(0); opacity: 1; }
+            50% { transform: scale(20); opacity: 0.7; }
+            100% { transform: scale(40); opacity: 0; }
+        }
+
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 2rem;
+            }
+            
+            .circus-ring {
+                width: 300px;
+                height: 300px;
+            }
+            
+            .controls-panel {
+                bottom: 10px;
+                left: 10px;
+                right: 10px;
+                padding: 20px;
+            }
+            
+            .show-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .performer {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="circus-bg"></div>
+    
+    <div class="circus-container">
+        <div class="header">
+            <h1 class="main-title">バーチャルサーカス</h1>
+            <p class="subtitle">魔法の大舞台へようこそ！</p>
+        </div>
+
+        <div class="stage-area">
+            <div class="circus-ring" id="circusRing">
+                <div class="performer acrobat" id="acrobat" onclick="performTrick('acrobat')">🤸‍♀️</div>
+                <div class="performer lion-tamer" id="lionTamer" onclick="performTrick('lionTamer')">🎪</div>
+                <div class="performer lion" id="lion" onclick="performTrick('lion')">🦁</div>
+                <div class="performer elephant" id="elephant" onclick="performTrick('elephant')">🐘</div>
+                <div class="performer juggler" id="juggler" onclick="performTrick('juggler')">🤹‍♂️</div>
+            </div>
+            
+            <div class="special-effects" id="specialEffects"></div>
+            <div class="spotlight" id="spotlight"></div>
+        </div>
+
+        <div class="controls-panel">
+            <div class="performance-info" id="performanceInfo">
+                サーカス団がお客様をお待ちしています。パフォーマーをクリックするか、ショーを開始してください！
+            </div>
+            
+            <div class="audience-meter">
+                <div class="meter-label">観客の興奮度</div>
+                <div class="meter-bar">
+                    <div class="meter-fill" id="excitementMeter" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="show-controls">
+                <button class="show-btn" onclick="startShow()">🎭 ショー開始</button>
+                <button class="show-btn" onclick="grandFinale()">✨ グランドフィナーレ</button>
+                <button class="show-btn" onclick="resetShow()">🔄 リセット</button>
+                <button class="show-btn" onclick="randomPerformance()">🎲 ランダム演技</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class VirtualCircus {
+            constructor() {
+                this.performers = {
+                    acrobat: { name: '空中ブランコ師', excitement: 20, tricks: ['トリプル宙返り', 'ダブルツイスト', '空中キャッチ'] },
+                    lionTamer: { name: 'ライオン使い', excitement: 25, tricks: ['ライオンジャンプ', '火の輪くぐり', '巨大タワー'] },
+                    lion: { name: 'ライオン', excitement: 15, tricks: ['大咆哮', '立ち上がり', '回転ジャンプ'] },
+                    elephant: { name: '象', excitement: 18, tricks: ['二足歩行', 'ボール乗り', '鼻でキャッチ'] },
+                    juggler: { name: 'ジャグラー', excitement: 22, tricks: ['炎のジャグリング', '10個同時', '目隠しジャグリング'] }
+                };
+                
+                this.currentExcitement = 0;
+                this.maxExcitement = 100;
+                this.showInProgress = false;
+                this.performanceCount = 0;
+                
+                this.setupSpotlight();
+                this.createStarField();
+            }
+            
+            performTrick(performerId) {
+                if (this.showInProgress) return;
+                
+                const performer = this.performers[performerId];
+                const trick = performer.tricks[Math.floor(Math.random() * performer.tricks.length)];
+                
+                this.addExcitement(performer.excitement);
+                this.showPerformanceInfo(`${performer.name}が「${trick}」を披露！観客が大興奮！`);
+                
+                this.animatePerformer(performerId);
+                this.createSpecialEffect('confetti');
+                this.performanceCount++;
+                
+                // Special interactions
+                if (performerId === 'lionTamer') {
+                    setTimeout(() => {
+                        this.animatePerformer('lion');
+                        this.createSpecialEffect('firework');
+                    }, 1000);
+                }
+            }
+            
+            animatePerformer(performerId) {
+                const performer = document.getElementById(performerId);
+                performer.style.transform += ' scale(1.5) rotate(360deg)';
+                performer.style.filter = 'drop-shadow(0 0 30px rgba(255, 215, 0, 1))';
+                
+                setTimeout(() => {
+                    performer.style.transform = performer.style.transform.replace(' scale(1.5) rotate(360deg)', '');
+                    performer.style.filter = 'drop-shadow(0 0 10px rgba(255, 255, 255, 0.5))';
+                }, 1000);
+            }
+            
+            startShow() {
+                if (this.showInProgress) return;
+                
+                this.showInProgress = true;
+                this.showPerformanceInfo('🎭 素晴らしいサーカスショーが始まります！');
+                
+                const showSequence = [
+                    { performer: 'acrobat', delay: 1000 },
+                    { performer: 'juggler', delay: 2000 },
+                    { performer: 'elephant', delay: 3000 },
+                    { performer: 'lionTamer', delay: 4000 },
+                    { performer: 'lion', delay: 5000 }
+                ];
+                
+                showSequence.forEach(({ performer, delay }) => {
+                    setTimeout(() => {
+                        this.performTrick(performer);
+                    }, delay);
+                });
+                
+                setTimeout(() => {
+                    this.showInProgress = false;
+                    this.showPerformanceInfo('ショーが終了しました！素晴らしい演技でした！');
+                }, 6000);
+            }
+            
+            grandFinale() {
+                this.showPerformanceInfo('✨ グランドフィナーレ！全パフォーマーが同時演技！');
+                
+                // All performers perform at once
+                Object.keys(this.performers).forEach((performerId, index) => {
+                    setTimeout(() => {
+                        this.animatePerformer(performerId);
+                    }, index * 200);
+                });
+                
+                // Massive special effects
+                this.createSpecialEffect('confetti');
+                this.createSpecialEffect('firework');
+                setTimeout(() => this.createSpecialEffect('confetti'), 500);
+                setTimeout(() => this.createSpecialEffect('firework'), 1000);
+                
+                this.addExcitement(50);
+                
+                // Finale message
+                setTimeout(() => {
+                    this.showPerformanceInfo('🎉 素晴らしいグランドフィナーレでした！観客総立ちの拍手喝采！');
+                }, 2000);
+            }
+            
+            randomPerformance() {
+                const performerIds = Object.keys(this.performers);
+                const randomPerformer = performerIds[Math.floor(Math.random() * performerIds.length)];
+                this.performTrick(randomPerformer);
+            }
+            
+            resetShow() {
+                this.currentExcitement = 0;
+                this.performanceCount = 0;
+                this.showInProgress = false;
+                this.updateExcitementMeter();
+                this.showPerformanceInfo('サーカス団がお客様をお待ちしています。パフォーマーをクリックするか、ショーを開始してください！');
+                this.clearSpecialEffects();
+            }
+            
+            addExcitement(amount) {
+                this.currentExcitement = Math.min(this.maxExcitement, this.currentExcitement + amount);
+                this.updateExcitementMeter();
+                
+                if (this.currentExcitement >= this.maxExcitement) {
+                    setTimeout(() => {
+                        this.showPerformanceInfo('🎉 観客の興奮が最高潮に達しました！');
+                        this.createSpecialEffect('firework');
+                    }, 500);
+                }
+            }
+            
+            updateExcitementMeter() {
+                const meter = document.getElementById('excitementMeter');
+                meter.style.width = (this.currentExcitement / this.maxExcitement * 100) + '%';
+                
+                // Change color based on excitement level
+                if (this.currentExcitement < 30) {
+                    meter.style.background = 'linear-gradient(90deg, #FF6347, #FF8C00)';
+                } else if (this.currentExcitement < 70) {
+                    meter.style.background = 'linear-gradient(90deg, #FF8C00, #FFD700)';
+                } else {
+                    meter.style.background = 'linear-gradient(90deg, #FFD700, #00BFFF, #FF1493)';
+                }
+            }
+            
+            showPerformanceInfo(message) {
+                const info = document.getElementById('performanceInfo');
+                info.textContent = message;
+                info.style.animation = 'none';
+                setTimeout(() => {
+                    info.style.animation = 'circus-glow 1s ease-in-out';
+                }, 10);
+            }
+            
+            createSpecialEffect(type) {
+                const effectsContainer = document.getElementById('specialEffects');
+                
+                if (type === 'confetti') {
+                    for (let i = 0; i < 20; i++) {
+                        const confetti = document.createElement('div');
+                        confetti.className = 'confetti';
+                        confetti.style.left = Math.random() * 100 + '%';
+                        confetti.style.backgroundColor = this.getRandomColor();
+                        confetti.style.animationDelay = Math.random() * 2 + 's';
+                        effectsContainer.appendChild(confetti);
+                        
+                        setTimeout(() => {
+                            if (confetti.parentNode) {
+                                confetti.parentNode.removeChild(confetti);
+                            }
+                        }, 3000);
+                    }
+                } else if (type === 'firework') {
+                    for (let i = 0; i < 5; i++) {
+                        const firework = document.createElement('div');
+                        firework.className = 'firework';
+                        firework.style.left = Math.random() * 100 + '%';
+                        firework.style.top = Math.random() * 100 + '%';
+                        firework.style.backgroundColor = this.getRandomColor();
+                        firework.style.animationDelay = Math.random() * 0.5 + 's';
+                        effectsContainer.appendChild(firework);
+                        
+                        setTimeout(() => {
+                            if (firework.parentNode) {
+                                firework.parentNode.removeChild(firework);
+                            }
+                        }, 1000);
+                    }
+                }
+            }
+            
+            getRandomColor() {
+                const colors = ['#FFD700', '#FF1493', '#00BFFF', '#FF6347', '#32CD32', '#FF69B4', '#FFA500'];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+            
+            clearSpecialEffects() {
+                const effectsContainer = document.getElementById('specialEffects');
+                effectsContainer.innerHTML = '';
+            }
+            
+            setupSpotlight() {
+                const spotlight = document.getElementById('spotlight');
+                const ring = document.getElementById('circusRing');
+                
+                document.addEventListener('mousemove', (e) => {
+                    const rect = ring.getBoundingClientRect();
+                    const x = e.clientX - rect.left - 100;
+                    const y = e.clientY - rect.top - 100;
+                    
+                    spotlight.style.left = x + 'px';
+                    spotlight.style.top = y + 'px';
+                });
+            }
+            
+            createStarField() {
+                const starsContainer = document.createElement('div');
+                starsContainer.style.position = 'fixed';
+                starsContainer.style.top = '0';
+                starsContainer.style.left = '0';
+                starsContainer.style.width = '100%';
+                starsContainer.style.height = '100%';
+                starsContainer.style.pointerEvents = 'none';
+                starsContainer.style.zIndex = '-2';
+                
+                for (let i = 0; i < 50; i++) {
+                    const star = document.createElement('div');
+                    star.style.position = 'absolute';
+                    star.style.width = '2px';
+                    star.style.height = '2px';
+                    star.style.backgroundColor = 'white';
+                    star.style.borderRadius = '50%';
+                    star.style.left = Math.random() * 100 + '%';
+                    star.style.top = Math.random() * 100 + '%';
+                    star.style.animation = `twinkle ${2 + Math.random() * 3}s ease-in-out infinite alternate`;
+                    starsContainer.appendChild(star);
+                }
+                
+                document.body.appendChild(starsContainer);
+            }
+        }
+        
+        // Add twinkle animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes twinkle {
+                from { opacity: 0.3; }
+                to { opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Initialize circus
+        let circus;
+        window.addEventListener('load', () => {
+            circus = new VirtualCircus();
+        });
+        
+        // Global functions for HTML onclick events
+        function performTrick(performerId) {
+            circus.performTrick(performerId);
+        }
+        
+        function startShow() {
+            circus.startShow();
+        }
+        
+        function grandFinale() {
+            circus.grandFinale();
+        }
+        
+        function resetShow() {
+            circus.resetShow();
+        }
+        
+        function randomPerformance() {
+            circus.randomPerformance();
+        }
+    </script>
+</body>
+</html>
