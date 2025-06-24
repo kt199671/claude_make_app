@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>思考可視化シミュレーター - 脳内世界への扉を開こう</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #533a7d 75%, #6a4c93 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: #e8eaed;
+            position: relative;
+        }
+
+        .neural-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 15% 15%, rgba(106, 76, 147, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 85% 85%, rgba(83, 58, 125, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(138, 43, 226, 0.2) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: -1;
+            animation: neuralPulse 8s ease-in-out infinite;
+        }
+
+        @keyframes neuralPulse {
+            0%, 100% { 
+                opacity: 0.4; 
+                transform: scale(1) rotate(0deg);
+                filter: hue-rotate(0deg);
+            }
+            50% { 
+                opacity: 0.8; 
+                transform: scale(1.05) rotate(1deg);
+                filter: hue-rotate(60deg);
+            }
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .thought-panel {
+            width: 320px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            border-right: 2px solid rgba(138, 43, 226, 0.3);
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 0 0 50px rgba(138, 43, 226, 0.2);
+        }
+
+        .brain-visualization {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .main-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.6rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #8a2be2, #6a4c93, #9d4edd, #c77dff);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            animation: gradientShift 3s ease-in-out infinite;
+            text-align: center;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .brain-model {
+            width: 500px;
+            height: 500px;
+            position: relative;
+            background: 
+                radial-gradient(ellipse at center, rgba(138, 43, 226, 0.3) 0%, rgba(106, 76, 147, 0.2) 40%, transparent 70%);
+            border-radius: 50%;
+            border: 3px solid rgba(138, 43, 226, 0.5);
+            animation: brainPulse 4s ease-in-out infinite;
+            overflow: hidden;
+        }
+
+        @keyframes brainPulse {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 0 50px rgba(138, 43, 226, 0.3);
+            }
+            50% { 
+                transform: scale(1.05);
+                box-shadow: 0 0 80px rgba(138, 43, 226, 0.6);
+            }
+        }
+
+        .neural-network {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .neuron {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: radial-gradient(circle, rgba(157, 78, 221, 0.9) 0%, rgba(106, 76, 147, 0.5) 100%);
+            border-radius: 50%;
+            animation: neuronPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes neuronPulse {
+            0%, 100% { 
+                transform: scale(1);
+                opacity: 0.6;
+            }
+            50% { 
+                transform: scale(1.5);
+                opacity: 1;
+            }
+        }
+
+        .synapse {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(157, 78, 221, 0.8), rgba(199, 125, 255, 0.4));
+            border-radius: 1px;
+            animation: synapseFlow 3s linear infinite;
+        }
+
+        @keyframes synapseFlow {
+            0% { 
+                opacity: 0;
+                transform: scaleX(0);
+            }
+            50% {
+                opacity: 1;
+                transform: scaleX(1);
+            }
+            100% { 
+                opacity: 0;
+                transform: scaleX(0);
+            }
+        }
+
+        .thought-bubble {
+            position: absolute;
+            padding: 8px 15px;
+            background: rgba(157, 78, 221, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(157, 78, 221, 0.4);
+            font-size: 0.8rem;
+            color: #e8eaed;
+            animation: thoughtFloat 6s ease-in-out infinite;
+            max-width: 120px;
+            text-align: center;
+        }
+
+        @keyframes thoughtFloat {
+            0%, 100% { 
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0.7;
+            }
+            50% { 
+                transform: translateY(-20px) rotate(2deg);
+                opacity: 1;
+            }
+        }
+
+        .control-section {
+            margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(138, 43, 226, 0.2);
+        }
+
+        .section-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            color: #c77dff;
+            border-bottom: 2px solid rgba(199, 125, 255, 0.3);
+            padding-bottom: 8px;
+        }
+
+        .emotion-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .emotion-btn {
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.3), rgba(106, 76, 147, 0.3));
+            border: 1px solid rgba(138, 43, 226, 0.5);
+            color: #e8eaed;
+            padding: 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .emotion-btn:hover {
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.5), rgba(106, 76, 147, 0.5));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
+        }
+
+        .emotion-btn.active {
+            background: linear-gradient(135deg, #8a2be2, #6a4c93);
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.6);
+        }
+
+        .thought-types {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .thought-type {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            color: #e8eaed;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .thought-type:hover {
+            background: rgba(138, 43, 226, 0.3);
+            border-color: #8a2be2;
+        }
+
+        .thought-type.selected {
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.6), rgba(106, 76, 147, 0.6));
+            border-color: #c77dff;
+        }
+
+        .brain-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .control-slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .control-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #8a2be2, #c77dff);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #8a2be2, #6a4c93);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(138, 43, 226, 0.4);
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(135deg, #9d4edd, #7b2cbf);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(138, 43, 226, 0.6);
+        }
+
+        .thought-stream {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 15px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .thought-item {
+            background: rgba(138, 43, 226, 0.2);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 0.8rem;
+            border-left: 3px solid #c77dff;
+        }
+
+        .brainwave-monitor {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 15px;
+            padding: 15px;
+            height: 120px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wave-line {
+            position: absolute;
+            bottom: 50%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(138, 43, 226, 0.3);
+        }
+
+        .wave-pulse {
+            position: absolute;
+            bottom: 50%;
+            width: 4px;
+            height: 40px;
+            background: linear-gradient(90deg, #8a2be2, #c77dff);
+            border-radius: 2px;
+            animation: wavePulse 2s linear infinite;
+        }
+
+        @keyframes wavePulse {
+            0% {
+                left: 0%;
+                height: 10px;
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            50% {
+                height: 40px;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                left: 100%;
+                height: 10px;
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .thought-panel {
+                width: 100%;
+                height: 300px;
+            }
+            .brain-visualization {
+                height: calc(100vh - 300px);
+            }
+            .brain-model {
+                width: 300px;
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="neural-bg"></div>
+    
+    <div class="container">
+        <div class="thought-panel">
+            <h1 class="main-title">思考可視化</h1>
+            
+            <div class="control-section">
+                <h3 class="section-title">感情状態</h3>
+                <div class="emotion-buttons">
+                    <button class="emotion-btn active" data-emotion="happy">😊 喜び</button>
+                    <button class="emotion-btn" data-emotion="sad">😢 悲しみ</button>
+                    <button class="emotion-btn" data-emotion="angry">😠 怒り</button>
+                    <button class="emotion-btn" data-emotion="calm">😌 平静</button>
+                    <button class="emotion-btn" data-emotion="excited">🤩 興奮</button>
+                    <button class="emotion-btn" data-emotion="focused">🤔 集中</button>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3 class="section-title">思考タイプ</h3>
+                <div class="thought-types">
+                    <div class="thought-type selected" data-type="creative">創造的思考</div>
+                    <div class="thought-type" data-type="logical">論理的思考</div>
+                    <div class="thought-type" data-type="emotional">感情的思考</div>
+                    <div class="thought-type" data-type="memory">記憶回想</div>
+                    <div class="thought-type" data-type="dream">夢想思考</div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3 class="section-title">脳波調整</h3>
+                <div class="brain-controls">
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>思考強度</span>
+                            <span id="intensityValue">50%</span>
+                        </div>
+                        <input type="range" id="intensity" class="control-slider" min="0" max="100" value="50">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>集中度</span>
+                            <span id="focusValue">30%</span>
+                        </div>
+                        <input type="range" id="focus" class="control-slider" min="0" max="100" value="30">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>創造性</span>
+                            <span id="creativityValue">70%</span>
+                        </div>
+                        <input type="range" id="creativity" class="control-slider" min="0" max="100" value="70">
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3 class="section-title">脳波モニター</h3>
+                <div class="brainwave-monitor" id="brainwaveMonitor">
+                    <div class="wave-line"></div>
+                    <div class="wave-pulse"></div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3 class="section-title">思考ストリーム</h3>
+                <div class="thought-stream" id="thoughtStream">
+                    <div class="thought-item">創造的なアイデアが浮かんでいます...</div>
+                    <div class="thought-item">論理的な分析を開始しました</div>
+                    <div class="thought-item">過去の記憶を検索中...</div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3 class="section-title">コントロール</h3>
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="generateThought()">💭 思考生成</button>
+                    <button class="action-btn" onclick="clearMind()">🧘 心のリセット</button>
+                    <button class="action-btn" onclick="saveThoughts()">💾 思考保存</button>
+                    <button class="action-btn" onclick="shareVisualization()">🌐 可視化共有</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="brain-visualization">
+            <div class="brain-model" id="brainModel">
+                <div class="neural-network" id="neuralNetwork"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class MindVisualizationSimulator {
+            constructor() {
+                this.currentEmotion = 'happy';
+                this.currentThoughtType = 'creative';
+                this.intensity = 50;
+                this.focus = 30;
+                this.creativity = 70;
+                this.neurons = [];
+                this.synapses = [];
+                this.thoughtBubbles = [];
+                this.thoughts = [
+                    '新しいアイデアが生まれています',
+                    '記憶の断片が繋がりました',
+                    '創造性が高まっています',
+                    '論理的な思考が活発化',
+                    '感情と理性のバランス',
+                    '潜在意識からの閃き',
+                    '過去と未来の融合',
+                    '直感的な理解が深まる'
+                ];
+                
+                this.emotionColors = {
+                    happy: { primary: '#ffd700', secondary: '#ffed4e' },
+                    sad: { primary: '#4169e1', secondary: '#87ceeb' },
+                    angry: { primary: '#ff4500', secondary: '#ff6347' },
+                    calm: { primary: '#32cd32', secondary: '#98fb98' },
+                    excited: { primary: '#ff1493', secondary: '#ff69b4' },
+                    focused: { primary: '#8a2be2', secondary: '#c77dff' }
+                };
+                
+                this.setupEventListeners();
+                this.initializeNeuralNetwork();
+                this.startBrainActivity();
+            }
+            
+            setupEventListeners() {
+                // Emotion buttons
+                document.querySelectorAll('.emotion-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.emotion-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.currentEmotion = e.target.dataset.emotion;
+                        this.updateVisualization();
+                    });
+                });
+                
+                // Thought type selection
+                document.querySelectorAll('.thought-type').forEach(type => {
+                    type.addEventListener('click', (e) => {
+                        document.querySelectorAll('.thought-type').forEach(t => t.classList.remove('selected'));
+                        e.target.classList.add('selected');
+                        this.currentThoughtType = e.target.dataset.type;
+                        this.updateThoughtPattern();
+                    });
+                });
+                
+                // Sliders
+                const intensitySlider = document.getElementById('intensity');
+                const focusSlider = document.getElementById('focus');
+                const creativitySlider = document.getElementById('creativity');
+                
+                intensitySlider.addEventListener('input', (e) => {
+                    this.intensity = parseInt(e.target.value);
+                    document.getElementById('intensityValue').textContent = e.target.value + '%';
+                    this.updateBrainActivity();
+                });
+                
+                focusSlider.addEventListener('input', (e) => {
+                    this.focus = parseInt(e.target.value);
+                    document.getElementById('focusValue').textContent = e.target.value + '%';
+                    this.updateBrainActivity();
+                });
+                
+                creativitySlider.addEventListener('input', (e) => {
+                    this.creativity = parseInt(e.target.value);
+                    document.getElementById('creativityValue').textContent = e.target.value + '%';
+                    this.updateBrainActivity();
+                });
+            }
+            
+            initializeNeuralNetwork() {
+                const network = document.getElementById('neuralNetwork');
+                network.innerHTML = '';
+                
+                // Create neurons
+                for (let i = 0; i < 30; i++) {
+                    const neuron = document.createElement('div');
+                    neuron.className = 'neuron';
+                    neuron.style.left = Math.random() * 90 + '%';
+                    neuron.style.top = Math.random() * 90 + '%';
+                    neuron.style.animationDelay = Math.random() * 2 + 's';
+                    network.appendChild(neuron);
+                    this.neurons.push(neuron);
+                }
+                
+                // Create synapses
+                for (let i = 0; i < 15; i++) {
+                    this.createSynapse();
+                }
+                
+                this.updateVisualization();
+            }
+            
+            createSynapse() {
+                const network = document.getElementById('neuralNetwork');
+                const synapse = document.createElement('div');
+                synapse.className = 'synapse';
+                
+                const startX = Math.random() * 80 + 10;
+                const startY = Math.random() * 80 + 10;
+                const endX = Math.random() * 80 + 10;
+                const endY = Math.random() * 80 + 10;
+                
+                const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+                const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
+                
+                synapse.style.left = startX + '%';
+                synapse.style.top = startY + '%';
+                synapse.style.width = length * 5 + 'px';
+                synapse.style.transform = `rotate(${angle}deg)`;
+                synapse.style.animationDelay = Math.random() * 3 + 's';
+                
+                network.appendChild(synapse);
+                this.synapses.push(synapse);
+            }
+            
+            updateVisualization() {
+                const colors = this.emotionColors[this.currentEmotion];
+                const brainModel = document.getElementById('brainModel');
+                
+                // Update brain model colors
+                brainModel.style.background = `
+                    radial-gradient(ellipse at center, ${colors.primary}30 0%, ${colors.secondary}20 40%, transparent 70%)
+                `;
+                brainModel.style.borderColor = colors.primary + '80';
+                
+                // Update neurons
+                this.neurons.forEach(neuron => {
+                    neuron.style.background = `radial-gradient(circle, ${colors.primary} 0%, ${colors.secondary} 100%)`;
+                });
+                
+                // Update synapses
+                this.synapses.forEach(synapse => {
+                    synapse.style.background = `linear-gradient(90deg, ${colors.primary}cc, ${colors.secondary}66)`;
+                });
+            }
+            
+            updateThoughtPattern() {
+                this.generateThoughtBubble();
+                this.addThoughtToStream();
+            }
+            
+            generateThoughtBubble() {
+                const network = document.getElementById('neuralNetwork');
+                const bubble = document.createElement('div');
+                bubble.className = 'thought-bubble';
+                
+                const thoughtTexts = {
+                    creative: ['新しいアイデア', '創造的発想', '革新的思考', 'ひらめき'],
+                    logical: ['論理分析', '因果関係', '推論過程', '合理的判断'],
+                    emotional: ['感情の波', '心の声', '情緒的反応', '共感'],
+                    memory: ['記憶の断片', '過去の体験', '思い出', '学習内容'],
+                    dream: ['夢の世界', '想像力', '幻想', '理想']
+                };
+                
+                const texts = thoughtTexts[this.currentThoughtType];
+                bubble.textContent = texts[Math.floor(Math.random() * texts.length)];
+                
+                bubble.style.left = Math.random() * 70 + 15 + '%';
+                bubble.style.top = Math.random() * 70 + 15 + '%';
+                bubble.style.animationDelay = Math.random() * 2 + 's';
+                
+                network.appendChild(bubble);
+                this.thoughtBubbles.push(bubble);
+                
+                // Remove after animation
+                setTimeout(() => {
+                    if (bubble.parentNode) {
+                        bubble.parentNode.removeChild(bubble);
+                        this.thoughtBubbles = this.thoughtBubbles.filter(b => b !== bubble);
+                    }
+                }, 6000);
+            }
+            
+            addThoughtToStream() {
+                const stream = document.getElementById('thoughtStream');
+                const thoughtItem = document.createElement('div');
+                thoughtItem.className = 'thought-item';
+                
+                const thoughtTexts = {
+                    creative: [
+                        '創造的なプロセスが活性化しています',
+                        '新しいアイデアの組み合わせを発見',
+                        '既存の概念を超えた発想が生まれています',
+                        'イノベーティブな解決策を模索中'
+                    ],
+                    logical: [
+                        '論理的思考回路が動作中',
+                        'データの関連性を分析しています',
+                        '合理的な判断プロセスを実行',
+                        '因果関係の検証を行っています'
+                    ],
+                    emotional: [
+                        '感情的な反応パターンを処理中',
+                        '心の動きを感知しました',
+                        '情緒的な記憶が呼び起こされています',
+                        '共感システムが作動中'
+                    ],
+                    memory: [
+                        '長期記憶からデータを検索中',
+                        '過去の経験と現在を関連付け',
+                        '記憶の再構成プロセスが進行中',
+                        '学習内容を統合しています'
+                    ],
+                    dream: [
+                        '想像力が無限に広がっています',
+                        '現実を超えた世界を構築中',
+                        '夢と現実の境界が曖昧に',
+                        '理想的な未来像を描いています'
+                    ]
+                };
+                
+                const texts = thoughtTexts[this.currentThoughtType];
+                thoughtItem.textContent = texts[Math.floor(Math.random() * texts.length)];
+                
+                stream.insertBefore(thoughtItem, stream.firstChild);
+                
+                // Keep only recent thoughts
+                if (stream.children.length > 10) {
+                    stream.removeChild(stream.lastChild);
+                }
+            }
+            
+            updateBrainActivity() {
+                const brainModel = document.getElementById('brainModel');
+                
+                // Update animation speed based on intensity
+                const animationDuration = Math.max(1, 5 - (this.intensity / 25));
+                brainModel.style.animationDuration = animationDuration + 's';
+                
+                // Update neuron activity
+                this.neurons.forEach(neuron => {
+                    const activityLevel = (this.intensity + this.focus) / 200;
+                    neuron.style.animationDuration = Math.max(0.5, 2 - activityLevel) + 's';
+                });
+                
+                // Update synapse activity
+                this.synapses.forEach(synapse => {
+                    const creativeEffect = this.creativity / 100;
+                    synapse.style.animationDuration = Math.max(1, 3 - creativeEffect) + 's';
+                });
+            }
+            
+            startBrainActivity() {
+                // Generate periodic thought bubbles
+                setInterval(() => {
+                    if (Math.random() < 0.3) {
+                        this.generateThoughtBubble();
+                    }
+                }, 2000);
+                
+                // Add periodic thoughts to stream
+                setInterval(() => {
+                    if (Math.random() < 0.4) {
+                        this.addThoughtToStream();
+                    }
+                }, 3000);
+                
+                // Update brainwave monitor
+                this.updateBrainwaves();
+            }
+            
+            updateBrainwaves() {
+                const monitor = document.getElementById('brainwaveMonitor');
+                const existingPulses = monitor.querySelectorAll('.wave-pulse');
+                
+                // Remove existing pulses
+                existingPulses.forEach(pulse => {
+                    if (pulse.parentNode) {
+                        pulse.parentNode.removeChild(pulse);
+                    }
+                });
+                
+                // Create new pulses based on brain activity
+                const pulseCount = Math.floor((this.intensity + this.focus) / 30) + 1;
+                
+                for (let i = 0; i < pulseCount; i++) {
+                    const pulse = document.createElement('div');
+                    pulse.className = 'wave-pulse';
+                    pulse.style.animationDelay = i * 0.5 + 's';
+                    pulse.style.animationDuration = (2 - (this.intensity / 100)) + 's';
+                    monitor.appendChild(pulse);
+                }
+                
+                // Schedule next update
+                setTimeout(() => this.updateBrainwaves(), 2000);
+            }
+            
+            generateThought() {
+                this.generateThoughtBubble();
+                this.addThoughtToStream();
+                
+                // Create burst of activity
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => this.generateThoughtBubble(), i * 500);
+                }
+            }
+            
+            clearMind() {
+                // Remove all thought bubbles
+                this.thoughtBubbles.forEach(bubble => {
+                    if (bubble.parentNode) {
+                        bubble.parentNode.removeChild(bubble);
+                    }
+                });
+                this.thoughtBubbles = [];
+                
+                // Clear thought stream
+                const stream = document.getElementById('thoughtStream');
+                stream.innerHTML = '<div class="thought-item">心がリセットされました...</div>';
+                
+                // Reset controls
+                this.intensity = 30;
+                this.focus = 20;
+                this.creativity = 50;
+                
+                document.getElementById('intensity').value = 30;
+                document.getElementById('focus').value = 20;
+                document.getElementById('creativity').value = 50;
+                document.getElementById('intensityValue').textContent = '30%';
+                document.getElementById('focusValue').textContent = '20%';
+                document.getElementById('creativityValue').textContent = '50%';
+                
+                this.updateBrainActivity();
+            }
+            
+            saveThoughts() {
+                const thoughtData = {
+                    emotion: this.currentEmotion,
+                    thoughtType: this.currentThoughtType,
+                    intensity: this.intensity,
+                    focus: this.focus,
+                    creativity: this.creativity,
+                    timestamp: new Date().toISOString(),
+                    thoughts: Array.from(document.getElementById('thoughtStream').children)
+                        .map(item => item.textContent)
+                };
+                
+                const dataStr = JSON.stringify(thoughtData, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                const url = URL.createObjectURL(dataBlob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `mind_visualization_${Date.now()}.json`;
+                link.click();
+                
+                this.addThoughtToStream();
+                setTimeout(() => {
+                    const stream = document.getElementById('thoughtStream');
+                    const successItem = document.createElement('div');
+                    successItem.className = 'thought-item';
+                    successItem.textContent = '思考データが保存されました！';
+                    stream.insertBefore(successItem, stream.firstChild);
+                }, 500);
+            }
+            
+            shareVisualization() {
+                const summary = `🧠 思考可視化レポート\n\n感情状態: ${this.currentEmotion}\n思考タイプ: ${this.currentThoughtType}\n思考強度: ${this.intensity}%\n集中度: ${this.focus}%\n創造性: ${this.creativity}%\n\n心の状態を科学的に分析しました！`;
+                
+                if (navigator.share) {
+                    navigator.share({
+                        title: '思考可視化シミュレーター',
+                        text: summary
+                    });
+                } else {
+                    navigator.clipboard.writeText(summary).then(() => {
+                        const stream = document.getElementById('thoughtStream');
+                        const shareItem = document.createElement('div');
+                        shareItem.className = 'thought-item';
+                        shareItem.textContent = '可視化データをクリップボードにコピーしました！';
+                        stream.insertBefore(shareItem, stream.firstChild);
+                    });
+                }
+            }
+        }
+        
+        // Initialize the simulator
+        let simulator;
+        window.addEventListener('load', () => {
+            simulator = new MindVisualizationSimulator();
+        });
+        
+        // Global functions
+        function generateThought() {
+            simulator.generateThought();
+        }
+        
+        function clearMind() {
+            simulator.clearMind();
+        }
+        
+        function saveThoughts() {
+            simulator.saveThoughts();
+        }
+        
+        function shareVisualization() {
+            simulator.shareVisualization();
+        }
+    </script>
+</body>
+</html>

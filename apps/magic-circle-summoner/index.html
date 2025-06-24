@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>魔法陣召喚シミュレーター - 古代魔術の神秘を解き放て</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: radial-gradient(ellipse at center, #1a0033 0%, #000000 70%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #f0e6ff;
+            position: relative;
+        }
+
+        .mystical-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(138, 43, 226, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(75, 0, 130, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 50% 10%, rgba(255, 20, 147, 0.1) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: -1;
+            animation: mysticalPulse 8s ease-in-out infinite;
+        }
+
+        @keyframes mysticalPulse {
+            0%, 100% { opacity: 0.3; transform: scale(1) rotate(0deg); }
+            50% { opacity: 0.7; transform: scale(1.1) rotate(1deg); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+
+        .main-title {
+            font-family: 'Cinzel', serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #9d4edd, #c77dff, #e0aaff, #f8f9fa);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            animation: gradientShift 4s ease-in-out infinite, magicalGlow 3s ease-in-out infinite alternate;
+            text-shadow: 0 0 30px rgba(157, 78, 221, 0.5);
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes magicalGlow {
+            from { filter: drop-shadow(0 0 10px rgba(157, 78, 221, 0.5)); }
+            to { filter: drop-shadow(0 0 30px rgba(199, 125, 255, 0.8)); }
+        }
+
+        .subtitle {
+            font-family: 'Cinzel', serif;
+            font-size: 1.3rem;
+            color: #c77dff;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .summoning-area {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .circle-container {
+            background: rgba(157, 78, 221, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(199, 125, 255, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+            min-height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .magic-circle {
+            width: 500px;
+            height: 500px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.5s ease;
+        }
+
+        .circle-layer {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid rgba(199, 125, 255, 0.6);
+            border-radius: 50%;
+            transition: all 0.8s ease;
+        }
+
+        .outer-circle {
+            width: 100%;
+            height: 100%;
+            animation: rotateClockwise 20s linear infinite;
+        }
+
+        .middle-circle {
+            width: 80%;
+            height: 80%;
+            border-color: rgba(157, 78, 221, 0.8);
+            animation: rotateCounterClockwise 15s linear infinite;
+        }
+
+        .inner-circle {
+            width: 60%;
+            height: 60%;
+            border-color: rgba(224, 170, 255, 0.9);
+            animation: rotateClockwise 10s linear infinite;
+        }
+
+        .core-circle {
+            width: 40%;
+            height: 40%;
+            border-color: #f8f9fa;
+            background: radial-gradient(circle, rgba(157, 78, 221, 0.3) 0%, transparent 70%);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes rotateClockwise {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        @keyframes rotateCounterClockwise {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(-360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        .rune {
+            position: absolute;
+            font-size: 2rem;
+            color: #c77dff;
+            font-family: 'Cinzel', serif;
+            transition: all 0.5s ease;
+            cursor: pointer;
+            text-shadow: 0 0 10px rgba(199, 125, 255, 0.8);
+            animation: runeFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes runeFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .rune:hover {
+            transform: scale(1.3) rotate(360deg);
+            color: #f8f9fa;
+            text-shadow: 0 0 20px rgba(248, 249, 250, 1);
+        }
+
+        .rune.active {
+            color: #f8f9fa;
+            animation: runeActivate 1s ease-in-out;
+        }
+
+        @keyframes runeActivate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.5) rotate(180deg); }
+            100% { transform: scale(1) rotate(360deg); }
+        }
+
+        .summoned-entity {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4rem;
+            opacity: 0;
+            transition: all 1s ease;
+            filter: drop-shadow(0 0 20px rgba(199, 125, 255, 0.8));
+            animation: entityFloat 2s ease-in-out infinite;
+        }
+
+        @keyframes entityFloat {
+            0%, 100% { transform: translate(-50%, -50%) translateY(0px) rotate(0deg); }
+            50% { transform: translate(-50%, -50%) translateY(-15px) rotate(5deg); }
+        }
+
+        .summoned-entity.appear {
+            opacity: 1;
+            animation: entitySummon 2s ease-in-out;
+        }
+
+        @keyframes entitySummon {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(0deg); }
+            50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.5) rotate(180deg); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(360deg); }
+        }
+
+        .control-panel {
+            background: rgba(157, 78, 221, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(199, 125, 255, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            height: fit-content;
+        }
+
+        .panel-section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #c77dff;
+            border-bottom: 2px solid rgba(199, 125, 255, 0.3);
+            padding-bottom: 8px;
+        }
+
+        .spell-components {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .component-btn {
+            background: linear-gradient(135deg, rgba(157, 78, 221, 0.2), rgba(199, 125, 255, 0.2));
+            border: 1px solid rgba(199, 125, 255, 0.5);
+            color: #f0e6ff;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            text-align: center;
+            font-family: 'Cinzel', serif;
+        }
+
+        .component-btn:hover {
+            background: linear-gradient(135deg, rgba(157, 78, 221, 0.4), rgba(199, 125, 255, 0.4));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(157, 78, 221, 0.3);
+        }
+
+        .component-btn.selected {
+            background: linear-gradient(135deg, #9d4edd, #c77dff);
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.6);
+        }
+
+        .ritual-progress {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .progress-label {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: #c77dff;
+            font-family: 'Cinzel', serif;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #9d4edd, #c77dff, #e0aaff);
+            border-radius: 8px;
+            transition: width 1s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shimmer 2s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .spell-library {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .spell-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: rgba(157, 78, 221, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid #c77dff;
+        }
+
+        .spell-item:hover {
+            background: rgba(157, 78, 221, 0.2);
+            transform: translateX(5px);
+        }
+
+        .spell-name {
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
+            color: #e0aaff;
+            margin-bottom: 3px;
+        }
+
+        .spell-description {
+            font-size: 0.8rem;
+            color: rgba(240, 230, 255, 0.8);
+            line-height: 1.3;
+        }
+
+        .summon-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #7b2cbf, #9d4edd);
+            border: none;
+            color: #f8f9fa;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(123, 44, 191, 0.4);
+            font-family: 'Cinzel', serif;
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(135deg, #9d4edd, #c77dff);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(123, 44, 191, 0.6);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .entity-info {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .entity-avatar {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 15px rgba(199, 125, 255, 0.6));
+        }
+
+        .entity-name {
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            color: #e0aaff;
+            margin-bottom: 5px;
+        }
+
+        .entity-type {
+            font-size: 0.9rem;
+            color: rgba(240, 230, 255, 0.7);
+            margin-bottom: 10px;
+        }
+
+        .entity-power {
+            font-size: 0.8rem;
+            color: #c77dff;
+        }
+
+        .magical-effects {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .spark {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: #c77dff;
+            border-radius: 50%;
+            animation: sparkFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes sparkFloat {
+            0% { opacity: 0; transform: translateY(50px) scale(0); }
+            50% { opacity: 1; transform: translateY(-50px) scale(1); }
+            100% { opacity: 0; transform: translateY(-150px) scale(0); }
+        }
+
+        @media (max-width: 768px) {
+            .summoning-area {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .main-title {
+                font-size: 2.5rem;
+            }
+            
+            .magic-circle {
+                width: 350px;
+                height: 350px;
+            }
+            
+            .spell-components {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .rune {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mystical-bg"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="main-title">魔法陣召喚シミュレーター</h1>
+            <p class="subtitle">古代魔術の神秘を解き放ち、異界の存在を召喚せよ</p>
+        </div>
+
+        <div class="summoning-area">
+            <div class="circle-container">
+                <div class="magic-circle" id="magicCircle">
+                    <div class="circle-layer outer-circle"></div>
+                    <div class="circle-layer middle-circle"></div>
+                    <div class="circle-layer inner-circle"></div>
+                    <div class="circle-layer core-circle"></div>
+                    
+                    <div class="rune" style="top: 10%; left: 50%; transform: translateX(-50%);" data-rune="fire">🔥</div>
+                    <div class="rune" style="top: 25%; right: 15%;" data-rune="air">💨</div>
+                    <div class="rune" style="top: 50%; right: 5%;" data-rune="earth">🌍</div>
+                    <div class="rune" style="bottom: 25%; right: 15%;" data-rune="water">💧</div>
+                    <div class="rune" style="bottom: 10%; left: 50%; transform: translateX(-50%);" data-rune="spirit">✨</div>
+                    <div class="rune" style="bottom: 25%; left: 15%;" data-rune="darkness">🌑</div>
+                    <div class="rune" style="top: 50%; left: 5%;" data-rune="light">☀️</div>
+                    <div class="rune" style="top: 25%; left: 15%;" data-rune="arcane">🔮</div>
+                    
+                    <div class="summoned-entity" id="summonedEntity">👻</div>
+                </div>
+                
+                <div class="magical-effects" id="magicalEffects"></div>
+            </div>
+
+            <div class="control-panel">
+                <div class="panel-section">
+                    <h3 class="section-title">魔法成分</h3>
+                    <div class="spell-components">
+                        <button class="component-btn" data-component="crystal">💎 水晶</button>
+                        <button class="component-btn" data-component="herb">🌿 薬草</button>
+                        <button class="component-btn" data-component="bone">🦴 骨</button>
+                        <button class="component-btn" data-component="blood">🩸 血液</button>
+                        <button class="component-btn" data-component="silver">⚪ 銀</button>
+                        <button class="component-btn" data-component="candle">🕯️ 蝋燭</button>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3 class="section-title">召喚進行度</h3>
+                    <div class="ritual-progress">
+                        <div class="progress-label">魔力蓄積中...</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="ritualProgress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3 class="section-title">召喚された存在</h3>
+                    <div class="entity-info">
+                        <div class="entity-avatar" id="entityAvatar">❓</div>
+                        <div class="entity-name" id="entityName">未召喚</div>
+                        <div class="entity-type" id="entityType">-</div>
+                        <div class="entity-power" id="entityPower">魔力: 0</div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3 class="section-title">魔術書</h3>
+                    <div class="spell-library">
+                        <div class="spell-item" onclick="castSpell('summon_familiar')">
+                            <div class="spell-name">使い魔召喚</div>
+                            <div class="spell-description">小さな魔法生物を召喚</div>
+                        </div>
+                        <div class="spell-item" onclick="castSpell('summon_elemental')">
+                            <div class="spell-name">精霊召喚</div>
+                            <div class="spell-description">四大元素の精霊を呼び出す</div>
+                        </div>
+                        <div class="spell-item" onclick="castSpell('summon_demon')">
+                            <div class="spell-name">悪魔召喚</div>
+                            <div class="spell-description">強力だが危険な悪魔を召喚</div>
+                        </div>
+                        <div class="spell-item" onclick="castSpell('summon_angel')">
+                            <div class="spell-name">天使召喚</div>
+                            <div class="spell-description">神聖な天使を降臨させる</div>
+                        </div>
+                        <div class="spell-item" onclick="castSpell('summon_dragon')">
+                            <div class="spell-name">竜王召喚</div>
+                            <div class="spell-description">古代竜の王を呼び覚ます</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3 class="section-title">魔術制御</h3>
+                    <div class="summon-actions">
+                        <button class="action-btn" onclick="beginRitual()">🔮 儀式開始</button>
+                        <button class="action-btn" onclick="banishEntity()">⛔ 退散させる</button>
+                        <button class="action-btn" onclick="resetCircle()">🌀 魔法陣リセット</button>
+                        <button class="action-btn" onclick="randomSummon()">🎲 ランダム召喚</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class MagicCircleSummoner {
+            constructor() {
+                this.selectedRunes = [];
+                this.selectedComponents = [];
+                this.ritualProgress = 0;
+                this.currentEntity = null;
+                this.isRitualActive = false;
+                
+                this.entities = {
+                    familiar: {
+                        avatars: ['🐱', '🦉', '🐰', '🦔', '🐿️'],
+                        names: ['ウィスプ', 'ニクス', 'ピクシー', 'スプライト', 'ブラウニー'],
+                        types: ['小精霊', '使い魔', '妖精', '魔法生物'],
+                        power: () => Math.floor(Math.random() * 30) + 10
+                    },
+                    elemental: {
+                        avatars: ['🔥', '💧', '🌍', '💨', '⚡'],
+                        names: ['イフリート', 'ウンディーネ', 'ノーム', 'シルフ', 'ジン'],
+                        types: ['火の精霊', '水の精霊', '土の精霊', '風の精霊', '雷の精霊'],
+                        power: () => Math.floor(Math.random() * 50) + 30
+                    },
+                    demon: {
+                        avatars: ['👹', '😈', '👺', '🦇', '🐉'],
+                        names: ['ベルゼブブ', 'アスモデウス', 'バエル', 'フェニックス', 'アンドラス'],
+                        types: ['下級悪魔', '中級悪魔', '上級悪魔', '魔王', '堕天使'],
+                        power: () => Math.floor(Math.random() * 80) + 50
+                    },
+                    angel: {
+                        avatars: ['👼', '😇', '🕊️', '✨', '🌟'],
+                        names: ['ガブリエル', 'ミカエル', 'ラファエル', 'ウリエル', 'セラフィム'],
+                        types: ['守護天使', '大天使', '熾天使', '智天使', '座天使'],
+                        power: () => Math.floor(Math.random() * 100) + 70
+                    },
+                    dragon: {
+                        avatars: ['🐲', '🐉', '🦕', '🔥', '⚡'],
+                        names: ['バハムート', 'ティアマト', 'ファフニール', 'ニーズヘッグ', 'アジ・ダハーカ'],
+                        types: ['古代竜', '竜王', '竜神', '邪竜', '神竜'],
+                        power: () => Math.floor(Math.random() * 150) + 100
+                    }
+                };
+                
+                this.setupEventListeners();
+                this.createMagicalEffects();
+                this.startAmbientAnimation();
+            }
+            
+            setupEventListeners() {
+                // Rune clicks
+                document.querySelectorAll('.rune').forEach(rune => {
+                    rune.addEventListener('click', (e) => {
+                        this.activateRune(e.target);
+                    });
+                });
+                
+                // Component selection
+                document.querySelectorAll('.component-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        this.toggleComponent(e.target);
+                    });
+                });
+                
+                // Magic circle click
+                document.getElementById('magicCircle').addEventListener('click', (e) => {
+                    if (e.target.classList.contains('magic-circle') || e.target.classList.contains('circle-layer')) {
+                        this.addMagicalSpark(e);
+                    }
+                });
+            }
+            
+            activateRune(runeElement) {
+                const runeType = runeElement.dataset.rune;
+                
+                if (!this.selectedRunes.includes(runeType)) {
+                    this.selectedRunes.push(runeType);
+                    runeElement.classList.add('active');
+                    this.increaseRitualProgress(12.5);
+                    this.createRuneEffect(runeElement);
+                } else {
+                    this.selectedRunes = this.selectedRunes.filter(r => r !== runeType);
+                    runeElement.classList.remove('active');
+                    this.decreaseRitualProgress(12.5);
+                }
+                
+                this.updateProgressLabel();
+            }
+            
+            toggleComponent(componentElement) {
+                const componentType = componentElement.dataset.component;
+                
+                if (!this.selectedComponents.includes(componentType)) {
+                    this.selectedComponents.push(componentType);
+                    componentElement.classList.add('selected');
+                    this.increaseRitualProgress(8);
+                } else {
+                    this.selectedComponents = this.selectedComponents.filter(c => c !== componentType);
+                    componentElement.classList.remove('selected');
+                    this.decreaseRitualProgress(8);
+                }
+                
+                this.updateProgressLabel();
+            }
+            
+            increaseRitualProgress(amount) {
+                this.ritualProgress = Math.min(100, this.ritualProgress + amount);
+                this.updateProgressBar();
+            }
+            
+            decreaseRitualProgress(amount) {
+                this.ritualProgress = Math.max(0, this.ritualProgress - amount);
+                this.updateProgressBar();
+            }
+            
+            updateProgressBar() {
+                const progressFill = document.getElementById('ritualProgress');
+                progressFill.style.width = this.ritualProgress + '%';
+            }
+            
+            updateProgressLabel() {
+                const label = document.querySelector('.progress-label');
+                if (this.ritualProgress < 25) {
+                    label.textContent = '魔力蓄積中...';
+                } else if (this.ritualProgress < 50) {
+                    label.textContent = '儀式の準備...';
+                } else if (this.ritualProgress < 75) {
+                    label.textContent = '魔法陣活性化...';
+                } else if (this.ritualProgress < 100) {
+                    label.textContent = '召喚準備完了...';
+                } else {
+                    label.textContent = '完全召喚可能！';
+                }
+            }
+            
+            createRuneEffect(runeElement) {
+                const rect = runeElement.getBoundingClientRect();
+                const circleRect = document.getElementById('magicCircle').getBoundingClientRect();
+                
+                for (let i = 0; i < 5; i++) {
+                    const spark = document.createElement('div');
+                    spark.className = 'spark';
+                    spark.style.left = (rect.left - circleRect.left + rect.width / 2) + 'px';
+                    spark.style.top = (rect.top - circleRect.top + rect.height / 2) + 'px';
+                    spark.style.animationDelay = (i * 0.2) + 's';
+                    
+                    document.getElementById('magicalEffects').appendChild(spark);
+                    
+                    setTimeout(() => {
+                        if (spark.parentNode) {
+                            spark.parentNode.removeChild(spark);
+                        }
+                    }, 3000);
+                }
+            }
+            
+            addMagicalSpark(e) {
+                if (!this.isRitualActive) return;
+                
+                const rect = document.getElementById('magicCircle').getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const spark = document.createElement('div');
+                spark.className = 'spark';
+                spark.style.left = x + 'px';
+                spark.style.top = y + 'px';
+                spark.style.background = '#e0aaff';
+                
+                document.getElementById('magicalEffects').appendChild(spark);
+                
+                setTimeout(() => {
+                    if (spark.parentNode) {
+                        spark.parentNode.removeChild(spark);
+                    }
+                }, 3000);
+            }
+            
+            createMagicalEffects() {
+                setInterval(() => {
+                    if (this.ritualProgress > 50) {
+                        for (let i = 0; i < 3; i++) {
+                            const spark = document.createElement('div');
+                            spark.className = 'spark';
+                            spark.style.left = Math.random() * 500 + 'px';
+                            spark.style.top = Math.random() * 500 + 'px';
+                            spark.style.animationDelay = Math.random() * 2 + 's';
+                            
+                            document.getElementById('magicalEffects').appendChild(spark);
+                            
+                            setTimeout(() => {
+                                if (spark.parentNode) {
+                                    spark.parentNode.removeChild(spark);
+                                }
+                            }, 3000);
+                        }
+                    }
+                }, 1000);
+            }
+            
+            startAmbientAnimation() {
+                setInterval(() => {
+                    if (!this.isRitualActive && Math.random() < 0.3) {
+                        const runes = document.querySelectorAll('.rune:not(.active)');
+                        if (runes.length > 0) {
+                            const randomRune = runes[Math.floor(Math.random() * runes.length)];
+                            randomRune.style.textShadow = '0 0 20px rgba(248, 249, 250, 1)';
+                            setTimeout(() => {
+                                randomRune.style.textShadow = '0 0 10px rgba(199, 125, 255, 0.8)';
+                            }, 500);
+                        }
+                    }
+                }, 2000);
+            }
+            
+            beginRitual() {
+                if (this.ritualProgress < 50) {
+                    alert('魔力が不足しています。より多くのルーンと成分を選択してください。');
+                    return;
+                }
+                
+                this.isRitualActive = true;
+                this.summonRandomEntity();
+            }
+            
+            summonRandomEntity() {
+                const entityTypes = Object.keys(this.entities);
+                const randomType = entityTypes[Math.floor(Math.random() * entityTypes.length)];
+                
+                // Adjust probability based on ritual progress
+                let selectedType;
+                if (this.ritualProgress >= 90) {
+                    selectedType = ['dragon', 'angel', 'demon'][Math.floor(Math.random() * 3)];
+                } else if (this.ritualProgress >= 75) {
+                    selectedType = ['elemental', 'demon', 'angel'][Math.floor(Math.random() * 3)];
+                } else {
+                    selectedType = ['familiar', 'elemental'][Math.floor(Math.random() * 2)];
+                }
+                
+                this.summonEntity(selectedType);
+            }
+            
+            summonEntity(entityType) {
+                const entityData = this.entities[entityType];
+                const avatar = entityData.avatars[Math.floor(Math.random() * entityData.avatars.length)];
+                const name = entityData.names[Math.floor(Math.random() * entityData.names.length)];
+                const type = entityData.types[Math.floor(Math.random() * entityData.types.length)];
+                const power = entityData.power();
+                
+                this.currentEntity = {
+                    type: entityType,
+                    avatar: avatar,
+                    name: name,
+                    entityType: type,
+                    power: power
+                };
+                
+                this.displaySummonedEntity();
+                this.createSummonEffect();
+            }
+            
+            displaySummonedEntity() {
+                const entity = this.currentEntity;
+                
+                document.getElementById('summonedEntity').textContent = entity.avatar;
+                document.getElementById('summonedEntity').classList.add('appear');
+                
+                document.getElementById('entityAvatar').textContent = entity.avatar;
+                document.getElementById('entityName').textContent = entity.name;
+                document.getElementById('entityType').textContent = entity.entityType;
+                document.getElementById('entityPower').textContent = `魔力: ${entity.power}`;
+                
+                // Add visual effects to the circle
+                const circles = document.querySelectorAll('.circle-layer');
+                circles.forEach((circle, index) => {
+                    circle.style.borderColor = this.getEntityColor(entity.type);
+                    circle.style.boxShadow = `0 0 20px ${this.getEntityColor(entity.type)}`;
+                });
+            }
+            
+            getEntityColor(entityType) {
+                const colors = {
+                    familiar: '#4ecdc4',
+                    elemental: '#ff6b6b',
+                    demon: '#d63384',
+                    angel: '#f8f9fa',
+                    dragon: '#fd7e14'
+                };
+                return colors[entityType] || '#c77dff';
+            }
+            
+            createSummonEffect() {
+                // Create intense summoning effect
+                for (let i = 0; i < 20; i++) {
+                    setTimeout(() => {
+                        const spark = document.createElement('div');
+                        spark.className = 'spark';
+                        spark.style.left = Math.random() * 500 + 'px';
+                        spark.style.top = Math.random() * 500 + 'px';
+                        spark.style.background = this.getEntityColor(this.currentEntity.type);
+                        spark.style.width = '5px';
+                        spark.style.height = '5px';
+                        
+                        document.getElementById('magicalEffects').appendChild(spark);
+                        
+                        setTimeout(() => {
+                            if (spark.parentNode) {
+                                spark.parentNode.removeChild(spark);
+                            }
+                        }, 3000);
+                    }, i * 100);
+                }
+            }
+            
+            castSpell(spellType) {
+                switch (spellType) {
+                    case 'summon_familiar':
+                        this.summonEntity('familiar');
+                        break;
+                    case 'summon_elemental':
+                        this.summonEntity('elemental');
+                        break;
+                    case 'summon_demon':
+                        this.summonEntity('demon');
+                        break;
+                    case 'summon_angel':
+                        this.summonEntity('angel');
+                        break;
+                    case 'summon_dragon':
+                        this.summonEntity('dragon');
+                        break;
+                }
+                
+                this.isRitualActive = true;
+                this.ritualProgress = Math.max(50, this.ritualProgress);
+                this.updateProgressBar();
+            }
+            
+            banishEntity() {
+                if (!this.currentEntity) {
+                    alert('召喚された存在がいません。');
+                    return;
+                }
+                
+                document.getElementById('summonedEntity').classList.remove('appear');
+                
+                // Reset entity info
+                document.getElementById('entityAvatar').textContent = '❓';
+                document.getElementById('entityName').textContent = '未召喚';
+                document.getElementById('entityType').textContent = '-';
+                document.getElementById('entityPower').textContent = '魔力: 0';
+                
+                // Reset circle colors
+                const circles = document.querySelectorAll('.circle-layer');
+                circles.forEach(circle => {
+                    circle.style.borderColor = '';
+                    circle.style.boxShadow = '';
+                });
+                
+                this.currentEntity = null;
+                this.isRitualActive = false;
+                
+                // Create banishment effect
+                for (let i = 0; i < 10; i++) {
+                    setTimeout(() => {
+                        const spark = document.createElement('div');
+                        spark.className = 'spark';
+                        spark.style.left = 250 + 'px';
+                        spark.style.top = 250 + 'px';
+                        spark.style.background = '#f8f9fa';
+                        
+                        document.getElementById('magicalEffects').appendChild(spark);
+                        
+                        setTimeout(() => {
+                            if (spark.parentNode) {
+                                spark.parentNode.removeChild(spark);
+                            }
+                        }, 3000);
+                    }, i * 50);
+                }
+            }
+            
+            resetCircle() {
+                // Reset all selections
+                this.selectedRunes = [];
+                this.selectedComponents = [];
+                this.ritualProgress = 0;
+                this.isRitualActive = false;
+                
+                // Reset UI
+                document.querySelectorAll('.rune').forEach(rune => {
+                    rune.classList.remove('active');
+                });
+                
+                document.querySelectorAll('.component-btn').forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+                
+                this.updateProgressBar();
+                this.updateProgressLabel();
+                this.banishEntity();
+            }
+            
+            randomSummon() {
+                // Random selection
+                const runes = document.querySelectorAll('.rune');
+                const components = document.querySelectorAll('.component-btn');
+                
+                this.resetCircle();
+                
+                // Randomly select runes
+                const numRunes = Math.floor(Math.random() * 4) + 3;
+                for (let i = 0; i < numRunes; i++) {
+                    const randomRune = runes[Math.floor(Math.random() * runes.length)];
+                    if (!randomRune.classList.contains('active')) {
+                        setTimeout(() => {
+                            randomRune.click();
+                        }, i * 300);
+                    }
+                }
+                
+                // Randomly select components
+                const numComponents = Math.floor(Math.random() * 3) + 2;
+                for (let i = 0; i < numComponents; i++) {
+                    const randomComponent = components[Math.floor(Math.random() * components.length)];
+                    if (!randomComponent.classList.contains('selected')) {
+                        setTimeout(() => {
+                            randomComponent.click();
+                        }, (numRunes + i) * 300);
+                    }
+                }
+                
+                // Auto-begin ritual
+                setTimeout(() => {
+                    this.beginRitual();
+                }, (numRunes + numComponents + 1) * 300);
+            }
+        }
+        
+        // Initialize the summoner
+        let summoner;
+        window.addEventListener('load', () => {
+            summoner = new MagicCircleSummoner();
+        });
+        
+        // Global functions for HTML onclick events
+        function beginRitual() {
+            summoner.beginRitual();
+        }
+        
+        function banishEntity() {
+            summoner.banishEntity();
+        }
+        
+        function resetCircle() {
+            summoner.resetCircle();
+        }
+        
+        function randomSummon() {
+            summoner.randomSummon();
+        }
+        
+        function castSpell(spellType) {
+            summoner.castSpell(spellType);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>メタバース建築ゲーム - 仮想世界の創造主になろう</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #6B73FF 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: white;
+            position: relative;
+        }
+
+        .metaverse-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 15% 25%, rgba(102, 126, 234, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 85% 75%, rgba(118, 75, 162, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 50% 10%, rgba(107, 115, 255, 0.2) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: -1;
+            animation: metaverseShift 10s ease-in-out infinite;
+        }
+
+        @keyframes metaverseShift {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.6; }
+            50% { transform: scale(1.1) rotate(2deg); opacity: 0.9; }
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .toolbox {
+            width: 300px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            border-right: 2px solid rgba(102, 126, 234, 0.3);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .build-area {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #667eea, #764ba2, #6B73FF);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite;
+        }
+
+        .grid-canvas {
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            position: relative;
+            cursor: crosshair;
+        }
+
+        .building-block {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .building-block:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.8);
+        }
+
+        .tool-section {
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: #6B73FF;
+        }
+
+        .block-palette {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .palette-item {
+            width: 50px;
+            height: 50px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .palette-item:hover {
+            border-color: #6B73FF;
+            transform: scale(1.1);
+        }
+
+        .palette-item.selected {
+            border-color: #667eea;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.8);
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .control-btn:hover {
+            background: linear-gradient(135deg, #7c8df0, #8b5ac7);
+            transform: translateY(-2px);
+        }
+
+        .world-stats {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .stat-value {
+            color: #6B73FF;
+            font-family: 'Orbitron', monospace;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .toolbox {
+                width: 100%;
+                height: 200px;
+            }
+            .build-area {
+                height: calc(100vh - 200px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="metaverse-bg"></div>
+    
+    <div class="container">
+        <div class="toolbox">
+            <h1 class="main-title">メタバース建築</h1>
+            
+            <div class="tool-section">
+                <h3 class="section-title">建築ブロック</h3>
+                <div class="block-palette">
+                    <div class="palette-item selected" data-block="🏢">🏢</div>
+                    <div class="palette-item" data-block="🏠">🏠</div>
+                    <div class="palette-item" data-block="🏭">🏭</div>
+                    <div class="palette-item" data-block="🏪">🏪</div>
+                    <div class="palette-item" data-block="🌳">🌳</div>
+                    <div class="palette-item" data-block="🌸">🌸</div>
+                    <div class="palette-item" data-block="⛲">⛲</div>
+                    <div class="palette-item" data-block="🚗">🚗</div>
+                    <div class="palette-item" data-block="🚁">🚁</div>
+                    <div class="palette-item" data-block="🎡">🎡</div>
+                    <div class="palette-item" data-block="🎢">🎢</div>
+                    <div class="palette-item" data-block="🎪">🎪</div>
+                </div>
+            </div>
+
+            <div class="tool-section">
+                <h3 class="section-title">ワールド統計</h3>
+                <div class="world-stats">
+                    <div class="stat-item">
+                        <span>建築物数:</span>
+                        <span class="stat-value" id="buildingCount">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>人口:</span>
+                        <span class="stat-value" id="population">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>経済値:</span>
+                        <span class="stat-value" id="economy">100</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>環境値:</span>
+                        <span class="stat-value" id="environment">100</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tool-section">
+                <h3 class="section-title">ワールド制御</h3>
+                <div class="controls">
+                    <button class="control-btn" onclick="clearWorld()">🗑️ ワールドクリア</button>
+                    <button class="control-btn" onclick="saveWorld()">💾 ワールド保存</button>
+                    <button class="control-btn" onclick="generateCity()">🏙️ 都市自動生成</button>
+                    <button class="control-btn" onclick="shareWorld()">🌍 ワールド共有</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="build-area">
+            <div class="grid-canvas" id="gridCanvas"></div>
+        </div>
+    </div>
+
+    <script>
+        class MetaverseBuilder {
+            constructor() {
+                this.selectedBlock = '🏢';
+                this.buildings = new Map();
+                this.stats = {
+                    buildingCount: 0,
+                    population: 0,
+                    economy: 100,
+                    environment: 100
+                };
+                
+                this.blockValues = {
+                    '🏢': { population: 50, economy: 20, environment: -5 },
+                    '🏠': { population: 10, economy: 5, environment: 0 },
+                    '🏭': { population: 5, economy: 30, environment: -15 },
+                    '🏪': { population: 0, economy: 15, environment: -2 },
+                    '🌳': { population: 0, economy: 2, environment: 15 },
+                    '🌸': { population: 0, economy: 5, environment: 10 },
+                    '⛲': { population: 0, economy: 8, environment: 12 },
+                    '🚗': { population: 0, economy: 5, environment: -3 },
+                    '🚁': { population: 0, economy: 10, environment: -5 },
+                    '🎡': { population: 0, economy: 25, environment: 5 },
+                    '🎢': { population: 0, economy: 30, environment: 3 },
+                    '🎪': { population: 0, economy: 20, environment: 8 }
+                };
+                
+                this.setupEventListeners();
+                this.setupGrid();
+            }
+            
+            setupEventListeners() {
+                // Block palette selection
+                document.querySelectorAll('.palette-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        document.querySelectorAll('.palette-item').forEach(i => i.classList.remove('selected'));
+                        e.target.classList.add('selected');
+                        this.selectedBlock = e.target.dataset.block;
+                    });
+                });
+                
+                // Grid click
+                document.getElementById('gridCanvas').addEventListener('click', (e) => {
+                    this.placeBlock(e);
+                });
+            }
+            
+            setupGrid() {
+                const canvas = document.getElementById('gridCanvas');
+                const rect = canvas.getBoundingClientRect();
+                const gridSize = 40;
+                
+                canvas.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    this.removeBlock(e);
+                });
+            }
+            
+            placeBlock(e) {
+                const canvas = document.getElementById('gridCanvas');
+                const rect = canvas.getBoundingClientRect();
+                const x = Math.floor((e.clientX - rect.left) / 40) * 40;
+                const y = Math.floor((e.clientY - rect.top) / 40) * 40;
+                const key = `${x},${y}`;
+                
+                if (this.buildings.has(key)) return;
+                
+                const block = document.createElement('div');
+                block.className = 'building-block';
+                block.style.left = x + 'px';
+                block.style.top = y + 'px';
+                block.textContent = this.selectedBlock;
+                block.dataset.blockType = this.selectedBlock;
+                
+                // Add color based on block type
+                const colors = {
+                    '🏢': 'rgba(102, 126, 234, 0.3)',
+                    '🏠': 'rgba(255, 182, 193, 0.3)',
+                    '🏭': 'rgba(128, 128, 128, 0.3)',
+                    '🏪': 'rgba(255, 165, 0, 0.3)',
+                    '🌳': 'rgba(0, 255, 0, 0.3)',
+                    '🌸': 'rgba(255, 192, 203, 0.3)',
+                    '⛲': 'rgba(135, 206, 235, 0.3)',
+                    '🚗': 'rgba(255, 0, 0, 0.3)',
+                    '🚁': 'rgba(0, 0, 255, 0.3)',
+                    '🎡': 'rgba(255, 20, 147, 0.3)',
+                    '🎢': 'rgba(255, 140, 0, 0.3)',
+                    '🎪': 'rgba(255, 0, 255, 0.3)'
+                };
+                
+                block.style.backgroundColor = colors[this.selectedBlock] || 'rgba(255, 255, 255, 0.1)';
+                
+                canvas.appendChild(block);
+                this.buildings.set(key, this.selectedBlock);
+                
+                this.updateStats(this.selectedBlock, 1);
+                this.addPlaceEffect(x, y);
+            }
+            
+            removeBlock(e) {
+                const canvas = document.getElementById('gridCanvas');
+                const rect = canvas.getBoundingClientRect();
+                const x = Math.floor((e.clientX - rect.left) / 40) * 40;
+                const y = Math.floor((e.clientY - rect.top) / 40) * 40;
+                const key = `${x},${y}`;
+                
+                if (!this.buildings.has(key)) return;
+                
+                const blockType = this.buildings.get(key);
+                const blockElement = document.elementFromPoint(e.clientX, e.clientY);
+                
+                if (blockElement && blockElement.classList.contains('building-block')) {
+                    blockElement.remove();
+                    this.buildings.delete(key);
+                    this.updateStats(blockType, -1);
+                }
+            }
+            
+            updateStats(blockType, multiplier) {
+                const values = this.blockValues[blockType];
+                
+                this.stats.buildingCount += multiplier;
+                this.stats.population += values.population * multiplier;
+                this.stats.economy = Math.max(0, Math.min(999, this.stats.economy + values.economy * multiplier));
+                this.stats.environment = Math.max(0, Math.min(200, this.stats.environment + values.environment * multiplier));
+                
+                this.updateStatsDisplay();
+            }
+            
+            updateStatsDisplay() {
+                document.getElementById('buildingCount').textContent = this.stats.buildingCount;
+                document.getElementById('population').textContent = this.stats.population;
+                document.getElementById('economy').textContent = this.stats.economy;
+                document.getElementById('environment').textContent = this.stats.environment;
+            }
+            
+            addPlaceEffect(x, y) {
+                const effect = document.createElement('div');
+                effect.style.position = 'absolute';
+                effect.style.left = x + 'px';
+                effect.style.top = y + 'px';
+                effect.style.width = '40px';
+                effect.style.height = '40px';
+                effect.style.background = 'radial-gradient(circle, rgba(102, 126, 234, 0.8) 0%, transparent 70%)';
+                effect.style.borderRadius = '50%';
+                effect.style.pointerEvents = 'none';
+                effect.style.animation = 'placeEffect 1s ease-out forwards';
+                
+                document.getElementById('gridCanvas').appendChild(effect);
+                
+                setTimeout(() => {
+                    if (effect.parentNode) {
+                        effect.parentNode.removeChild(effect);
+                    }
+                }, 1000);
+            }
+            
+            clearWorld() {
+                const canvas = document.getElementById('gridCanvas');
+                canvas.innerHTML = '';
+                this.buildings.clear();
+                this.stats = {
+                    buildingCount: 0,
+                    population: 0,
+                    economy: 100,
+                    environment: 100
+                };
+                this.updateStatsDisplay();
+            }
+            
+            saveWorld() {
+                const worldData = {
+                    buildings: Array.from(this.buildings.entries()),
+                    stats: this.stats,
+                    timestamp: new Date().toISOString()
+                };
+                
+                const dataStr = JSON.stringify(worldData, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                const url = URL.createObjectURL(dataBlob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `metaverse_world_${Date.now()}.json`;
+                link.click();
+                
+                alert('ワールドが保存されました！');
+            }
+            
+            generateCity() {
+                this.clearWorld();
+                
+                const cityBlocks = ['🏢', '🏠', '🏪', '🌳', '🚗'];
+                const canvas = document.getElementById('gridCanvas');
+                const rect = canvas.getBoundingClientRect();
+                const maxX = Math.floor(rect.width / 40);
+                const maxY = Math.floor(rect.height / 40);
+                
+                // Generate random city layout
+                for (let i = 0; i < 50; i++) {
+                    const x = Math.floor(Math.random() * maxX) * 40;
+                    const y = Math.floor(Math.random() * maxY) * 40;
+                    const key = `${x},${y}`;
+                    
+                    if (this.buildings.has(key)) continue;
+                    
+                    const blockType = cityBlocks[Math.floor(Math.random() * cityBlocks.length)];
+                    
+                    const block = document.createElement('div');
+                    block.className = 'building-block';
+                    block.style.left = x + 'px';
+                    block.style.top = y + 'px';
+                    block.textContent = blockType;
+                    block.dataset.blockType = blockType;
+                    
+                    canvas.appendChild(block);
+                    this.buildings.set(key, blockType);
+                    this.updateStats(blockType, 1);
+                    
+                    // Delay for animation effect
+                    setTimeout(() => {
+                        this.addPlaceEffect(x, y);
+                    }, i * 50);
+                }
+            }
+            
+            shareWorld() {
+                const buildingList = Array.from(this.buildings.values());
+                const summary = `🏙️ メタバース都市完成！\n\n建築物数: ${this.stats.buildingCount}\n人口: ${this.stats.population}\n経済値: ${this.stats.economy}\n環境値: ${this.stats.environment}\n\n素晴らしい都市を建設しました！`;
+                
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'メタバース都市建設',
+                        text: summary
+                    });
+                } else {
+                    navigator.clipboard.writeText(summary).then(() => {
+                        alert('都市情報をクリップボードにコピーしました！');
+                    });
+                }
+            }
+        }
+        
+        // Add CSS for place effect animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes placeEffect {
+                0% { transform: scale(0); opacity: 1; }
+                50% { transform: scale(1.5); opacity: 0.8; }
+                100% { transform: scale(2); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Initialize the builder
+        let builder;
+        window.addEventListener('load', () => {
+            builder = new MetaverseBuilder();
+        });
+        
+        // Global functions
+        function clearWorld() {
+            builder.clearWorld();
+        }
+        
+        function saveWorld() {
+            builder.saveWorld();
+        }
+        
+        function generateCity() {
+            builder.generateCity();
+        }
+        
+        function shareWorld() {
+            builder.shareWorld();
+        }
+    </script>
+</body>
+</html>

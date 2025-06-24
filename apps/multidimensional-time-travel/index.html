@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多次元タイムトラベル体験 - 時空の迷宮を駆け抜けろ</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3c72 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: #e0e6ed;
+            position: relative;
+        }
+
+        .spacetime-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(0, 150, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(255, 0, 150, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(0, 255, 200, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: -1;
+            animation: dimensionalShift 15s ease-in-out infinite;
+        }
+
+        @keyframes dimensionalShift {
+            0%, 100% { 
+                opacity: 0.3; 
+                transform: scale(1) rotate(0deg);
+                filter: hue-rotate(0deg);
+            }
+            33% { 
+                opacity: 0.7; 
+                transform: scale(1.1) rotate(2deg);
+                filter: hue-rotate(120deg);
+            }
+            66% { 
+                opacity: 0.5; 
+                transform: scale(0.9) rotate(-1deg);
+                filter: hue-rotate(240deg);
+            }
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .control-panel {
+            width: 350px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            border-right: 2px solid rgba(0, 150, 255, 0.3);
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 0 0 50px rgba(0, 150, 255, 0.2);
+        }
+
+        .time-portal {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .main-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #00d4ff, #ff0080, #8000ff, #00ff80);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            animation: gradientShift 3s ease-in-out infinite;
+            text-align: center;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .portal-container {
+            width: 400px;
+            height: 400px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .portal-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 3px solid rgba(0, 212, 255, 0.6);
+            border-radius: 50%;
+            animation: portalSpin 8s linear infinite;
+        }
+
+        .ring-1 {
+            width: 100%;
+            height: 100%;
+            border-color: rgba(0, 212, 255, 0.8);
+            animation-duration: 8s;
+        }
+
+        .ring-2 {
+            width: 80%;
+            height: 80%;
+            border-color: rgba(255, 0, 128, 0.7);
+            animation-duration: 6s;
+            animation-direction: reverse;
+        }
+
+        .ring-3 {
+            width: 60%;
+            height: 60%;
+            border-color: rgba(128, 0, 255, 0.6);
+            animation-duration: 4s;
+        }
+
+        .ring-4 {
+            width: 40%;
+            height: 40%;
+            border-color: rgba(0, 255, 128, 0.5);
+            animation-duration: 3s;
+            animation-direction: reverse;
+        }
+
+        .portal-core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20%;
+            height: 20%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(0, 212, 255, 0.3) 70%, transparent 100%);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes portalSpin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.3); }
+        }
+
+        .dimension-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4rem;
+            opacity: 0;
+            transition: all 1s ease;
+            filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.8));
+        }
+
+        .dimension-display.show {
+            opacity: 1;
+            animation: dimensionAppear 2s ease-in-out;
+        }
+
+        @keyframes dimensionAppear {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(0deg); }
+            50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.5) rotate(180deg); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(360deg); }
+        }
+
+        .control-section {
+            margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(0, 150, 255, 0.2);
+        }
+
+        .section-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #00d4ff;
+            border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+            padding-bottom: 8px;
+        }
+
+        .time-coordinates {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .coordinate-input {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .coordinate-label {
+            font-size: 0.9rem;
+            color: rgba(224, 230, 237, 0.8);
+        }
+
+        .coordinate-field {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 150, 255, 0.4);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #e0e6ed;
+            font-family: 'Orbitron', monospace;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .coordinate-field:focus {
+            border-color: #00d4ff;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+        }
+
+        .dimension-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .dimension-btn {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(255, 0, 128, 0.2));
+            border: 1px solid rgba(0, 212, 255, 0.5);
+            color: #e0e6ed;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            text-align: center;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .dimension-btn:hover {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.4), rgba(255, 0, 128, 0.4));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .dimension-btn.active {
+            background: linear-gradient(135deg, #00d4ff, #ff0080);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+        }
+
+        .timeline-visualization {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            height: 100px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .timeline-line {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            right: 10px;
+            height: 2px;
+            background: linear-gradient(90deg, #00d4ff, #ff0080, #8000ff, #00ff80);
+            transform: translateY(-50%);
+        }
+
+        .timeline-marker {
+            position: absolute;
+            top: 50%;
+            width: 12px;
+            height: 12px;
+            background: #00d4ff;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.5s ease;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.8);
+        }
+
+        .travel-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-btn {
+            background: linear-gradient(135deg, #0066cc, #0052a3);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 102, 204, 0.4);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .control-btn:hover {
+            background: linear-gradient(135deg, #0080ff, #0066cc);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 102, 204, 0.6);
+        }
+
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status-display {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .status-label {
+            color: rgba(224, 230, 237, 0.8);
+        }
+
+        .status-value {
+            color: #00d4ff;
+            font-family: 'Orbitron', monospace;
+            font-weight: 600;
+        }
+
+        .paradox-warning {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.2), rgba(255, 165, 0, 0.2));
+            border: 1px solid rgba(255, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .paradox-warning.show {
+            display: block;
+            animation: paradoxAlert 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes paradoxAlert {
+            from { border-color: rgba(255, 0, 0, 0.5); }
+            to { border-color: rgba(255, 165, 0, 0.8); }
+        }
+
+        .destination-info {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .destination-era {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            color: #00d4ff;
+            margin-bottom: 10px;
+        }
+
+        .destination-description {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: rgba(224, 230, 237, 0.9);
+        }
+
+        .spacetime-particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #00d4ff;
+            border-radius: 50%;
+            animation: particleFloat 8s linear infinite;
+        }
+
+        @keyframes particleFloat {
+            0% { 
+                opacity: 0; 
+                transform: translateY(100vh) translateX(0px) scale(0); 
+            }
+            10% { 
+                opacity: 1; 
+                transform: translateY(90vh) translateX(10px) scale(1); 
+            }
+            90% { 
+                opacity: 1; 
+                transform: translateY(10vh) translateX(-10px) scale(1); 
+            }
+            100% { 
+                opacity: 0; 
+                transform: translateY(0vh) translateX(0px) scale(0); 
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                height: auto;
+                min-height: 100vh;
+            }
+            
+            .control-panel {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 2px solid rgba(0, 150, 255, 0.3);
+            }
+            
+            .time-portal {
+                height: 400px;
+            }
+            
+            .portal-container {
+                width: 300px;
+                height: 300px;
+            }
+            
+            .main-title {
+                font-size: 1.5rem;
+            }
+            
+            .time-coordinates {
+                grid-template-columns: 1fr;
+            }
+            
+            .dimension-selector {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="spacetime-bg"></div>
+    
+    <div class="container">
+        <div class="control-panel">
+            <h1 class="main-title">多次元タイムトラベル</h1>
+            
+            <div class="control-section">
+                <h3 class="section-title">時空座標設定</h3>
+                <div class="time-coordinates">
+                    <div class="coordinate-input">
+                        <label class="coordinate-label">年 (Year)</label>
+                        <input type="number" class="coordinate-field" id="yearInput" value="2024" min="-10000" max="10000">
+                    </div>
+                    <div class="coordinate-input">
+                        <label class="coordinate-label">月 (Month)</label>
+                        <input type="number" class="coordinate-field" id="monthInput" value="1" min="1" max="12">
+                    </div>
+                    <div class="coordinate-input">
+                        <label class="coordinate-label">日 (Day)</label>
+                        <input type="number" class="coordinate-field" id="dayInput" value="1" min="1" max="31">
+                    </div>
+                    <div class="coordinate-input">
+                        <label class="coordinate-label">次元 (Dimension)</label>
+                        <input type="text" class="coordinate-field" id="dimensionInput" value="Prime" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3 class="section-title">並行次元選択</h3>
+                <div class="dimension-selector">
+                    <button class="dimension-btn active" data-dimension="Prime">主次元</button>
+                    <button class="dimension-btn" data-dimension="Mirror">鏡像次元</button>
+                    <button class="dimension-btn" data-dimension="Shadow">影の次元</button>
+                    <button class="dimension-btn" data-dimension="Quantum">量子次元</button>
+                    <button class="dimension-btn" data-dimension="Void">虚無次元</button>
+                    <button class="dimension-btn" data-dimension="Crystal">水晶次元</button>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3 class="section-title">タイムライン可視化</h3>
+                <div class="timeline-visualization">
+                    <div class="timeline-line"></div>
+                    <div class="timeline-marker" id="timelineMarker" style="left: 50%;"></div>
+                </div>
+            </div>
+
+            <div class="paradox-warning" id="paradoxWarning">
+                ⚠️ 時空パラドックス警告！<br>
+                この移動は時間軸に深刻な影響を与える可能性があります。
+            </div>
+
+            <div class="control-section">
+                <h3 class="section-title">現在ステータス</h3>
+                <div class="status-display">
+                    <div class="status-item">
+                        <span class="status-label">現在時刻:</span>
+                        <span class="status-value" id="currentTime">2024/01/01</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">現在次元:</span>
+                        <span class="status-value" id="currentDimension">Prime</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">エネルギー:</span>
+                        <span class="status-value" id="energyLevel">100%</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">旅行回数:</span>
+                        <span class="status-value" id="travelCount">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3 class="section-title">タイムトラベル制御</h3>
+                <div class="travel-controls">
+                    <button class="control-btn" onclick="initiateTimeTravel()">🚀 時空移動実行</button>
+                    <button class="control-btn" onclick="randomTimeTravel()">🎲 ランダム移動</button>
+                    <button class="control-btn" onclick="returnToPresent()">🏠 現在に帰還</button>
+                    <button class="control-btn" onclick="emergencyReturn()">⚡ 緊急帰還</button>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3 class="section-title">目的地情報</h3>
+                <div class="destination-info">
+                    <div class="destination-era" id="destinationEra">現在 (2024年)</div>
+                    <div class="destination-description" id="destinationDescription">
+                        あなたは現在の時空に存在しています。時空座標を設定して新たな時代への旅を始めましょう。
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="time-portal">
+            <div class="portal-container" onclick="portalClick()">
+                <div class="portal-ring ring-1"></div>
+                <div class="portal-ring ring-2"></div>
+                <div class="portal-ring ring-3"></div>
+                <div class="portal-ring ring-4"></div>
+                <div class="portal-core"></div>
+                <div class="dimension-display" id="dimensionDisplay">🌍</div>
+            </div>
+            
+            <div class="spacetime-particles" id="particles"></div>
+        </div>
+    </div>
+
+    <script>
+        class MultidimensionalTimeTravel {
+            constructor() {
+                this.currentTime = {
+                    year: 2024,
+                    month: 1,
+                    day: 1,
+                    dimension: 'Prime'
+                };
+                
+                this.energy = 100;
+                this.travelCount = 0;
+                this.isTimelined = false;
+                
+                this.dimensions = {
+                    Prime: {
+                        name: '主次元',
+                        icon: '🌍',
+                        description: '私たちが住む通常の現実世界'
+                    },
+                    Mirror: {
+                        name: '鏡像次元',
+                        icon: '🪞',
+                        description: '全てが反転した鏡のような世界'
+                    },
+                    Shadow: {
+                        name: '影の次元',
+                        icon: '🌑',
+                        description: '光と影が逆転した暗黒の世界'
+                    },
+                    Quantum: {
+                        name: '量子次元',
+                        icon: '⚛️',
+                        description: '量子もつれが支配する確率的世界'
+                    },
+                    Void: {
+                        name: '虚無次元',
+                        icon: '🕳️',
+                        description: '何も存在しない無の空間'
+                    },
+                    Crystal: {
+                        name: '水晶次元',
+                        icon: '💎',
+                        description: '水晶でできた幻想的な世界'
+                    }
+                };
+                
+                this.timeEras = {
+                    prehistoric: { min: -10000, max: -3000, name: '先史時代' },
+                    ancient: { min: -3000, max: 500, name: '古代' },
+                    medieval: { min: 500, max: 1500, name: '中世' },
+                    renaissance: { min: 1500, max: 1800, name: 'ルネサンス' },
+                    industrial: { min: 1800, max: 1950, name: '産業革命時代' },
+                    modern: { min: 1950, max: 2000, name: '現代' },
+                    contemporary: { min: 2000, max: 2050, name: '現在' },
+                    near_future: { min: 2050, max: 2200, name: '近未来' },
+                    far_future: { min: 2200, max: 5000, name: '遠未来' },
+                    distant_future: { min: 5000, max: 10000, name: '超未来' }
+                };
+                
+                this.setupEventListeners();
+                this.updateDisplay();
+                this.createParticles();
+                this.startPortalAnimation();
+            }
+            
+            setupEventListeners() {
+                // Dimension selector buttons
+                document.querySelectorAll('.dimension-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.dimension-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        const dimension = e.target.dataset.dimension;
+                        document.getElementById('dimensionInput').value = dimension;
+                        this.updateDestinationInfo();
+                    });
+                });
+                
+                // Time coordinate inputs
+                ['yearInput', 'monthInput', 'dayInput'].forEach(id => {
+                    document.getElementById(id).addEventListener('input', () => {
+                        this.updateDestinationInfo();
+                        this.updateTimelineMarker();
+                        this.checkParadoxRisk();
+                    });
+                });
+            }
+            
+            updateDisplay() {
+                document.getElementById('currentTime').textContent = 
+                    `${this.currentTime.year}/${String(this.currentTime.month).padStart(2, '0')}/${String(this.currentTime.day).padStart(2, '0')}`;
+                document.getElementById('currentDimension').textContent = this.dimensions[this.currentTime.dimension].name;
+                document.getElementById('energyLevel').textContent = this.energy + '%';
+                document.getElementById('travelCount').textContent = this.travelCount;
+                
+                // Update portal display
+                const dimensionData = this.dimensions[this.currentTime.dimension];
+                document.getElementById('dimensionDisplay').textContent = dimensionData.icon;
+            }
+            
+            updateDestinationInfo() {
+                const year = parseInt(document.getElementById('yearInput').value);
+                const dimension = document.getElementById('dimensionInput').value;
+                
+                const era = this.getEraFromYear(year);
+                const dimensionData = this.dimensions[dimension];
+                
+                document.getElementById('destinationEra').textContent = 
+                    `${era} (${year}年) - ${dimensionData.name}`;
+                
+                const descriptions = {
+                    prehistoric: '恐竜が闊歩し、原始人類が狩猟採集生活を送る時代。',
+                    ancient: 'ピラミッドや古代文明が栄えた神秘的な時代。',
+                    medieval: '騎士と魔法が信じられていた中世ヨーロッパの時代。',
+                    renaissance: '芸術と科学が大きく発展したルネサンス期。',
+                    industrial: '蒸気機関と工場が世界を変えた産業革命の時代。',
+                    modern: '二つの世界大戦を経て現代文明が形成された時代。',
+                    contemporary: '現在のデジタル社会とテクノロジーの時代。',
+                    near_future: 'AI と宇宙開発が進歩した近未来社会。',
+                    far_future: '人類が銀河に進出した遠い未来の時代。',
+                    distant_future: '現在とは全く異なる超文明の時代。'
+                };
+                
+                const eraKey = Object.keys(this.timeEras).find(key => {
+                    const range = this.timeEras[key];
+                    return year >= range.min && year <= range.max;
+                }) || 'contemporary';
+                
+                document.getElementById('destinationDescription').textContent = 
+                    descriptions[eraKey] + ' ' + dimensionData.description;
+            }
+            
+            getEraFromYear(year) {
+                for (const [key, range] of Object.entries(this.timeEras)) {
+                    if (year >= range.min && year <= range.max) {
+                        return range.name;
+                    }
+                }
+                return '未知の時代';
+            }
+            
+            updateTimelineMarker() {
+                const year = parseInt(document.getElementById('yearInput').value);
+                const minYear = -10000;
+                const maxYear = 10000;
+                const position = ((year - minYear) / (maxYear - minYear)) * 100;
+                
+                document.getElementById('timelineMarker').style.left = position + '%';
+            }
+            
+            checkParadoxRisk() {
+                const year = parseInt(document.getElementById('yearInput').value);
+                const currentYear = this.currentTime.year;
+                const yearDiff = Math.abs(year - currentYear);
+                
+                const paradoxWarning = document.getElementById('paradoxWarning');
+                
+                if (yearDiff > 1000 || year < 0) {
+                    paradoxWarning.classList.add('show');
+                } else {
+                    paradoxWarning.classList.remove('show');
+                }
+            }
+            
+            initiateTimeTravel() {
+                const targetYear = parseInt(document.getElementById('yearInput').value);
+                const targetMonth = parseInt(document.getElementById('monthInput').value);
+                const targetDay = parseInt(document.getElementById('dayInput').value);
+                const targetDimension = document.getElementById('dimensionInput').value;
+                
+                if (this.energy < 20) {
+                    alert('エネルギーが不足しています。緊急帰還でエネルギーを回復してください。');
+                    return;
+                }
+                
+                const yearDiff = Math.abs(targetYear - this.currentTime.year);
+                const energyCost = Math.min(50, Math.max(10, yearDiff / 100));
+                
+                this.energy = Math.max(0, this.energy - energyCost);
+                this.travelCount++;
+                
+                // Update current time
+                this.currentTime = {
+                    year: targetYear,
+                    month: targetMonth,
+                    day: targetDay,
+                    dimension: targetDimension
+                };
+                
+                this.performTravelAnimation();
+                this.updateDisplay();
+                this.createTravelEffect();
+                
+                // Reset input to current values
+                document.getElementById('yearInput').value = targetYear;
+                document.getElementById('monthInput').value = targetMonth;
+                document.getElementById('dayInput').value = targetDay;
+                document.getElementById('dimensionInput').value = targetDimension;
+                
+                // Update active dimension button
+                document.querySelectorAll('.dimension-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.dimension === targetDimension) {
+                        btn.classList.add('active');
+                    }
+                });
+                
+                this.updateDestinationInfo();
+            }
+            
+            performTravelAnimation() {
+                const display = document.getElementById('dimensionDisplay');
+                const dimensionData = this.dimensions[this.currentTime.dimension];
+                
+                display.classList.remove('show');
+                
+                setTimeout(() => {
+                    display.textContent = dimensionData.icon;
+                    display.classList.add('show');
+                }, 500);
+                
+                // Portal effect
+                const rings = document.querySelectorAll('.portal-ring');
+                rings.forEach((ring, index) => {
+                    ring.style.borderColor = this.getDimensionColor(this.currentTime.dimension);
+                    ring.style.animationDuration = (2 - index * 0.2) + 's';
+                });
+                
+                setTimeout(() => {
+                    rings.forEach((ring, index) => {
+                        ring.style.borderColor = '';
+                        ring.style.animationDuration = '';
+                    });
+                }, 3000);
+            }
+            
+            getDimensionColor(dimension) {
+                const colors = {
+                    Prime: 'rgba(0, 212, 255, 0.8)',
+                    Mirror: 'rgba(255, 255, 255, 0.8)',
+                    Shadow: 'rgba(128, 0, 128, 0.8)',
+                    Quantum: 'rgba(0, 255, 128, 0.8)',
+                    Void: 'rgba(0, 0, 0, 0.8)',
+                    Crystal: 'rgba(255, 0, 255, 0.8)'
+                };
+                return colors[dimension] || 'rgba(0, 212, 255, 0.8)';
+            }
+            
+            createTravelEffect() {
+                for (let i = 0; i < 30; i++) {
+                    setTimeout(() => {
+                        const particle = document.createElement('div');
+                        particle.className = 'particle';
+                        particle.style.left = Math.random() * 100 + '%';
+                        particle.style.background = this.getDimensionColor(this.currentTime.dimension);
+                        particle.style.animationDuration = (Math.random() * 4 + 2) + 's';
+                        
+                        document.getElementById('particles').appendChild(particle);
+                        
+                        setTimeout(() => {
+                            if (particle.parentNode) {
+                                particle.parentNode.removeChild(particle);
+                            }
+                        }, 8000);
+                    }, i * 50);
+                }
+            }
+            
+            randomTimeTravel() {
+                const randomYear = Math.floor(Math.random() * 20000) - 10000;
+                const randomMonth = Math.floor(Math.random() * 12) + 1;
+                const randomDay = Math.floor(Math.random() * 28) + 1;
+                const dimensionKeys = Object.keys(this.dimensions);
+                const randomDimension = dimensionKeys[Math.floor(Math.random() * dimensionKeys.length)];
+                
+                document.getElementById('yearInput').value = randomYear;
+                document.getElementById('monthInput').value = randomMonth;
+                document.getElementById('dayInput').value = randomDay;
+                document.getElementById('dimensionInput').value = randomDimension;
+                
+                this.updateDestinationInfo();
+                this.updateTimelineMarker();
+                this.checkParadoxRisk();
+                
+                setTimeout(() => {
+                    this.initiateTimeTravel();
+                }, 1000);
+            }
+            
+            returnToPresent() {
+                document.getElementById('yearInput').value = 2024;
+                document.getElementById('monthInput').value = 1;
+                document.getElementById('dayInput').value = 1;
+                document.getElementById('dimensionInput').value = 'Prime';
+                
+                this.updateDestinationInfo();
+                this.updateTimelineMarker();
+                this.checkParadoxRisk();
+                
+                this.initiateTimeTravel();
+            }
+            
+            emergencyReturn() {
+                this.energy = 100;
+                this.returnToPresent();
+                alert('緊急帰還が完了しました。エネルギーが完全回復しました。');
+            }
+            
+            portalClick() {
+                if (this.energy >= 20) {
+                    this.createClickEffect();
+                    this.energy = Math.max(0, this.energy - 5);
+                    this.updateDisplay();
+                }
+            }
+            
+            createClickEffect() {
+                const portal = document.querySelector('.portal-container');
+                const rect = portal.getBoundingClientRect();
+                
+                for (let i = 0; i < 10; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = '50%';
+                    particle.style.top = '50%';
+                    particle.style.background = '#00d4ff';
+                    particle.style.animationDuration = '2s';
+                    
+                    document.getElementById('particles').appendChild(particle);
+                    
+                    setTimeout(() => {
+                        if (particle.parentNode) {
+                            particle.parentNode.removeChild(particle);
+                        }
+                    }, 2000);
+                }
+            }
+            
+            createParticles() {
+                setInterval(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDuration = (Math.random() * 6 + 4) + 's';
+                    particle.style.animationDelay = Math.random() * 2 + 's';
+                    
+                    document.getElementById('particles').appendChild(particle);
+                    
+                    setTimeout(() => {
+                        if (particle.parentNode) {
+                            particle.parentNode.removeChild(particle);
+                        }
+                    }, 8000);
+                }, 500);
+            }
+            
+            startPortalAnimation() {
+                setInterval(() => {
+                    const core = document.querySelector('.portal-core');
+                    const intensity = 0.7 + Math.sin(Date.now() / 1000) * 0.3;
+                    core.style.opacity = intensity;
+                    
+                    if (this.energy < 30) {
+                        core.style.background = `radial-gradient(circle, rgba(255, 100, 100, ${intensity}) 0%, rgba(255, 0, 0, 0.3) 70%, transparent 100%)`;
+                    } else {
+                        core.style.background = `radial-gradient(circle, rgba(255, 255, 255, ${intensity}) 0%, rgba(0, 212, 255, 0.3) 70%, transparent 100%)`;
+                    }
+                }, 100);
+            }
+        }
+        
+        // Initialize the time travel system
+        let timeTravel;
+        window.addEventListener('load', () => {
+            timeTravel = new MultidimensionalTimeTravel();
+        });
+        
+        // Global functions for HTML onclick events
+        function initiateTimeTravel() {
+            timeTravel.initiateTimeTravel();
+        }
+        
+        function randomTimeTravel() {
+            timeTravel.randomTimeTravel();
+        }
+        
+        function returnToPresent() {
+            timeTravel.returnToPresent();
+        }
+        
+        function emergencyReturn() {
+            timeTravel.emergencyReturn();
+        }
+        
+        function portalClick() {
+            timeTravel.portalClick();
+        }
+    </script>
+</body>
+</html>

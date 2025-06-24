@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI芸術家コラボスタジオ - 人工知能と創造する未来アート</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: linear-gradient(135deg, #2d1b69 0%, #11998e 50%, #38ef7d 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: white;
+            position: relative;
+        }
+
+        .artistic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(216, 27, 96, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(17, 153, 142, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(56, 239, 125, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+            animation: artisticFloat 12s ease-in-out infinite;
+        }
+
+        @keyframes artisticFloat {
+            0%, 100% { opacity: 0.6; transform: rotate(0deg) scale(1); }
+            33% { opacity: 0.8; transform: rotate(2deg) scale(1.05); }
+            66% { opacity: 0.4; transform: rotate(-1deg) scale(0.95); }
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+
+        .main-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 3.2rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #d81b60, #11998e, #38ef7d, #f093fb);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            animation: gradientShift 4s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(216, 27, 96, 0.5);
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: #38ef7d;
+            margin-bottom: 20px;
+        }
+
+        .studio-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .canvas-area {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(56, 239, 125, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .art-canvas {
+            width: 100%;
+            height: 500px;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.95));
+            border-radius: 15px;
+            border: 3px solid rgba(56, 239, 125, 0.5);
+            position: relative;
+            overflow: hidden;
+            cursor: crosshair;
+        }
+
+        .brush-stroke {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            transition: all 0.1s ease;
+        }
+
+        .ai-suggestion {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(216, 27, 96, 0.9);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            max-width: 200px;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.5s ease;
+        }
+
+        .ai-suggestion.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(56, 239, 125, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            height: fit-content;
+        }
+
+        .panel-section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #38ef7d;
+            border-bottom: 2px solid rgba(56, 239, 125, 0.3);
+            padding-bottom: 8px;
+        }
+
+        .ai-styles {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .style-btn {
+            background: linear-gradient(135deg, rgba(56, 239, 125, 0.2), rgba(17, 153, 142, 0.2));
+            border: 1px solid rgba(56, 239, 125, 0.5);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .style-btn:hover {
+            background: linear-gradient(135deg, rgba(56, 239, 125, 0.4), rgba(17, 153, 142, 0.4));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(56, 239, 125, 0.3);
+        }
+
+        .style-btn.active {
+            background: linear-gradient(135deg, #38ef7d, #11998e);
+            box-shadow: 0 0 20px rgba(56, 239, 125, 0.6);
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .color-swatch {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+
+        .color-swatch.selected {
+            transform: scale(1.2);
+            box-shadow: 0 0 20px rgba(56, 239, 125, 0.8);
+            border-color: #38ef7d;
+        }
+
+        .brush-controls {
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .control-slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .control-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #38ef7d, #11998e);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(56, 239, 125, 0.5);
+        }
+
+        .ai-collaboration {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(56, 239, 125, 0.2);
+        }
+
+        .ai-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #d81b60, #11998e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 15px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .ai-message {
+            text-align: center;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 15px;
+        }
+
+        .studio-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #d81b60, #11998e);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(216, 27, 96, 0.4);
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(135deg, #e91e63, #26a69a);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(216, 27, 96, 0.6);
+        }
+
+        .gallery-preview {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 15px;
+            border: 1px solid rgba(56, 239, 125, 0.2);
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .gallery-item {
+            aspect-ratio: 1;
+            background: linear-gradient(45deg, #d81b60, #11998e, #38ef7d);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(56, 239, 125, 0.4);
+        }
+
+        .collaboration-meter {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .meter-label {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: #38ef7d;
+        }
+
+        .meter-bar {
+            width: 100%;
+            height: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .meter-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #d81b60, #11998e, #38ef7d);
+            border-radius: 8px;
+            transition: width 1s ease;
+            position: relative;
+        }
+
+        .meter-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shimmer 2s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        @media (max-width: 768px) {
+            .studio-layout {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .main-title {
+                font-size: 2.2rem;
+            }
+            
+            .art-canvas {
+                height: 400px;
+            }
+            
+            .color-palette {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .ai-styles {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="artistic-bg"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="main-title">AI芸術家コラボスタジオ</h1>
+            <p class="subtitle">人工知能と共に創造する次世代アートプラットフォーム</p>
+        </div>
+
+        <div class="studio-layout">
+            <div class="canvas-area">
+                <h3 class="section-title">創造キャンバス</h3>
+                <div class="art-canvas" id="artCanvas">
+                    <div class="ai-suggestion" id="aiSuggestion">AI: ここに青い色を加えてみませんか？</div>
+                </div>
+                
+                <div style="margin-top: 20px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <button class="action-btn" onclick="clearCanvas()">🗑️ キャンバスクリア</button>
+                    <button class="action-btn" onclick="saveArtwork()">💾 作品保存</button>
+                    <button class="action-btn" onclick="shareWithCommunity()">🌍 コミュニティ共有</button>
+                    <button class="action-btn" onclick="requestAIHelp()">🤖 AI協力要請</button>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <div class="panel-section">
+                    <h3 class="section-title">AI芸術スタイル</h3>
+                    <div class="ai-styles">
+                        <button class="style-btn active" data-style="impressionist">印象派</button>
+                        <button class="style-btn" data-style="abstract">抽象画</button>
+                        <button class="style-btn" data-style="surreal">シュルレアリスム</button>
+                        <button class="style-btn" data-style="digital">デジタルアート</button>
+                        <button class="style-btn" data-style="minimalist">ミニマル</button>
+                        <button class="style-btn" data-style="psychedelic">サイケデリック</button>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3 class="section-title">カラーパレット</h3>
+                    <div class="color-palette">
+                        <div class="color-swatch selected" data-color="#d81b60" style="background: #d81b60;"></div>
+                        <div class="color-swatch" data-color="#11998e" style="background: #11998e;"></div>
+                        <div class="color-swatch" data-color="#38ef7d" style="background: #38ef7d;"></div>
+                        <div class="color-swatch" data-color="#f093fb" style="background: #f093fb;"></div>
+                        <div class="color-swatch" data-color="#4facfe" style="background: #4facfe;"></div>
+                        <div class="color-swatch" data-color="#ff6b6b" style="background: #ff6b6b;"></div>
+                        <div class="color-swatch" data-color="#4ecdc4" style="background: #4ecdc4;"></div>
+                        <div class="color-swatch" data-color="#45b7d1" style="background: #45b7d1;"></div>
+                        <div class="color-swatch" data-color="#96ceb4" style="background: #96ceb4;"></div>
+                        <div class="color-swatch" data-color="#ffeaa7" style="background: #ffeaa7;"></div>
+                        <div class="color-swatch" data-color="#fab1a0" style="background: #fab1a0;"></div>
+                        <div class="color-swatch" data-color="#fd79a8" style="background: #fd79a8;"></div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3 class="section-title">ブラシ設定</h3>
+                    <div class="brush-controls">
+                        <div class="control-group">
+                            <div class="control-label">
+                                <span>ブラシサイズ</span>
+                                <span id="brushSizeValue">20</span>
+                            </div>
+                            <input type="range" id="brushSize" class="control-slider" min="5" max="100" value="20">
+                        </div>
+                        <div class="control-group">
+                            <div class="control-label">
+                                <span>透明度</span>
+                                <span id="opacityValue">80%</span>
+                            </div>
+                            <input type="range" id="opacity" class="control-slider" min="10" max="100" value="80">
+                        </div>
+                        <div class="control-group">
+                            <div class="control-label">
+                                <span>AI協力度</span>
+                                <span id="aiCollabValue">50%</span>
+                            </div>
+                            <input type="range" id="aiCollab" class="control-slider" min="0" max="100" value="50">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3 class="section-title">AI パートナー</h3>
+                    <div class="ai-collaboration">
+                        <div class="ai-avatar" id="aiAvatar">🎨</div>
+                        <div class="ai-message" id="aiMessage">
+                            こんにちは！一緒に素晴らしいアートを作りましょう。
+                        </div>
+                        <div class="collaboration-meter">
+                            <div class="meter-label">創造的シナジー</div>
+                            <div class="meter-bar">
+                                <div class="meter-fill" id="synergyMeter" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3 class="section-title">ギャラリープレビュー</h3>
+                    <div class="gallery-preview">
+                        <div class="gallery-grid" id="galleryGrid">
+                            <div class="gallery-item" onclick="loadTemplate(1)"></div>
+                            <div class="gallery-item" onclick="loadTemplate(2)"></div>
+                            <div class="gallery-item" onclick="loadTemplate(3)"></div>
+                            <div class="gallery-item" onclick="loadTemplate(4)"></div>
+                            <div class="gallery-item" onclick="loadTemplate(5)"></div>
+                            <div class="gallery-item" onclick="loadTemplate(6)"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class AIArtCollabStudio {
+            constructor() {
+                this.canvas = document.getElementById('artCanvas');
+                this.selectedColor = '#d81b60';
+                this.brushSize = 20;
+                this.opacity = 80;
+                this.aiCollabLevel = 50;
+                this.currentStyle = 'impressionist';
+                this.isDrawing = false;
+                this.strokes = [];
+                this.synergyLevel = 0;
+                this.aiSuggestions = [
+                    'ここに明るい色を追加してみませんか？',
+                    '対比を効かせるために暗い色はいかがでしょう？',
+                    'このエリアにテクスチャを加えると面白いですよ',
+                    '構図のバランスを考えて左側に要素を追加しましょう',
+                    '色の調和を考えて補色を使ってみては？',
+                    'この部分にグラデーションを加えると深みが出ます',
+                    '抽象的な要素で全体を引き締めましょう',
+                    'ライトとシャドウのコントラストを強調しませんか？'
+                ];
+                
+                this.setupEventListeners();
+                this.initializeCanvas();
+                this.startAICollaboration();
+            }
+            
+            setupEventListeners() {
+                // Color selection
+                document.querySelectorAll('.color-swatch').forEach(swatch => {
+                    swatch.addEventListener('click', (e) => {
+                        document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+                        e.target.classList.add('selected');
+                        this.selectedColor = e.target.dataset.color;
+                    });
+                });
+                
+                // Style selection
+                document.querySelectorAll('.style-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.currentStyle = e.target.dataset.style;
+                        this.updateAIMessage();
+                    });
+                });
+                
+                // Brush controls
+                const brushSize = document.getElementById('brushSize');
+                const opacity = document.getElementById('opacity');
+                const aiCollab = document.getElementById('aiCollab');
+                
+                brushSize.addEventListener('input', (e) => {
+                    this.brushSize = parseInt(e.target.value);
+                    document.getElementById('brushSizeValue').textContent = e.target.value;
+                });
+                
+                opacity.addEventListener('input', (e) => {
+                    this.opacity = parseInt(e.target.value);
+                    document.getElementById('opacityValue').textContent = e.target.value + '%';
+                });
+                
+                aiCollab.addEventListener('input', (e) => {
+                    this.aiCollabLevel = parseInt(e.target.value);
+                    document.getElementById('aiCollabValue').textContent = e.target.value + '%';
+                    this.updateAIAvatar();
+                });
+                
+                // Canvas drawing
+                this.canvas.addEventListener('mousedown', (e) => this.startDrawing(e));
+                this.canvas.addEventListener('mousemove', (e) => this.draw(e));
+                this.canvas.addEventListener('mouseup', () => this.stopDrawing());
+                this.canvas.addEventListener('mouseleave', () => this.stopDrawing());
+                
+                // Touch events for mobile
+                this.canvas.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const mouseEvent = new MouseEvent('mousedown', {
+                        clientX: touch.clientX,
+                        clientY: touch.clientY
+                    });
+                    this.canvas.dispatchEvent(mouseEvent);
+                });
+                
+                this.canvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const mouseEvent = new MouseEvent('mousemove', {
+                        clientX: touch.clientX,
+                        clientY: touch.clientY
+                    });
+                    this.canvas.dispatchEvent(mouseEvent);
+                });
+                
+                this.canvas.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    const mouseEvent = new MouseEvent('mouseup', {});
+                    this.canvas.dispatchEvent(mouseEvent);
+                });
+            }
+            
+            initializeCanvas() {
+                this.canvas.style.background = 'linear-gradient(45deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.95))';
+            }
+            
+            startDrawing(e) {
+                this.isDrawing = true;
+                this.draw(e);
+            }
+            
+            draw(e) {
+                if (!this.isDrawing) return;
+                
+                const rect = this.canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                this.createBrushStroke(x, y);
+                this.increaseSynergy();
+                
+                // AI collaboration effect
+                if (Math.random() < this.aiCollabLevel / 200) {
+                    this.addAIEnhancement(x, y);
+                }
+            }
+            
+            stopDrawing() {
+                this.isDrawing = false;
+                this.triggerAISuggestion();
+            }
+            
+            createBrushStroke(x, y) {
+                const stroke = document.createElement('div');
+                stroke.className = 'brush-stroke';
+                stroke.style.left = (x - this.brushSize / 2) + 'px';
+                stroke.style.top = (y - this.brushSize / 2) + 'px';
+                stroke.style.width = this.brushSize + 'px';
+                stroke.style.height = this.brushSize + 'px';
+                stroke.style.backgroundColor = this.selectedColor;
+                stroke.style.opacity = this.opacity / 100;
+                
+                // Style-based effects
+                switch (this.currentStyle) {
+                    case 'impressionist':
+                        stroke.style.filter = 'blur(2px)';
+                        break;
+                    case 'abstract':
+                        stroke.style.borderRadius = Math.random() * 50 + '%';
+                        stroke.style.transform = `rotate(${Math.random() * 360}deg)`;
+                        break;
+                    case 'digital':
+                        stroke.style.boxShadow = `0 0 ${this.brushSize}px ${this.selectedColor}`;
+                        break;
+                    case 'psychedelic':
+                        stroke.style.background = `linear-gradient(${Math.random() * 360}deg, ${this.selectedColor}, ${this.getRandomColor()})`;
+                        break;
+                }
+                
+                this.canvas.appendChild(stroke);
+                this.strokes.push(stroke);
+                
+                // Add animation
+                stroke.style.transform += ' scale(0)';
+                setTimeout(() => {
+                    stroke.style.transform = stroke.style.transform.replace('scale(0)', 'scale(1)');
+                }, 10);
+            }
+            
+            addAIEnhancement(x, y) {
+                const enhancement = document.createElement('div');
+                enhancement.className = 'brush-stroke';
+                enhancement.style.left = (x + Math.random() * 40 - 20) + 'px';
+                enhancement.style.top = (y + Math.random() * 40 - 20) + 'px';
+                enhancement.style.width = (this.brushSize * 0.5) + 'px';
+                enhancement.style.height = (this.brushSize * 0.5) + 'px';
+                enhancement.style.backgroundColor = this.getComplementaryColor();
+                enhancement.style.opacity = '0.6';
+                enhancement.style.borderRadius = '50%';
+                enhancement.style.filter = 'blur(1px)';
+                
+                this.canvas.appendChild(enhancement);
+                this.strokes.push(enhancement);
+                
+                this.updateAIMessage('AIが補完を追加しました！');
+            }
+            
+            getComplementaryColor() {
+                const colors = ['#11998e', '#38ef7d', '#f093fb', '#4facfe', '#ff6b6b'];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+            
+            getRandomColor() {
+                const colors = ['#d81b60', '#11998e', '#38ef7d', '#f093fb', '#4facfe', '#ff6b6b'];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+            
+            increaseSynergy() {
+                this.synergyLevel = Math.min(100, this.synergyLevel + 1);
+                this.updateSynergyMeter();
+            }
+            
+            updateSynergyMeter() {
+                const meter = document.getElementById('synergyMeter');
+                meter.style.width = this.synergyLevel + '%';
+            }
+            
+            updateAIAvatar() {
+                const avatar = document.getElementById('aiAvatar');
+                const avatars = ['🎨', '🤖', '✨', '🎭', '🌟', '💫'];
+                avatar.textContent = avatars[Math.floor(this.aiCollabLevel / 20)];
+            }
+            
+            updateAIMessage(message = null) {
+                const messageEl = document.getElementById('aiMessage');
+                if (message) {
+                    messageEl.textContent = message;
+                } else {
+                    const styleMessages = {
+                        impressionist: '印象派スタイルで光と色彩を表現しましょう',
+                        abstract: '抽象的な形と色で感情を表現してみませんか',
+                        surreal: '現実を超えた幻想的な世界を創造しましょう',
+                        digital: 'デジタルアートの可能性を探求しましょう',
+                        minimalist: 'シンプルで力強い表現を目指しましょう',
+                        psychedelic: 'カラフルで幻想的な世界を描きましょう'
+                    };
+                    messageEl.textContent = styleMessages[this.currentStyle];
+                }
+            }
+            
+            triggerAISuggestion() {
+                if (Math.random() < 0.3) {
+                    const suggestion = document.getElementById('aiSuggestion');
+                    suggestion.textContent = 'AI: ' + this.aiSuggestions[Math.floor(Math.random() * this.aiSuggestions.length)];
+                    suggestion.classList.add('show');
+                    
+                    setTimeout(() => {
+                        suggestion.classList.remove('show');
+                    }, 3000);
+                }
+            }
+            
+            startAICollaboration() {
+                setInterval(() => {
+                    this.updateAIMessage();
+                    if (this.aiCollabLevel > 70 && Math.random() < 0.1) {
+                        this.addAutomaticEnhancement();
+                    }
+                }, 5000);
+            }
+            
+            addAutomaticEnhancement() {
+                const x = Math.random() * this.canvas.offsetWidth;
+                const y = Math.random() * this.canvas.offsetHeight;
+                this.addAIEnhancement(x, y);
+                this.updateAIMessage('AIが自動的に作品を強化しました！');
+            }
+            
+            clearCanvas() {
+                this.strokes.forEach(stroke => stroke.remove());
+                this.strokes = [];
+                this.synergyLevel = 0;
+                this.updateSynergyMeter();
+                this.updateAIMessage('新しいキャンバスで創作を始めましょう！');
+            }
+            
+            saveArtwork() {
+                const artworkData = {
+                    strokes: this.strokes.length,
+                    style: this.currentStyle,
+                    synergyLevel: this.synergyLevel,
+                    timestamp: new Date().toISOString()
+                };
+                
+                console.log('Artwork saved:', artworkData);
+                this.updateAIMessage('作品が保存されました！素晴らしい創作でした。');
+                
+                // Simulate save to gallery
+                this.addToGallery();
+            }
+            
+            addToGallery() {
+                const gallery = document.getElementById('galleryGrid');
+                const items = gallery.querySelectorAll('.gallery-item');
+                if (items.length > 0) {
+                    const randomItem = items[Math.floor(Math.random() * items.length)];
+                    randomItem.style.background = `linear-gradient(45deg, ${this.selectedColor}, ${this.getComplementaryColor()})`;
+                }
+            }
+            
+            shareWithCommunity() {
+                this.updateAIMessage('作品がコミュニティで共有されました！多くの人に見てもらえますね。');
+                this.synergyLevel = Math.min(100, this.synergyLevel + 10);
+                this.updateSynergyMeter();
+            }
+            
+            requestAIHelp() {
+                this.triggerAISuggestion();
+                this.updateAIMessage('どんなことでもお手伝いします！一緒に素晴らしい作品を作りましょう。');
+                
+                // Add some AI enhancement effects
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => {
+                        const x = Math.random() * this.canvas.offsetWidth;
+                        const y = Math.random() * this.canvas.offsetHeight;
+                        this.addAIEnhancement(x, y);
+                    }, i * 500);
+                }
+            }
+            
+            loadTemplate(templateId) {
+                this.clearCanvas();
+                
+                // Generate template-based artwork
+                const templates = [
+                    { colors: ['#d81b60', '#11998e'], style: 'abstract' },
+                    { colors: ['#38ef7d', '#f093fb'], style: 'impressionist' },
+                    { colors: ['#4facfe', '#ff6b6b'], style: 'digital' },
+                    { colors: ['#4ecdc4', '#45b7d1'], style: 'minimalist' },
+                    { colors: ['#96ceb4', '#ffeaa7'], style: 'surreal' },
+                    { colors: ['#fab1a0', '#fd79a8'], style: 'psychedelic' }
+                ];
+                
+                const template = templates[templateId - 1];
+                this.currentStyle = template.style;
+                
+                // Update UI
+                document.querySelectorAll('.style-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelector(`[data-style="${template.style}"]`).classList.add('active');
+                
+                // Generate template strokes
+                for (let i = 0; i < 20; i++) {
+                    setTimeout(() => {
+                        const x = Math.random() * this.canvas.offsetWidth;
+                        const y = Math.random() * this.canvas.offsetHeight;
+                        this.selectedColor = template.colors[Math.floor(Math.random() * template.colors.length)];
+                        this.createBrushStroke(x, y);
+                    }, i * 100);
+                }
+                
+                this.updateAIMessage(`テンプレート${templateId}を読み込みました！自由に編集してください。`);
+            }
+        }
+        
+        // Initialize the studio
+        let studio;
+        window.addEventListener('load', () => {
+            studio = new AIArtCollabStudio();
+        });
+        
+        // Global functions for HTML onclick events
+        function clearCanvas() {
+            studio.clearCanvas();
+        }
+        
+        function saveArtwork() {
+            studio.saveArtwork();
+        }
+        
+        function shareWithCommunity() {
+            studio.shareWithCommunity();
+        }
+        
+        function requestAIHelp() {
+            studio.requestAIHelp();
+        }
+        
+        function loadTemplate(templateId) {
+            studio.loadTemplate(templateId);
+        }
+    </script>
+</body>
+</html>
