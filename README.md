@@ -1,6 +1,16 @@
 # 🌟 Claude作品集 - 超進化アプリコレクション
 
-このリポジトリには、Claude AIを使って作成した革新的なゲーム、ツール、AIアプリケーションが格納されています。基本的なツールから4次元パズルまで、56以上の多様なアプリケーションをお楽しみください。
+![Claude作品集](https://img.shields.io/badge/Apps-61+-blue) ![Claude AI](https://img.shields.io/badge/Powered_by-Claude_AI-purple) ![License](https://img.shields.io/badge/License-MIT-green) ![Last Commit](https://img.shields.io/github/last-commit/kt199671/claude_make_app)
+
+**Claude AIで作成した60以上の革新的アプリケーション集。4次元パズル、AI対戦、音楽制作、科学シミュレーションなど、最先端Web技術で作られた多彩なアプリを無料でお楽しみいただけます。**
+
+## 🚀 ライブデモを今すぐ体験！
+
+**✨ [https://kt199671.github.io/claude_make_app/](https://kt199671.github.io/claude_make_app/) ✨**
+
+ブラウザでアクセスするだけで、すべてのアプリを無料でお試しいただけます！
+
+このリポジトリには、Claude AIを使って作成した革新的なゲーム、ツール、AIアプリケーションが格納されています。基本的なツールから4次元パズルまで、61以上の多様なアプリケーションをお楽しみください。
 
 ## 🎮 ゲーム一覧
 
@@ -304,6 +314,14 @@ xdg-open index.html
 - **難易度設定**: 初心者から上級者まで対応
 - **統計追跡**: 詳細なプレイ統計とプログレス
 
+## 🔥 人気アプリ TOP 5
+
+1. **⭐️ [時空の狭間 - 4次元パズル](apps/dimensional-puzzle/)** - 革命的な4次元パズルゲーム
+2. **🎵 [ネオンビートメーカー](apps/neon-beat-maker/)** - プロ級音楽制作ツール
+3. **🤖 [AIチャットペット](apps/ai-chat-pet/)** - 会話できるバーチャルペット
+4. **🌌 [重力パズル](apps/gravity-puzzle/)** - 物理演算パズルゲーム
+5. **🧠 [ニューラルネットワーク可視化](apps/neural-network-viz/)** - AI学習過程の可視化
+
 ## 🆕 最新更新情報
 
 ### 🌟 大型アップデート - 革新的アプリ10個追加！
@@ -363,9 +381,26 @@ apps/your-new-app/
 - **技術スタック**: HTML5, CSS3, JavaScript, Canvas API, Web Audio API, 物理演算
 - **対応ブラウザ**: Chrome, Firefox, Safari, Edge
 
+## 🤝 コントリビューション歓迎！
+
+このプロジェクトはオープンソースです！新しいアプリの追加、改善提案、バグフィックスなど、どんな貢献でも大歓迎です！
+
+### 貢献方法
+1. このリポジトリをフォーク
+2. 新しいブランチを作成
+3. 変更を加えてコミット
+4. プルリクエストを送信
+
+## 🔗 関連リンク
+
+- **🚀 [ライブデモ](https://kt199671.github.io/claude_make_app/)** - すべてのアプリを体験
+- **🐛 [Issue報告](https://github.com/kt199671/claude_make_app/issues)** - バグ報告や機能リクエスト
+- **⭐ [Starをつける](https://github.com/kt199671/claude_make_app)** - プロジェクトを応援
+- **🐦 [Twitterでシェア](https://twitter.com/intent/tweet?text=Claude%20AI%E3%81%A7%E4%BD%9C%E6%88%90%E3%81%97%E3%81%9F60%2B%E3%81%AE%E9%9D%A9%E6%96%B0%E7%9A%84%E3%82%A2%E3%83%97%E3%83%AA%E3%82%B3%E3%83%AC%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3%EF%BC%81&url=https://kt199671.github.io/claude_make_app/)** - 友達に紹介
+
 ## 📝 ライセンス
 
-このリポジトリのコードはMITライセンスの下で公開されています。自由に使用、改変、配布が可能です。
+このプロジェクトはMITライセンスの下で公開されています。自由に使用、改変、配布が可能です。
 
 ## 🤖 クレジット
 
@@ -374,3 +409,5 @@ apps/your-new-app/
 ---
 
 **🌟 新しいアプリは随時追加されています。定期的にチェックして最新の革新的なゲームやツールをお楽しみください！**
+
+**✨ このプロジェクトが気に入ったら、ぜひ⭐️ Starをつけて応援してください！ ✨**
