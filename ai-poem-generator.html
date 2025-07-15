@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIポエムジェネレーター - AI Poem Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', 'Hiragino Sans', Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 星空の背景 */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% {
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.8s ease-out;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            text-align: center;
+            color: #2a5298;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #2a5298;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+        }
+
+        .style-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .style-option {
+            padding: 15px;
+            text-align: center;
+            background: #f5f5f5;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .style-option:hover {
+            background: #e8f0fe;
+            border-color: #2a5298;
+        }
+
+        .style-option.selected {
+            background: #2a5298;
+            color: white;
+            border-color: #2a5298;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .generate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .generate-btn:hover::before {
+            left: 100%;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        .generate-btn.generating {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(240, 147, 251, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 20px rgba(240, 147, 251, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(240, 147, 251, 0);
+            }
+        }
+
+        .poem-display {
+            margin-top: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            min-height: 200px;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+
+        .poem-display.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .poem-text {
+            font-size: 1.3em;
+            line-height: 2;
+            color: #333;
+            text-align: center;
+            white-space: pre-line;
+            font-family: 'Georgia', 'Hiragino Mincho ProN', serif;
+            animation: fadeInText 1s ease-out;
+        }
+
+        @keyframes fadeInText {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .poem-footer {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .poem-btn {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #2a5298;
+            color: #2a5298;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .poem-btn:hover {
+            background: #2a5298;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(42, 82, 152, 0.3);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .style-selector {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .poem-text {
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="container">
+        <h1>✨ AIポエムジェネレーター</h1>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <label for="keywords">キーワード・テーマ</label>
+                <input type="text" id="keywords" placeholder="例: 夕焼け、希望、旅立ち">
+            </div>
+            
+            <div class="input-group">
+                <label>詩のスタイル</label>
+                <div class="style-selector">
+                    <div class="style-option selected" data-style="haiku">俳句</div>
+                    <div class="style-option" data-style="tanka">短歌</div>
+                    <div class="style-option" data-style="free">自由詩</div>
+                    <div class="style-option" data-style="sonnet">ソネット</div>
+                    <div class="style-option" data-style="modern">現代詩</div>
+                    <div class="style-option" data-style="fantasy">幻想詩</div>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label for="mood">雰囲気・ムード</label>
+                <select id="mood">
+                    <option value="nostalgic">ノスタルジック</option>
+                    <option value="romantic">ロマンチック</option>
+                    <option value="melancholic">メランコリック</option>
+                    <option value="hopeful">希望的</option>
+                    <option value="mysterious">神秘的</option>
+                    <option value="energetic">エネルギッシュ</option>
+                </select>
+            </div>
+            
+            <button class="generate-btn" id="generateBtn">詩を生成する</button>
+        </div>
+        
+        <div class="poem-display" id="poemDisplay">
+            <div class="poem-text" id="poemText"></div>
+            <div class="poem-footer">
+                <button class="poem-btn" onclick="copyPoem()">コピー</button>
+                <button class="poem-btn" onclick="savePoem()">保存</button>
+                <button class="poem-btn" onclick="sharePoem()">シェア</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 星空の生成
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const numberOfStars = 100;
+            
+            for (let i = 0; i < numberOfStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // スタイル選択
+        let selectedStyle = 'haiku';
+        document.querySelectorAll('.style-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.style-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedStyle = this.dataset.style;
+            });
+        });
+
+        // 詩のテンプレート
+        const poemTemplates = {
+            haiku: [
+                {
+                    template: (keywords) => `${keywords[0]}の風\n${keywords[1]}を包み込む\n${keywords[2]}かな`,
+                    syllables: [5, 7, 5]
+                },
+                {
+                    template: (keywords) => `${keywords[0]}見て\n${keywords[1]}思い出す\n${keywords[2]}の日`,
+                    syllables: [5, 7, 5]
+                }
+            ],
+            tanka: [
+                {
+                    template: (keywords) => `${keywords[0]}の\n${keywords[1]}に染まりて\n${keywords[2]}する\n心の奥に\n響く${keywords[3]}かな`,
+                    syllables: [5, 7, 5, 7, 7]
+                }
+            ],
+            free: [
+                {
+                    template: (keywords) => `${keywords[0]}が語りかける\n\n静かな${keywords[1]}の中で\n私は${keywords[2]}を見つめ\n\n${keywords[3]}という名の\n小さな${keywords[4]}を\n手のひらに包む\n\nそして気づく\n全ては${keywords[5]}であることを`
+                }
+            ],
+            sonnet: [
+                {
+                    template: (keywords) => `${keywords[0]}の光が差し込む朝に\n${keywords[1]}の調べが響き渡り\n${keywords[2]}の香りが漂う中\n私の心は${keywords[3]}に包まれる\n\n時は流れ、季節は巡り\n${keywords[4]}の記憶が蘇る\nあの日の${keywords[5]}を思い出し\n今この瞬間を大切にする\n\n${keywords[0]}よ、永遠に輝け\n${keywords[1]}よ、絶えず奏でよ\n${keywords[2]}よ、常に香れ\n\nそして私の${keywords[3]}は\nいつまでも${keywords[4]}と共に\nこの${keywords[5]}の中で生き続ける`
+                }
+            ],
+            modern: [
+                {
+                    template: (keywords) => `${keywords[0]}／\n\n空白の${keywords[1]}\n句読点のない${keywords[2]}\n\n私たちは\n${keywords[3]}という\n見えない糸で\n繋がっている\n\n／${keywords[4]}`
+                }
+            ],
+            fantasy: [
+                {
+                    template: (keywords) => `${keywords[0]}の精霊が舞い降りて\n${keywords[1]}色の翼を広げる\n\n水晶の${keywords[2]}に映る\n千年の${keywords[3]}\n\n星屑が織りなす${keywords[4]}の道\n私は${keywords[5]}を求めて\n幻想の扉を開く`
+                }
+            ]
+        };
+
+        // キーワードを拡張
+        function expandKeywords(input, mood) {
+            const words = input.split(/[、,\s]+/).filter(w => w.length > 0);
+            const moodWords = {
+                nostalgic: ['思い出', '懐かしさ', '時間', '記憶', '過去'],
+                romantic: ['愛', '恋', '心', '想い', '永遠'],
+                melancholic: ['憂い', '影', '静寂', '涙', '孤独'],
+                hopeful: ['希望', '光', '未来', '夢', '明日'],
+                mysterious: ['謎', '闇', '神秘', '幻', '秘密'],
+                energetic: ['力', '情熱', '炎', '勇気', '挑戦']
+            };
+            
+            return [...words, ...moodWords[mood]];
+        }
+
+        // 詩を生成
+        function generatePoem() {
+            const keywords = document.getElementById('keywords').value;
+            const mood = document.getElementById('mood').value;
+            const generateBtn = document.getElementById('generateBtn');
+            const poemDisplay = document.getElementById('poemDisplay');
+            const poemText = document.getElementById('poemText');
+            
+            if (!keywords.trim()) {
+                alert('キーワードを入力してください');
+                return;
+            }
+            
+            // ボタンをアニメーション
+            generateBtn.classList.add('generating');
+            generateBtn.textContent = '生成中...';
+            
+            // 詩を生成（シミュレーション）
+            setTimeout(() => {
+                const expandedKeywords = expandKeywords(keywords, mood);
+                const templates = poemTemplates[selectedStyle];
+                const template = templates[Math.floor(Math.random() * templates.length)];
+                
+                // キーワードが足りない場合は循環させる
+                while (expandedKeywords.length < 6) {
+                    expandedKeywords.push(...expandedKeywords);
+                }
+                
+                const poem = template.template(expandedKeywords);
+                
+                poemText.textContent = poem;
+                poemDisplay.classList.add('show');
+                
+                generateBtn.classList.remove('generating');
+                generateBtn.textContent = '詩を生成する';
+                
+                // タイプライター効果
+                typewriterEffect(poemText, poem);
+            }, 2000);
+        }
+
+        // タイプライター効果
+        function typewriterEffect(element, text) {
+            element.textContent = '';
+            let index = 0;
+            
+            function type() {
+                if (index < text.length) {
+                    element.textContent += text.charAt(index);
+                    index++;
+                    setTimeout(type, 50);
+                }
+            }
+            
+            type();
+        }
+
+        // コピー機能
+        function copyPoem() {
+            const poemText = document.getElementById('poemText').textContent;
+            navigator.clipboard.writeText(poemText).then(() => {
+                alert('詩をコピーしました');
+            });
+        }
+
+        // 保存機能
+        function savePoem() {
+            const poemText = document.getElementById('poemText').textContent;
+            const blob = new Blob([poemText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `poem_${new Date().toISOString().slice(0, 10)}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // シェア機能
+        function sharePoem() {
+            const poemText = document.getElementById('poemText').textContent;
+            const shareText = `美しい詩を生成しました:\n\n${poemText}\n\n#AIポエム #詩`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'AIが生成した詩',
+                    text: shareText
+                });
+            } else {
+                // Twitter share as fallback
+                const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+                window.open(twitterUrl, '_blank');
+            }
+        }
+
+        // イベントリスナー
+        document.getElementById('generateBtn').addEventListener('click', generatePoem);
+        document.getElementById('keywords').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                generatePoem();
+            }
+        });
+
+        // 初期化
+        createStars();
+    </script>
+</body>
+</html>

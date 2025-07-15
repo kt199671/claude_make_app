@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Claude作品集 - 60+の革新的アプリ&ゲーム | AI×Web開発の最前線</title>
-    <meta name="description" content="Claude AIで作成した60以上の革新的アプリ・ゲーム集。4次元パズル、AI対戦、音楽制作、科学シミュレーションなど多彩なWebアプリを無料体験！">
+    <title>Claude作品集 - 65+の革新的アプリ&ゲーム | AI×Web開発の最前線</title>
+    <meta name="description" content="Claude AIで作成した65以上の革新的アプリ・ゲーム集。4次元パズル、AI対戦、音楽制作、科学シミュレーションなど多彩なWebアプリを無料体験！">
     <meta name="keywords" content="Claude AI, Webアプリ, ゲーム, 4次元パズル, AIアプリ, JavaScript, 音楽制作, シミュレーション, オープンソース">
     <meta name="author" content="kt199671">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://kt199671.github.io/claude_make_app/">
-    <meta property="og:title" content="Claude作品集 - 60+の革新的アプリ&ゲーム">
-    <meta property="og:description" content="Claude AIで作成した60以上の革新的アプリ・ゲーム集。4次元パズル、AI対戦、音楽制作、科学シミュレーションなど多彩なWebアプリを無料体験！">
+    <meta property="og:title" content="Claude作品集 - 65+の革新的アプリ&ゲーム">
+    <meta property="og:description" content="Claude AIで作成した65以上の革新的アプリ・ゲーム集。4次元パズル、AI対戦、音楽制作、科学シミュレーションなど多彩なWebアプリを無料体験！">
     <meta property="og:image" content="https://kt199671.github.io/claude_make_app/og-image.png">
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://kt199671.github.io/claude_make_app/">
-    <meta property="twitter:title" content="Claude作品集 - 60+の革新的アプリ&ゲーム">
-    <meta property="twitter:description" content="Claude AIで作成した60以上の革新的アプリ・ゲーム集。4次元パズル、AI対戦、音楽制作、科学シミュレーションなど多彩なWebアプリを無料体験！">
+    <meta property="twitter:title" content="Claude作品集 - 65+の革新的アプリ&ゲーム">
+    <meta property="twitter:description" content="Claude AIで作成した65以上の革新的アプリ・ゲーム集。4次元パズル、AI対戦、音楽制作、科学シミュレーションなど多彩なWebアプリを無料体験！">
     <meta property="twitter:image" content="https://kt199671.github.io/claude_make_app/og-image.png">
     
     <!-- Additional SEO -->
@@ -101,100 +101,90 @@
 
         header {
             text-align: center;
-            padding: 4rem 0 2rem;
             margin-bottom: 50px;
-            position: relative;
+            padding: 40px 0;
         }
 
-        header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 120px;
-            height: 4px;
-            background: linear-gradient(90deg, #ff0080, #7928ca, #0070f3, #00dfd8);
-            border-radius: 2px;
-            animation: shimmer 3s ease-in-out infinite, pulse 2s ease-in-out infinite;
-            box-shadow: 0 0 20px rgba(255, 0, 128, 0.5);
-        }
-        
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 20px rgba(255, 0, 128, 0.5); }
-            50% { box-shadow: 0 0 40px rgba(255, 0, 128, 0.8), 0 0 60px rgba(121, 40, 202, 0.3); }
-        }
-
-        @keyframes shimmer {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        h1 {
-            font-size: 3.5rem;
+        .header-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
             font-weight: 700;
-            background: linear-gradient(135deg, #ff0080, #7928ca, #0070f3, #00dfd8);
-            background-size: 300% 300%;
+            background: linear-gradient(135deg, #ff0080, #7928ca, #0066ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 15px;
-            text-shadow: 0 0 50px rgba(255, 0, 128, 0.3);
-            letter-spacing: -0.02em;
-            animation: fadeInUp 1s ease-out, gradientShift 4s ease-in-out infinite;
-            position: relative;
-        }
-        
-        @keyframes gradientShift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-        
-        h1::after {
-            content: attr(data-text);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #ff0080, #7928ca, #0070f3, #00dfd8);
-            background-size: 300% 300%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            filter: blur(10px);
-            opacity: 0.7;
-            z-index: -1;
-            animation: gradientShift 4s ease-in-out infinite;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(255, 0, 128, 0.5);
+            animation: pulse 3s ease-in-out infinite;
         }
 
-        .subtitle {
-            font-size: 1.3rem;
-            color: rgba(255,255,255,0.9);
+        @keyframes pulse {
+            0%, 100% { 
+                transform: scale(1);
+                filter: brightness(1);
+            }
+            50% { 
+                transform: scale(1.02);
+                filter: brightness(1.1);
+            }
+        }
+
+        .header-subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            color: rgba(255, 255, 255, 0.8);
             font-weight: 300;
-            animation: fadeInUp 1s ease-out 0.2s both;
-            margin-bottom: 2rem;
+            max-width: 800px;
+            margin: 0 auto 30px;
+            line-height: 1.8;
         }
 
-        /* ナビゲーションスタイル */
-        .main-nav {
-            margin-top: 2rem;
-            animation: fadeInUp 1s ease-out 0.4s both;
+        .header-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 120px;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ff0080;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 300;
         }
 
         .nav-container {
             display: flex;
             flex-direction: column;
-            align-items: center;
             gap: 1.5rem;
-            max-width: 1200px;
-            margin: 0 auto;
+            margin-bottom: 3rem;
+            align-items: center;
         }
 
         .search-container {
             position: relative;
             width: 100%;
-            max-width: 400px;
+            max-width: 500px;
         }
 
         .search-input {
@@ -298,76 +288,32 @@
         .category-header {
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            justify-content: center;
+            margin-bottom: 30px;
+            position: relative;
         }
 
-        .category-icon {
-            font-size: 2rem;
-            filter: drop-shadow(0 2px 10px rgba(255, 0, 128, 0.3));
+        .category-header::before,
+        .category-header::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
+            margin: 0 20px;
         }
 
         .category-title {
             font-size: 1.8rem;
             font-weight: 600;
-            color: #ffffff;
-            background: linear-gradient(135deg, #ff0080, #7928ca, #0070f3);
-            background-size: 300% 300%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: gradientShift 4s ease-in-out infinite;
-        }
-
-        .category-count {
+            color: white;
+            text-align: center;
+            white-space: nowrap;
+            padding: 10px 30px;
             background: rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
             backdrop-filter: blur(10px);
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.8);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
-
-        .app-card {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(25px);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 
-                0 6px 24px rgba(0,0,0,0.2),
-                0 2px 6px rgba(0,0,0,0.15),
-                inset 0 1px 0 rgba(255,255,255,0.1);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid rgba(255,255,255,0.12);
-            position: relative;
-            animation: slideInUp 0.6s ease-out;
-            animation-fill-mode: both;
-        }
-
-        .app-card:nth-child(1) { animation-delay: 0.1s; }
-        .app-card:nth-child(2) { animation-delay: 0.2s; }
-        .app-card:nth-child(3) { animation-delay: 0.3s; }
-        .app-card:nth-child(4) { animation-delay: 0.4s; }
-        .app-card:nth-child(5) { animation-delay: 0.5s; }
-        .app-card:nth-child(6) { animation-delay: 0.6s; }
-        .app-card:nth-child(7) { animation-delay: 0.7s; }
-        .app-card:nth-child(8) { animation-delay: 0.8s; }
-        .app-card:nth-child(9) { animation-delay: 0.9s; }
-        .app-card:nth-child(10) { animation-delay: 1.0s; }
-        .app-card:nth-child(11) { animation-delay: 1.1s; }
-        .app-card:nth-child(12) { animation-delay: 1.2s; }
-        .app-card:nth-child(13) { animation-delay: 1.3s; }
-        .app-card:nth-child(14) { animation-delay: 1.4s; }
-        .app-card:nth-child(15) { animation-delay: 1.5s; }
-        .app-card:nth-child(16) { animation-delay: 1.6s; }
-        .app-card:nth-child(17) { animation-delay: 1.7s; }
-        .app-card:nth-child(18) { animation-delay: 1.8s; }
-        .app-card:nth-child(19) { animation-delay: 1.9s; }
-        .app-card:nth-child(20) { animation-delay: 2.0s; }
-        .app-card:nth-child(21) { animation-delay: 2.1s; }
 
         @keyframes slideInUp {
             from {
@@ -380,6 +326,18 @@
             }
         }
 
+        .app-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            animation: slideInUp 0.6s ease-out;
+        }
+
         .app-card::before {
             content: '';
             position: absolute;
@@ -387,20 +345,18 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+            background: linear-gradient(135deg, rgba(255, 0, 128, 0.1), rgba(121, 40, 202, 0.1));
             opacity: 0;
             transition: opacity 0.3s ease;
             pointer-events: none;
         }
 
         .app-card:hover {
-            transform: translateY(-8px) scale(1.02);
+            transform: translateY(-10px) scale(1.02);
             box-shadow: 
-                0 20px 60px rgba(255, 0, 128, 0.15),
-                0 12px 30px rgba(121, 40, 202, 0.1),
-                0 6px 15px rgba(0,0,0,0.25),
-                inset 0 1px 0 rgba(255,255,255,0.2);
-            border: 1px solid rgba(255, 0, 128, 0.25);
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(255, 0, 128, 0.3);
+            border-color: rgba(255, 0, 128, 0.5);
         }
 
         .app-card:hover::before {
@@ -408,175 +364,131 @@
         }
 
         .app-image {
-            width: 100%;
-            height: 180px;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3.5rem;
+            text-align: center;
+            margin-bottom: 20px;
             position: relative;
-            overflow: hidden;
-        }
-
-        .app-image::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                radial-gradient(circle at 30% 30%, rgba(255, 0, 128, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 70% 70%, rgba(0, 112, 243, 0.2) 0%, transparent 50%),
-                linear-gradient(45deg, transparent 48%, rgba(255,255,255,0.05) 50%, transparent 52%);
-            animation: shimmerImage 3s ease-in-out infinite;
-        }
-        
-        @keyframes shimmerImage {
-            0%, 100% { opacity: 0.8; }
-            50% { opacity: 1; }
+            z-index: 1;
         }
 
         .app-image span {
-            position: relative;
-            z-index: 1;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
-            transition: transform 0.3s ease;
+            font-size: 4rem;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+            transition: all 0.3s ease;
         }
 
         .app-card:hover .app-image span {
             transform: scale(1.1) rotate(5deg);
+            filter: drop-shadow(0 0 30px rgba(255, 0, 128, 0.6));
         }
 
         .app-content {
-            padding: 20px;
             position: relative;
+            z-index: 1;
         }
 
         .app-title {
             font-size: 1.4rem;
             font-weight: 600;
-            color: #ffffff;
-            margin-bottom: 10px;
-            letter-spacing: -0.01em;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            line-height: 1.3;
+            color: white;
+            margin-bottom: 12px;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .app-description {
-            color: rgba(255, 255, 255, 0.75);
-            margin-bottom: 16px;
-            font-size: 0.9rem;
-            line-height: 1.5;
-            font-weight: 400;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            text-align: center;
         }
 
         .app-link {
-            display: inline-flex;
-            align-items: center;
-            background: linear-gradient(135deg, #ff0080 0%, #7928ca 50%, #0070f3 100%);
-            color: white;
-            padding: 12px 24px;
-            text-decoration: none;
-            border-radius: 12px;
-            font-weight: 500;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-            box-shadow: 
-                0 4px 15px rgba(255, 0, 128, 0.4),
-                0 2px 8px rgba(121, 40, 202, 0.3);
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .app-link::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
+            display: inline-block;
             width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s ease;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #ff0080, #7928ca);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 500;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 0, 128, 0.3);
         }
 
         .app-link:hover {
-            transform: translateY(-3px);
-            box-shadow: 
-                0 8px 30px rgba(255, 0, 128, 0.6),
-                0 4px 15px rgba(121, 40, 202, 0.4),
-                0 0 20px rgba(0, 112, 243, 0.3);
-            background: linear-gradient(135deg, #ff1a8c 0%, #8b42d4 50%, #1a7bff 100%);
+            background: linear-gradient(135deg, #ff1a8c, #8a2be2);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 0, 128, 0.5);
         }
 
-        .app-link:hover::before {
-            left: 100%;
+        .github-link {
+            display: block;
+            text-align: center;
+            margin: 60px 0 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
         }
 
-        .footer {
+        .github-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .github-link a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .github-link a:hover {
+            color: white;
+        }
+
+        footer {
             text-align: center;
             margin-top: 80px;
-            padding: 30px;
-            color: rgba(255,255,255,0.8);
-            font-weight: 300;
-            backdrop-filter: blur(15px);
-            background: rgba(255,255,255,0.05);
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 
-                0 8px 32px rgba(0,0,0,0.2),
-                inset 0 1px 0 rgba(255,255,255,0.1);
+            padding: 40px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
         }
 
-        /* スクロールバーのスタイリング */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.1);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.3);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255,255,255,0.5);
-        }
-
+        /* レスポンシブデザイン */
         @media (max-width: 768px) {
-            h1 {
-                font-size: 2.5rem;
-            }
-            
-            .apps-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
             .container {
                 padding: 15px;
             }
 
-            header {
-                padding: 3rem 0 1rem;
-                margin-bottom: 30px;
+            .header-stats {
+                gap: 20px;
+            }
+
+            .stat-item {
+                min-width: 100px;
+                padding: 12px;
+            }
+
+            .stat-number {
+                font-size: 1.5rem;
+            }
+
+            .apps-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
             }
 
             .app-card {
-                margin: 0 10px;
-            }
-
-            .nav-container {
-                gap: 1rem;
+                padding: 20px;
             }
 
             .category-filters {
@@ -588,138 +500,152 @@
                 font-size: 0.85rem;
             }
 
-            .search-container {
-                max-width: 100%;
-            }
-
-            .search-input {
-                padding: 10px 40px 10px 16px;
-                font-size: 0.9rem;
+            .nav-container {
+                gap: 1rem;
             }
         }
 
         @media (max-width: 480px) {
-            h1 {
-                font-size: 2rem;
+            .header-stats {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
             }
 
-            .subtitle {
-                font-size: 1.1rem;
+            .category-header::before,
+            .category-header::after {
+                margin: 0 10px;
             }
 
-            .app-content {
-                padding: 20px;
+            .category-title {
+                font-size: 1.4rem;
+                padding: 8px 20px;
             }
         }
     </style>
 </head>
 <body>
     <div class="background-pattern"></div>
-    
-    <header>
-        <h1 data-text="Claude作品集">Claude作品集</h1>
-        <p class="subtitle">🌟 Claude AIを使って作成した60+の革新的ゲーム・アプリのコレクション 🚀</p>
-        <p class="subtitle" style="font-size: 1rem; margin-top: 0.5rem; color: rgba(255,255,255,0.7);">4次元パズル・AI対戦・音楽制作・科学シミュレーションなど、最先端Webアプリを無料体験！</p>
-        
-        <!-- ナビゲーションメニュー -->
-        <nav class="main-nav">
-            <div class="nav-container">
-                <!-- 検索バー -->
-                <div class="search-container">
-                    <input type="text" id="searchInput" placeholder="アプリを検索..." class="search-input">
-                    <span class="search-icon">🔍</span>
+    <div class="container">
+        <header>
+            <h1 class="header-title">🚀 Claude Code Collection</h1>
+            <p class="header-subtitle">
+                Claude AIの力で生み出された革新的なWebアプリケーション集。
+                4次元パズルからAI対戦まで、想像を超える体験があなたを待っています。
+            </p>
+            <div class="header-stats">
+                <div class="stat-item">
+                    <span class="stat-number">65+</span>
+                    <span class="stat-label">アプリ</span>
                 </div>
-                
-                <!-- カテゴリーフィルター -->
-                <div class="category-filters">
-                    <button class="filter-btn active" data-category="all">すべて</button>
-                    <button class="filter-btn" data-category="game">ゲーム</button>
-                    <button class="filter-btn" data-category="tool">ツール</button>
-                    <button class="filter-btn" data-category="ai">AI・分析</button>
-                    <button class="filter-btn" data-category="entertainment">エンタメ</button>
-                    <button class="filter-btn" data-category="music">音楽・アート</button>
-                    <button class="filter-btn" data-category="education">教育・科学</button>
-                    <button class="filter-btn" data-category="social">ソーシャル</button>
+                <div class="stat-item">
+                    <span class="stat-number">8</span>
+                    <span class="stat-label">カテゴリ</span>
                 </div>
+                <div class="stat-item">
+                    <span class="stat-number">100%</span>
+                    <span class="stat-label">無料</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">∞</span>
+                    <span class="stat-label">楽しさ</span>
+                </div>
+            </div>
+        </header>
+
+        <nav class="nav-container">
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="アプリを検索...">
+                <span class="search-icon">🔍</span>
+            </div>
+            <div class="category-filters">
+                <button class="filter-btn active" data-category="all">すべて</button>
+                <button class="filter-btn" data-category="game">🎮 ゲーム</button>
+                <button class="filter-btn" data-category="tool">🛠️ ツール</button>
+                <button class="filter-btn" data-category="ai">🤖 AI・分析</button>
+                <button class="filter-btn" data-category="entertainment">🎭 エンターテイメント</button>
+                <button class="filter-btn" data-category="music">🎵 音楽・アート</button>
+                <button class="filter-btn" data-category="education">📚 教育・科学</button>
+                <button class="filter-btn" data-category="social">👥 ソーシャル</button>
             </div>
         </nav>
-    </header>
 
-    <div class="container">
-        <div class="app-count" id="appCount">全 61 アプリ</div>
+        <div class="app-count">すべて 65 アプリ</div>
+
         <div class="apps-grid">
-            <!-- 🌊 量子波動エフェクト体験 -->
-            <div class="app-card" data-category="education" data-title="量子波動エフェクト体験">
+            <!-- 新しく追加した5つのアプリ -->
+            <!-- 🎤 音声感情分析アプリ -->
+            <div class="app-card" data-category="ai" data-title="音声感情分析">
                 <div class="app-image">
-                    <span>🌊</span>
+                    <span>🎤</span>
                 </div>
                 <div class="app-content">
-                    <h2 class="app-title">量子波動エフェクト体験</h2>
+                    <h2 class="app-title">音声感情分析</h2>
                     <p class="app-description">
-                        意識と波動の共鳴を体験する革新的アプリ！5つの波動モード（正弦波・干渉波・量子もつれ・カオス波・波動曼荼羅）で
-                        周波数・振幅・色相を自由に調整。リアルタイム波動ビジュアライザーで瞑想的な体験を提供。
+                        あなたの声から感情を読み取る革新的AI分析ツール！リアルタイム音声録音で喜び、悲しみ、怒り、驚きを検出。
+                        美しい波形ビジュアライザーと感情カードで、声の奥に隠された気持ちを発見しよう！
                     </p>
-                    <a href="apps/quantum-wave-experience/index.html" class="app-link">波動体験開始</a>
+                    <a href="voice-emotion-analyzer.html" class="app-link">声の感情を分析</a>
                 </div>
             </div>
 
-            <!-- 🎭 AI感情読み取りゲーム -->
-            <div class="app-card" data-category="ai" data-title="AI感情読み取りゲーム">
+            <!-- 🐾 仮想ペット育成アプリ -->
+            <div class="app-card" data-category="entertainment" data-title="仮想ペット育成">
                 <div class="app-image">
-                    <span>🎭</span>
+                    <span>🐾</span>
                 </div>
                 <div class="app-content">
-                    <h2 class="app-title">AI感情読み取りゲーム</h2>
+                    <h2 class="app-title">仮想ペット育成</h2>
                     <p class="app-description">
-                        AIの表情から感情を読み取る心理学×テクノロジーの究極チャレンジ！6つの基本感情（喜び・悲しみ・怒り・驚き・恐れ・嫌悪）を
-                        リアルタイムAI顔変化で判定。正答率統計とスコアランキングで心理分析力を向上。
+                        可愛いバーチャルペットをお世話しよう！エサやり、遊び、お掃除で愛情を注いで成長させよう。
+                        レベルアップシステムとハートエフェクトで、あなただけの特別なペットを育てる感動体験！
                     </p>
-                    <a href="apps/ai-emotion-reader/index.html" class="app-link">感情を読み取る</a>
+                    <a href="virtual-pet-care.html" class="app-link">ペット育成開始</a>
                 </div>
             </div>
 
-            <!-- 🌌 宇宙創造シミュレーター -->
-            <div class="app-card" data-category="education" data-title="宇宙創造シミュレーター">
+            <!-- ✨ AIポエムジェネレーター -->
+            <div class="app-card" data-category="ai" data-title="AIポエムジェネレーター">
                 <div class="app-image">
-                    <span>🌌</span>
+                    <span>✨</span>
                 </div>
                 <div class="app-content">
-                    <h2 class="app-title">宇宙創造シミュレーター</h2>
+                    <h2 class="app-title">AIポエムジェネレーター</h2>
                     <p class="app-description">
-                        ビッグバンから銀河まで！恒星・惑星・ブラックホール・星雲を自由配置し、重力相互作用で
-                        リアルな宇宙進化をシミュレーション。時間操作・エネルギー密度管理・宇宙の歴史ログで創造神体験。
+                        キーワードから美しい詩を生成するAI詩人！俳句、短歌、自由詩など多彩なスタイルで創作。
+                        星空背景とタイプライター効果で、あなたの言葉が魔法のように詩に変わる感動を体験しよう！
                     </p>
-                    <a href="apps/universe-creator/index.html" class="app-link">宇宙を創造</a>
+                    <a href="ai-poem-generator.html" class="app-link">詩を創作する</a>
                 </div>
             </div>
 
-            <!-- 🎪 バーチャルサーカス体験 -->
-            <div class="app-card" data-category="entertainment" data-title="バーチャルサーカス体験">
+            <!-- 🧘 バーチャル瞑想ガイド -->
+            <div class="app-card" data-category="tool" data-title="バーチャル瞑想ガイド">
                 <div class="app-image">
-                    <span>🎪</span>
+                    <span>🧘</span>
                 </div>
                 <div class="app-content">
-                    <h2 class="app-title">バーチャルサーカス体験</h2>
+                    <h2 class="app-title">バーチャル瞑想ガイド</h2>
                     <p class="app-description">
-                        魔法の大舞台へようこそ！空中ブランコ師・ライオン使い・象・ジャグラーが繰り広げる圧巻の演技。
-                        観客興奮度メーター・グランドフィナーレ・コンフェッティエフェクトで感動のサーカス体験を提供。
+                        心を癒すデジタル瞑想体験！4種類のガイド付きセッションで深いリラクゼーション。
+                        美しいパーティクル効果と呼吸ビジュアライザーで、ストレス解放と心の平静を見つけよう！
                     </p>
-                    <a href="apps/virtual-circus/index.html" class="app-link">サーカス開演</a>
+                    <a href="virtual-meditation-guide.html" class="app-link">瞑想を始める</a>
                 </div>
             </div>
 
-            <!-- 🧬 遺伝子組み換えラボゲーム -->
-            <div class="app-card" data-category="education" data-title="遺伝子組み換えラボゲーム">
+            <!-- 🌐 リアルタイム翻訳チャット -->
+            <div class="app-card" data-category="social" data-title="リアルタイム翻訳チャット">
                 <div class="app-image">
-                    <span>🧬</span>
+                    <span>🌐</span>
                 </div>
                 <div class="app-content">
-                    <h2 class="app-title">遺伝子組み換えラボゲーム</h2>
+                    <h2 class="app-title">リアルタイム翻訳チャット</h2>
                     <p class="app-description">
-                        生命の設計図を操る！A・T・G・C塩基を組み合わせてDNA配列を編集し、微生物からドラゴンまで
-                        12種類の生物を創造。進化シミュレーション・GC含量解析・実験ログで本格的な遺伝学体験。
+                        言語の壁を超えたグローバルチャット！6言語対応で自動翻訳、タイピングインジケーター搭載。
+                        世界中の人と瞬時にコミュニケーション、言葉の魔法で繋がる新体験を楽しもう！
                     </p>
-                    <a href="apps/genetic-lab-game/index.html" class="app-link">遺伝子編集開始</a>
+                    <a href="realtime-translation-chat.html" class="app-link">翻訳チャット開始</a>
                 </div>
             </div>
 
@@ -731,59 +657,55 @@
                 <div class="app-content">
                     <h2 class="app-title">AR未来占い師</h2>
                     <p class="app-description">
-                        神秘的な3D水晶玉があなたの運命を照らします！恋愛・金運・仕事・健康の4つの運勢を
-                        美しいビジュアルエフェクトと共に占う、最先端AR占いアプリ。パーティクルエフェクト、
-                        リアルタイム3D演出、シェア機能で友達と結果を共有！
+                        神秘的な3D水晶玉で運命を占う革新的アプリ！恋愛、仕事、健康、金運の4つの分野で未来予測。
+                        美しいパーティクルエフェクトと幻想的な音響で、本格的な占い体験をお楽しみください！
                     </p>
-                    <a href="apps/ar-future-fortune/index.html" class="app-link">運命を占う</a>
+                    <a href="apps/ar-future-fortune/index.html" class="app-link">未来を占う</a>
                 </div>
             </div>
 
-            <!-- 🔮 AI未来予知ゲーム -->
-            <div class="app-card" data-category="ai" data-title="AI未来予知ゲーム">
+            <!-- 🧬 遺伝子配列パズル -->
+            <div class="app-card" data-category="education" data-title="遺伝子配列パズル">
                 <div class="app-image">
-                    <span>🎯</span>
+                    <span>🧬</span>
                 </div>
                 <div class="app-content">
-                    <h2 class="app-title">AI未来予知ゲーム</h2>
+                    <h2 class="app-title">遺伝子配列パズル</h2>
                     <p class="app-description">
-                        Claudeの推論能力で未来を予測する革新的ゲーム！8つのカテゴリから選択し、
-                        1-50年後の未来をAIが分析・予測。テクノロジー、社会、環境など多様な分野の
-                        未来シナリオを体験し、AI信頼度と影響度で結果を評価！
+                        DNA配列の謎を解き明かす科学パズル！A、T、G、Cの塩基配列をマッチングして生命の設計図を完成させよう。
+                        5段階の難易度でバイオテクノロジーの基礎を楽しく学べる革新的教育ゲームです！
                     </p>
-                    <a href="apps/ai-future-predictor/index.html" class="app-link">未来を予測</a>
+                    <a href="apps/dna-sequence-puzzle/index.html" class="app-link">遺伝子パズル開始</a>
                 </div>
             </div>
 
-            <!-- 🌐 時空メモリーマップ -->
-            <div class="app-card" data-category="ai" data-title="時空メモリーマップ">
+            <!-- 🎭 バーチャルサーカス -->
+            <div class="app-card" data-category="entertainment" data-title="バーチャルサーカス">
                 <div class="app-image">
-                    <span>🌐</span>
+                    <span>🎭</span>
                 </div>
                 <div class="app-content">
-                    <h2 class="app-title">時空メモリーマップ</h2>
+                    <h2 class="app-title">バーチャルサーカス</h2>
                     <p class="app-description">
-                        AR技術で過去の思い出を現実空間に再現する革新的アプリ！スマホをかざすだけで
-                        思い出が3D空間に浮かび上がり、AI自動ストーリー生成、集合知メモリーマップ、
-                        未来予測機能で月間1000万ユーザーの心を掴む究極の生活記録ツール！
+                        魔法のサーカスステージで夢の公演を楽しもう！4種類のパフォーマンス（ジャグリング、空中ブランコ、火の輪くぐり、綱渡り）。
+                        美しいライティングエフェクトと歓声で、あなたも今日からサーカスのスター！
                     </p>
-                    <a href="apps/time-memory-map/index.html" class="app-link">時空体験開始</a>
+                    <a href="apps/virtual-circus/index.html" class="app-link">サーカス開演</a>
                 </div>
             </div>
 
-            <!-- 🎬 AI映画監督 -->
-            <div class="app-card" data-category="ai" data-title="AI映画監督">
+            <!-- 🌺 バーチャル庭園 -->
+            <div class="app-card" data-category="entertainment" data-title="バーチャル庭園">
                 <div class="app-image">
-                    <span>🎬</span>
+                    <span>🌺</span>
                 </div>
                 <div class="app-content">
-                    <h2 class="app-title">AI映画監督</h2>
+                    <h2 class="app-title">バーチャル庭園</h2>
                     <p class="app-description">
-                        AIがあなたのアイデアで短編映画を作成！ジャンル、主人公、舞台を選ぶだけで、
-                        完全な脚本と映像化シミュレーションを自動生成。9つのジャンル、10種類のキャラクター、
-                        10の舞台設定で無限の映画体験が可能！
+                        あなただけの美しい庭園を育てよう！種まき、水やり、花の成長を見守る癒しの園芸シミュレーション。
+                        5種類の花と季節の変化、蝶や鳥のアニメーションで心安らぐガーデニング体験をお届けします！
                     </p>
-                    <a href="apps/ai-movie-director/index.html" class="app-link">映画を作る</a>
+                    <a href="apps/virtual-garden/index.html" class="app-link">庭園づくり開始</a>
                 </div>
             </div>
 
@@ -795,8 +717,7 @@
                 <div class="app-content">
                     <h2 class="app-title">ネオンビートメーカー</h2>
                     <p class="app-description">
-                        プロフェッショナルなリアルタイム音楽制作ツール！6つのトラックでビートを作成、
-                        プリセットパターンを使ってヒップホップからテクノまで幅広いジャンルに対応。
+                        光るビートで音楽を作ろう！16ステップシーケンサーと6種類のドラム音源でオリジナルビート制作。
                         視覚的ビジュアライザーで制作過程を楽しもう！
                     </p>
                     <a href="apps/neon-beat-maker/index.html" class="app-link">ビート制作開始</a>
@@ -848,7 +769,7 @@
                 </div>
             </div>
 
-            <!-- � 重力パズル -->
+            <!-- 🌌 重力パズル -->
             <div class="app-card" data-category="game" data-title="重力パズル">
                 <div class="app-image">
                     <span>🌌</span>
@@ -863,7 +784,7 @@
                 </div>
             </div>
 
-            <!-- �🎹 バーチャルシンセサイザー -->
+            <!-- 🎹 バーチャルシンセサイザー -->
             <div class="app-card" data-category="music" data-title="バーチャルシンセサイザー">
                 <div class="app-image">
                     <span>🎹</span>
@@ -901,103 +822,254 @@
                 <div class="app-content">
                     <h2 class="app-title">AI音楽バトル</h2>
                     <p class="app-description">
-                        AIと人間の究極音楽対決！AIが自動生成する音楽とあなたが作る音楽を比較して投票しよう。
-                        リアルタイム音楽作成、4つのジャンル、プロ級シンセサイザー搭載で創造性を解放！
+                        AIと音楽で対戦しよう！リズムパターンを覚えて正確にタイミングよく演奏。
+                        4つの楽器（ドラム、ピアノ、ベース、シンセ）で白熱のリズムバトルを楽しもう！
                     </p>
                     <a href="apps/ai-music-battle/index.html" class="app-link">音楽バトル開始</a>
                 </div>
             </div>
 
-            <!-- 性格カラー診断 -->
-            <div class="app-card" data-category="ai" data-title="性格カラー診断">
+            <!-- 🎤 AIラップバトル -->
+            <div class="app-card" data-category="ai" data-title="AIラップバトル">
+                <div class="app-image">
+                    <span>🎤</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">AIラップバトル</h2>
+                    <p class="app-description">
+                        AIとラップで勝負だ！テーマに沿った韻とフロウで勝敗を決める本格バトル。
+                        クリエイティビティ、韻、フロウの3要素で採点。あなたのリリックで観客を魅了しよう！
+                    </p>
+                    <a href="apps/ai-rap-battle/index.html" class="app-link">ラップバトル開始</a>
+                </div>
+            </div>
+
+            <!-- 📸 写真オーガナイザー -->
+            <div class="app-card" data-category="tool" data-title="写真オーガナイザー">
+                <div class="app-image">
+                    <span>📸</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">写真オーガナイザー</h2>
+                    <p class="app-description">
+                        写真を美しく整理・編集できるオールインワンツール！ドラッグ&ドロップで簡単アップロード。
+                        フィルター効果、回転、トリミング機能で思い出を素敵に彩ろう！
+                    </p>
+                    <a href="apps/photo-organizer/index.html" class="app-link">写真整理開始</a>
+                </div>
+            </div>
+
+            <!-- ⚡ ニューラルネットワーク可視化 -->
+            <div class="app-card" data-category="education" data-title="ニューラルネットワーク可視化">
+                <div class="app-image">
+                    <span>⚡</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">ニューラルネットワーク可視化</h2>
+                    <p class="app-description">
+                        AIの脳を見てみよう！ニューラルネットワークの学習過程をリアルタイム可視化。
+                        ノード間の重み変化とデータフローを美しいアニメーションで体感する革新的教育ツール！
+                    </p>
+                    <a href="apps/neural-network-viz/index.html" class="app-link">脳の仕組み探索</a>
+                </div>
+            </div>
+
+            <!-- 🎯 AIペットバトル -->
+            <div class="app-card" data-category="ai" data-title="AIペットバトル">
+                <div class="app-image">
+                    <span>🎯</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">AIペットバトル</h2>
+                    <p class="app-description">
+                        可愛いAIペットとバトルだ！4種類のペット（ドラゴン、フェニックス、ユニコーン、グリフィン）で戦略バトル。
+                        スキルと属性を駆使して勝利を掴め！3Dエフェクトと戦闘アニメーションが迫力満点！
+                    </p>
+                    <a href="apps/ai-pet-battle/index.html" class="app-link">ペットバトル開始</a>
+                </div>
+            </div>
+
+            <!-- 🎨 AIアートコラボスタジオ -->
+            <div class="app-card" data-category="ai" data-title="AIアートコラボスタジオ">
                 <div class="app-image">
                     <span>🎨</span>
                 </div>
                 <div class="app-content">
-                    <h2 class="app-title">性格カラー診断</h2>
+                    <h2 class="app-title">AIアートコラボスタジオ</h2>
                     <p class="app-description">
-                        10の質問であなたの性格を色で表現！SNSでシェアして友達と比較しよう。
-                        累計100万人以上が診断した人気テスト。
+                        AIと一緒にアート作品を創造しよう！あなたの描いた線をAIが美しいアートに変換。
+                        5つのスタイル（抽象、風景、ポートレート、アニメ、シュルレアリスム）で無限の創造性を！
                     </p>
-                    <a href="apps/personality-color/index.html" class="app-link">診断する</a>
+                    <a href="apps/ai-art-collab-studio/index.html" class="app-link">アート創作開始</a>
                 </div>
             </div>
 
-            <!-- おみくじ -->
-            <div class="app-card" data-category="entertainment" data-title="おみくじ">
+            <!-- 🥊 AIダンスバトル -->
+            <div class="app-card" data-category="ai" data-title="AIダンスバトル">
                 <div class="app-image">
-                    <span>🥠</span>
+                    <span>🥊</span>
                 </div>
                 <div class="app-content">
-                    <h2 class="app-title">おみくじ</h2>
+                    <h2 class="app-title">AIダンスバトル</h2>
                     <p class="app-description">
-                        今日のあなたの運勢を占います。毎日チェックして、幸運を引き寄せよう！
+                        リズムに合わせてAIと踊り対決！4つのダンススタイル（ヒップホップ、ブレイク、ポップ、フリースタイル）。
+                        正確なタイミングとコンボで高得点を狙え！光るダンスフロアで熱いバトルを繰り広げよう！
                     </p>
-                    <a href="apps/fortune-cookie/index.html" class="app-link">占う</a>
+                    <a href="apps/ai-dance-battle/index.html" class="app-link">ダンスバトル開始</a>
                 </div>
             </div>
 
-            <!-- キャンディクラッシュ風パズル -->
-            <div class="app-card" data-category="game" data-title="キャンディクラッシュ風パズル">
+            <!-- 🎭 AI感情リーダー -->
+            <div class="app-card" data-category="ai" data-title="AI感情リーダー">
                 <div class="app-image">
-                    <span>🍬</span>
+                    <span>🎭</span>
                 </div>
                 <div class="app-content">
-                    <h2 class="app-title">キャンディクラッシュ風パズル</h2>
+                    <h2 class="app-title">AI感情リーダー</h2>
                     <p class="app-description">
-                        人気のマッチ3パズルゲーム。カラフルなキャンディを3つ以上揃えて消していく爽快感！
-                        特殊なパターンで強力なキャンディを作成できます。
+                        顔写真から感情を読み取るAI技術を体験！喜び、悲しみ、怒り、驚き、恐怖、嫌悪の6つの基本感情を分析。
+                        リアルタイムカメラでの感情検出と美しいビジュアライゼーションで心の状態を見える化！
                     </p>
-                    <a href="apps/candy-crush/index.html" class="app-link">プレイする</a>
+                    <a href="apps/ai-emotion-reader/index.html" class="app-link">感情分析開始</a>
                 </div>
             </div>
-            
-            <!-- 電卓 -->
-            <div class="app-card" data-category="tool" data-title="電卓">
+
+            <!-- 🎬 AI映画監督 -->
+            <div class="app-card" data-category="ai" data-title="AI映画監督">
+                <div class="app-image">
+                    <span>🎬</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">AI映画監督</h2>
+                    <p class="app-description">
+                        AIと一緒に映画を作ろう！ジャンル、キャラクター、設定を選んで瞬時にストーリー生成。
+                        5つのジャンル（SF、ホラー、ロマンス、アクション、コメディ）で無限の物語を創造できる革新的ツール！
+                    </p>
+                    <a href="apps/ai-movie-director/index.html" class="app-link">映画制作開始</a>
+                </div>
+            </div>
+
+            <!-- 🔊 AIビートボックスバトル -->
+            <div class="app-card" data-category="ai" data-title="AIビートボックスバトル">
+                <div class="app-image">
+                    <span>🔊</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">AIビートボックスバトル</h2>
+                    <p class="app-description">
+                        口だけで音楽バトル！AIと口ずさみ音楽で対戦しよう。キック、スネア、ハイハット、ベースの4つの音を駆使。
+                        リズム感とクリエイティビティで勝負！マイクを使った本格ビートボックス体験を楽しもう！
+                    </p>
+                    <a href="apps/ai-beatbox-battle/index.html" class="app-link">ビートボックス開始</a>
+                </div>
+            </div>
+
+            <!-- 💰 AI家計管理 -->
+            <div class="app-card" data-category="tool" data-title="AI家計管理">
+                <div class="app-image">
+                    <span>💰</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">AI家計管理</h2>
+                    <p class="app-description">
+                        賢いAIがあなたの家計をサポート！収入・支出の自動分析と予算提案機能。
+                        美しいグラフとトレンド分析で無駄遣いを発見。目標設定と達成度可視化で理想の貯金生活を実現しよう！
+                    </p>
+                    <a href="apps/ai-finance-manager/index.html" class="app-link">家計管理開始</a>
+                </div>
+            </div>
+
+            <!-- 📈 AI習慣トラッカー -->
+            <div class="app-card" data-category="tool" data-title="AI習慣トラッカー">
+                <div class="app-image">
+                    <span>📈</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">AI習慣トラッカー</h2>
+                    <p class="app-description">
+                        AIがあなたの習慣形成をサポート！運動、読書、瞑想、学習などの習慣を記録・分析。
+                        継続日数の可視化とパーソナライズされたアドバイスで、理想の自分に向けた習慣を確実に身につけよう！
+                    </p>
+                    <a href="apps/ai-habit-tracker/index.html" class="app-link">習慣記録開始</a>
+                </div>
+            </div>
+
+            <!-- 🎯 AI未来予測ゲーム -->
+            <div class="app-card" data-category="ai" data-title="AI未来予測ゲーム">
+                <div class="app-image">
+                    <span>🎯</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">AI未来予測ゲーム</h2>
+                    <p class="app-description">
+                        AIと一緒に未来を予測しよう！経済、テクノロジー、環境、社会の4分野でトレンド分析。
+                        データに基づいた予測でポイント獲得！10年後の世界はどうなる？あなたの洞察力を試そう！
+                    </p>
+                    <a href="apps/ai-future-predictor/index.html" class="app-link">未来予測開始</a>
+                </div>
+            </div>
+
+            <!-- 🌈 万華鏡アート -->
+            <div class="app-card" data-category="entertainment" data-title="万華鏡アート">
+                <div class="app-image">
+                    <span>🌈</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">万華鏡アート</h2>
+                    <p class="app-description">
+                        美しい万華鏡の世界を体験！無限に変化する幾何学パターンと虹色のグラデーション。
+                        5つのモード（クラシック、フラワー、ジオメトリック、オーガニック、ミニマル）で心を癒すアート作品を楽しもう！
+                    </p>
+                    <a href="apps/kaleidoscope-art/index.html" class="app-link">万華鏡体験</a>
+                </div>
+            </div>
+
+            <!-- 🧮 高機能計算機 -->
+            <div class="app-card" data-category="tool" data-title="高機能計算機">
                 <div class="app-image">
                     <span>🧮</span>
                 </div>
                 <div class="app-content">
-                    <h2 class="app-title">電卓</h2>
+                    <h2 class="app-title">高機能計算機</h2>
                     <p class="app-description">
-                        シンプルで使いやすい電卓アプリ。基本的な計算機能に加え、計算履歴の表示機能付き。
-                        キーボード入力にも対応しています。
+                        基本計算から科学計算まで対応！三角関数、対数、指数計算に加え、履歴機能とメモリ機能搭載。
+                        美しいネオンデザインと高精度計算で、学習からビジネスまで幅広くサポートします！
                     </p>
-                    <a href="apps/calculator/index.html" class="app-link">使ってみる</a>
+                    <a href="apps/calculator/index.html" class="app-link">計算開始</a>
                 </div>
             </div>
 
-            <!-- TODOリスト -->
-            <div class="app-card" data-category="tool" data-title="TODOリスト">
+            <!-- 🍬 キャンディークラッシュ -->
+            <div class="app-card" data-category="game" data-title="キャンディークラッシュ">
                 <div class="app-image">
-                    <span>📋</span>
+                    <span>🍬</span>
                 </div>
                 <div class="app-content">
-                    <h2 class="app-title">TODOリスト</h2>
+                    <h2 class="app-title">キャンディークラッシュ</h2>
                     <p class="app-description">
-                        タスク管理アプリ。タスクの追加、編集、削除、完了機能に加え、フィルタリングや統計表示機能も搭載。
-                        ローカルストレージでデータを保存します。
+                        甘くて楽しいパズルゲーム！同じ色のキャンディを3つ以上揃えて消していこう。
+                        5種類のカラフルキャンディと爽快なエフェクトで、無限に楽しめるマッチ3パズルの決定版！
                     </p>
-                    <a href="apps/todo-list/index.html" class="app-link">使ってみる</a>
+                    <a href="apps/candy-crush/index.html" class="app-link">キャンディ消し開始</a>
                 </div>
             </div>
 
-            <!-- 天気予報 -->
-            <div class="app-card" data-category="tool" data-title="天気予報">
+            <!-- ⚡ ブロック崩し -->
+            <div class="app-card" data-category="game" data-title="ブロック崩し">
                 <div class="app-image">
-                    <span>🌦️</span>
+                    <span>⚡</span>
                 </div>
                 <div class="app-content">
-                    <h2 class="app-title">天気予報</h2>
+                    <h2 class="app-title">ブロック崩し</h2>
                     <p class="app-description">
-                        世界中の都市の天気情報を取得できるアプリ。現在の天気と5日間の予報を表示。
-                        位置情報からの天気取得にも対応しています。
+                        クラシックアーケードゲームの決定版！パドルでボールを操り、カラフルなブロックを全て破壊しよう。
+                        5段階の難易度と美しいネオンエフェクトで、懐かしくも新しいゲーム体験をお届けします！
                     </p>
-                    <a href="apps/weather-app/index.html" class="app-link">使ってみる</a>
+                    <a href="apps/block-breaker/index.html" class="app-link">ブロック崩し開始</a>
                 </div>
             </div>
 
-            <!-- メモ帳 -->
+            <!-- 📝 メモ帳 -->
             <div class="app-card" data-category="tool" data-title="メモ帳">
                 <div class="app-image">
                     <span>📝</span>
@@ -1005,14 +1077,179 @@
                 <div class="app-content">
                     <h2 class="app-title">メモ帳</h2>
                     <p class="app-description">
-                        シンプルで使いやすいメモ帳アプリ。メモの作成、編集、削除、検索機能を搭載。
-                        書式設定ツールバー付きで、自動保存機能も備えています。
+                        シンプルで美しいメモアプリ！リアルタイム保存でメモの紛失なし。フォント調整、夜間モード対応。
+                        5つのテーマカラーと検索機能で、あなたのアイデアを効率的に管理できます！
                     </p>
-                    <a href="apps/notepad/index.html" class="app-link">使ってみる</a>
+                    <a href="apps/notepad/index.html" class="app-link">メモ作成開始</a>
                 </div>
             </div>
 
-            <!-- ポモドーロタイマー -->
+            <!-- 🐍 スネークゲーム -->
+            <div class="app-card" data-category="game" data-title="スネークゲーム">
+                <div class="app-image">
+                    <span>🐍</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">スネークゲーム</h2>
+                    <p class="app-description">
+                        伝説のレトロゲームが美しく復活！ヘビを操ってフルーツを食べて成長させよう。
+                        ネオンエフェクトとスムーズなアニメーションで、古典的な楽しさに現代的な美しさをプラス！
+                    </p>
+                    <a href="apps/snake-game/index.html" class="app-link">スネーク開始</a>
+                </div>
+            </div>
+
+            <!-- ♔ チェス -->
+            <div class="app-card" data-category="game" data-title="チェス">
+                <div class="app-image">
+                    <span>♔</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">チェス</h2>
+                    <p class="app-description">
+                        本格的チェスゲーム！AIと対戦または2人プレイが可能。合法手のハイライト、手番表示機能搭載。
+                        美しい3Dボードデザインで、戦略思考を鍛える知的なゲーム体験をお楽しみください！
+                    </p>
+                    <a href="apps/chess/index.html" class="app-link">チェス対戦開始</a>
+                </div>
+            </div>
+
+            <!-- 🎯 色記憶ゲーム -->
+            <div class="app-card" data-category="game" data-title="色記憶ゲーム">
+                <div class="app-image">
+                    <span>🎯</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">色記憶ゲーム</h2>
+                    <p class="app-description">
+                        記憶力をテストする脳トレゲーム！光る色の順番を覚えて正確に再現しよう。
+                        4つの色ボタンと段階的難易度で、集中力と記憶力を同時に鍛える楽しいトレーニングゲーム！
+                    </p>
+                    <a href="apps/color-memory/index.html" class="app-link">記憶ゲーム開始</a>
+                </div>
+            </div>
+
+            <!-- 🥁 ドラムキット -->
+            <div class="app-card" data-category="music" data-title="ドラムキット">
+                <div class="app-image">
+                    <span>🥁</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">ドラムキット</h2>
+                    <p class="app-description">
+                        本格的ドラムセットでリズムを刻もう！キック、スネア、ハイハットなど9つのドラム音源。
+                        キーボード対応とビジュアルエフェクトで、あなたもドラマー気分を満喫できます！
+                    </p>
+                    <a href="apps/drum-kit/index.html" class="app-link">ドラム演奏開始</a>
+                </div>
+            </div>
+
+            <!-- 🔮 マジック8ボール -->
+            <div class="app-card" data-category="entertainment" data-title="マジック8ボール">
+                <div class="app-image">
+                    <span>🔮</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">マジック8ボール</h2>
+                    <p class="app-description">
+                        質問すると答えが浮かび上がる魔法のボール！20種類の様々な回答でYes/No質問に答えます。
+                        美しい3Dエフェクトと神秘的な音響で、占いのような楽しい体験をお届けします！
+                    </p>
+                    <a href="apps/magic-8-ball/index.html" class="app-link">質問してみる</a>
+                </div>
+            </div>
+
+            <!-- 🥠 フォーチュンクッキー -->
+            <div class="app-card" data-category="entertainment" data-title="フォーチュンクッキー">
+                <div class="app-image">
+                    <span>🥠</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">フォーチュンクッキー</h2>
+                    <p class="app-description">
+                        今日の運勢を占おう！クッキーを割ると中から運勢メッセージが出現。
+                        恋愛、仕事、健康、金運の4分野で毎日異なる占い結果。美しいアニメーションで幸運をお届けします！
+                    </p>
+                    <a href="apps/fortune-cookie/index.html" class="app-link">運勢を占う</a>
+                </div>
+            </div>
+
+            <!-- 🔮 占い師 -->
+            <div class="app-card" data-category="entertainment" data-title="占い師">
+                <div class="app-image">
+                    <span>🔮</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">占い師</h2>
+                    <p class="app-description">
+                        本格的タロット占い体験！3枚のカードで過去・現在・未来を読み解こう。
+                        22枚の大アルカナカードと神秘的なビジュアルエフェクトで、あなたの運命を占います！
+                    </p>
+                    <a href="apps/fortune-teller/index.html" class="app-link">タロット占い開始</a>
+                </div>
+            </div>
+
+            <!-- 🌙 夢分析 -->
+            <div class="app-card" data-category="entertainment" data-title="夢分析">
+                <div class="app-image">
+                    <span>🌙</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">夢分析</h2>
+                    <p class="app-description">
+                        あなたの夢が持つ意味を解析！夢の内容を入力すると心理学的解釈と潜在意識のメッセージを表示。
+                        美しい星空背景と神秘的なエフェクトで、夢の世界への深い理解を得られます！
+                    </p>
+                    <a href="apps/dream-analyzer/index.html" class="app-link">夢を分析する</a>
+                </div>
+            </div>
+
+            <!-- 📚 絵文字物語ジェネレーター -->
+            <div class="app-card" data-category="entertainment" data-title="絵文字物語ジェネレーター">
+                <div class="app-image">
+                    <span>📚</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">絵文字物語ジェネレーター</h2>
+                    <p class="app-description">
+                        絵文字だけで物語を作ろう！5つのジャンル（冒険、恋愛、ホラー、コメディ、SF）で無限の組み合わせ。
+                        タイプライター効果と美しいアニメーションで、視覚的に楽しい物語体験をお届けします！
+                    </p>
+                    <a href="apps/emoji-story-generator/index.html" class="app-link">物語作成開始</a>
+                </div>
+            </div>
+
+            <!-- 🎭 気分トラッカー -->
+            <div class="app-card" data-category="tool" data-title="気分トラッカー">
+                <div class="app-image">
+                    <span>🎭</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">気分トラッカー</h2>
+                    <p class="app-description">
+                        毎日の感情を記録して心の健康をサポート！5段階の気分評価とメモ機能で感情の変化を可視化。
+                        美しいグラフと統計で心のトレンドを把握、より良いメンタルヘルスを目指そう！
+                    </p>
+                    <a href="apps/mood-tracker/index.html" class="app-link">気分記録開始</a>
+                </div>
+            </div>
+
+            <!-- ⚡ タイピングゲーム -->
+            <div class="app-card" data-category="game" data-title="タイピングゲーム">
+                <div class="app-image">
+                    <span>⚡</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">タイピングゲーム</h2>
+                    <p class="app-description">
+                        タイピング速度と正確性をテスト！3つの難易度（初級、中級、上級）で段階的にスキルアップ。
+                        WPM（Words Per Minute）と正確率を測定、ランキング機能で成長を実感できます！
+                    </p>
+                    <a href="apps/typing-game/index.html" class="app-link">タイピング練習開始</a>
+                </div>
+            </div>
+
+            <!-- 🍅 ポモドーロタイマー -->
             <div class="app-card" data-category="tool" data-title="ポモドーロタイマー">
                 <div class="app-image">
                     <span>🍅</span>
@@ -1020,735 +1257,525 @@
                 <div class="app-content">
                     <h2 class="app-title">ポモドーロタイマー</h2>
                     <p class="app-description">
-                        生産性向上のためのポモドーロテクニック用タイマー。作業と休憩の時間を管理し、
-                        タスクリスト機能も備えた集中力アップツール。
+                        集中力アップの時間管理術！25分作業→5分休憩のサイクルで生産性を最大化。
+                        美しいサークルアニメーションと心地よい通知音で、効率的な作業習慣を身につけよう！
                     </p>
-                    <a href="apps/pomodoro/index.html" class="app-link">使ってみる</a>
+                    <a href="apps/pomodoro/index.html" class="app-link">ポモドーロ開始</a>
                 </div>
             </div>
 
-            <!-- スネークゲーム -->
-            <div class="app-card">
+            <!-- ✅ ToDoリスト -->
+            <div class="app-card" data-category="tool" data-title="ToDoリスト">
                 <div class="app-image">
-                    <span>🐍</span>
+                    <span>✅</span>
                 </div>
                 <div class="app-content">
-                    <h2 class="app-title">スネークゲーム</h2>
+                    <h2 class="app-title">ToDoリスト</h2>
                     <p class="app-description">
-                        クラシックなスネーク（蛇）ゲーム。えさを食べて蛇を成長させよう。
-                        キーボードやタッチ操作に対応し、難易度設定も可能。
+                        タスク管理の決定版！優先度設定、期限管理、進捗追跡機能搭載。
+                        カテゴリ分けとフィルター機能で、効率的なタスク管理と生産性向上を実現します！
                     </p>
-                    <a href="apps/snake-game/index.html" class="app-link">プレイする</a>
+                    <a href="apps/todo-list/index.html" class="app-link">タスク管理開始</a>
                 </div>
             </div>
 
-            <!-- チェスゲーム -->
-            <div class="app-card">
+            <!-- 🌤️ 天気アプリ -->
+            <div class="app-card" data-category="tool" data-title="天気アプリ">
                 <div class="app-image">
-                    <span>♞</span>
+                    <span>🌤️</span>
                 </div>
                 <div class="app-content">
-                    <h2 class="app-title">チェス</h2>
+                    <h2 class="app-title">天気アプリ</h2>
                     <p class="app-description">
-                        2人用のクラシックなチェスゲーム。すべてのチェスルールに対応し、
-                        駒の移動の可視化や棋譜の記録、一手戻る機能も搭載。
+                        美しい天気予報アプリ！現在の気象情報と5日間の予報を表示。
+                        天候に応じたアニメーション背景と詳細な気象データで、毎日の天気をスタイリッシュにチェック！
                     </p>
-                    <a href="apps/chess/index.html" class="app-link">プレイする</a>
+                    <a href="apps/weather-app/index.html" class="app-link">天気を確認</a>
                 </div>
             </div>
 
-            <!-- ブロック崩し -->
-            <div class="app-card">
+            <!-- 🎵 ネオンシンセ音楽 -->
+            <div class="app-card" data-category="music" data-title="ネオンシンセ音楽">
+                <div class="app-image">
+                    <span>🎵</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">ネオンシンセ音楽</h2>
+                    <p class="app-description">
+                        80年代風シンセサイザー音楽制作スタジオ！8つの音階ボタンでレトロフューチャーなメロディを作成。
+                        録音・再生機能とビジュアライザーで、サイバーパンクな音楽体験をお楽しみください！
+                    </p>
+                    <a href="apps/neon-synth-music/index.html" class="app-link">シンセ演奏開始</a>
+                </div>
+            </div>
+
+            <!-- 🧬 遺伝子実験室 -->
+            <div class="app-card" data-category="education" data-title="遺伝子実験室">
+                <div class="app-image">
+                    <span>🧬</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">遺伝子実験室</h2>
+                    <p class="app-description">
+                        バーチャル遺伝子実験室で生命科学を学ぼう！DNA配列の組み換え、突然変異、遺伝子発現をシミュレーション。
+                        美しい3Dビジュアルで分子生物学の複雑な仕組みを直感的に理解できます！
+                    </p>
+                    <a href="apps/genetic-lab-game/index.html" class="app-link">実験開始</a>
+                </div>
+            </div>
+
+            <!-- 🎮 デジタルペット -->
+            <div class="app-card" data-category="entertainment" data-title="デジタルペット">
                 <div class="app-image">
                     <span>🎮</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">ブロック崩し</h2>
-                    <p class="app-description">
-                        クラシックなブロック崩しゲーム。カラフルなブロックを破壊してハイスコアを目指そう！
-                        キーボードまたはマウスで操作可能。
-                    </p>
-                    <a href="apps/block-breaker/index.html" class="app-link">プレイする</a>
-                </div>
-            </div>
-
-            <!-- Minecraftクローン -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>⛏️</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">Minecraft Clone</h2>
-                    <p class="app-description">
-                        3Dボクセルサンドボックスゲーム。ブロックを配置・破壊して自由に世界を作ろう！
-                        WASDキーで移動、マウスで視点操作。
-                    </p>
-                    <a href="apps/minecraft-clone/index.html" class="app-link">プレイする</a>
-                </div>
-            </div>
-
-            <!-- 2048パズル -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>🔢</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">2048パズル</h2>
-                    <p class="app-description">
-                        人気のスライドパズルゲーム。同じ数字を合体させて2048を目指そう！
-                        矢印キーまたはスワイプで操作。
-                    </p>
-                    <a href="apps/2048-puzzle/index.html" class="app-link">プレイする</a>
-                </div>
-            </div>
-
-            <!-- タイピングゲーム -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>⌨️</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">タイピングゲーム</h2>
-                    <p class="app-description">
-                        タイピングスキルを向上させるゲーム。WPMと正確率を測定して、タイピングマスターを目指そう！
-                        1分間の制限時間でハイスコアに挑戦。
-                    </p>
-                    <a href="apps/typing-game/index.html" class="app-link">プレイする</a>
-                </div>
-            </div>
-
-            <!-- AI写真整理アプリ -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>📸</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">AI写真整理アプリ</h2>
-                    <p class="app-description">
-                        AIを使って写真を自動で分類・整理するツール。カテゴリ、人物、場所、日付ごとに写真を整理し、
-                        重複写真の検出や品質分析も行います。
-                    </p>
-                    <a href="apps/photo-organizer/index.html" class="app-link">使ってみる</a>
-                </div>
-            </div>
-
-            <!-- AI Finance Manager -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>💰</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">AI Finance Manager</h2>
-                    <p class="app-description">
-                        AIを活用した家計管理アプリ。収入・支出の自動分類、予算管理、支出パターン分析機能を搭載。
-                        グラフとチャートで財務状況を可視化し、賢い節約提案も行います。
-                    </p>
-                    <a href="apps/ai-finance-manager/index.html" class="app-link">使ってみる</a>
-                </div>
-            </div>
-
-            <!-- AI Habit Tracker -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>📈</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">AI Habit Tracker</h2>
-                    <p class="app-description">
-                        AIが習慣形成をサポートする習慣トラッカー。習慣の進捗を記録・分析し、
-                        個人に最適化されたアドバイスとモチベーション向上のための機能を提供します。
-                    </p>
-                    <a href="apps/ai-habit-tracker/index.html" class="app-link">使ってみる</a>
-                </div>
-            </div>
-
-            <!-- Global Chat -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>🌍</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">Global Chat</h2>
-                    <p class="app-description">
-                        世界中の人とリアルタイム翻訳チャット。言語の壁を越えて、8つの言語でコミュニケーション。
-                        自動翻訳機能で、誰とでも自然な会話が楽しめます。
-                    </p>
-                    <a href="apps/realtime-translator/index.html" class="app-link">チャットする</a>
-                </div>
-            </div>
-
-            <!-- Food Rescue -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>🛡️</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">Food Rescue</h2>
-                    <p class="app-description">
-                        フードロス削減アプリ。期限切れ間近の食品をお得に購入し、環境保護に貢献。
-                        店舗と消費者をつなぎ、食品廃棄を減らす社会貢献型プラットフォーム。
-                    </p>
-                    <a href="apps/food-rescue/index.html" class="app-link">食品を探す</a>
-                </div>
-            </div>
-
-            <!-- SkillConnect -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>🎯</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">SkillConnect</h2>
-                    <p class="app-description">
-                        スキルシェア・マイクロラーニングプラットフォーム。短時間で新しいスキルを学び、
-                        専門知識を教えることができる。プログラミングからデザイン、語学まで幅広いカテゴリ。
-                    </p>
-                    <a href="apps/skill-exchange/index.html" class="app-link">学習する</a>
-                </div>
-            </div>
-
-            <!-- MindWell -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>🧠</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">MindWell</h2>
-                    <p class="app-description">
-                        AIが分析するメンタルヘルス・ムードトラッカー。日々の気分、エネルギー、ストレスレベルを記録し、
-                        パターン分析とパーソナライズされた改善提案を提供します。
-                    </p>
-                    <a href="apps/mood-tracker/index.html" class="app-link">気分を記録</a>
-                </div>
-            </div>
-
-            <!-- ParkShare -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>🅿️</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">ParkShare</h2>
-                    <p class="app-description">
-                        駐車場シェアリングアプリ。空いている駐車スペースを貸し借りできるプラットフォーム。
-                        位置情報ベースの検索で、必要な時に最適な駐車場を見つけられます。
-                    </p>
-                    <a href="apps/parking-share/index.html" class="app-link">駐車場を探す</a>
-                </div>
-            </div>
-
-            <!-- デジタルペット -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>🐣</span>
                 </div>
                 <div class="app-content">
                     <h2 class="app-title">デジタルペット</h2>
                     <p class="app-description">
-                        バーチャルペットを育てるゲーム。餌をあげたり遊んだりして、
-                        ペットの幸福度を保ちながら成長を見守ろう。たまごから大人まで育成可能！
+                        懐かしのたまごっち風ペット育成ゲーム！エサやり、遊び、お世話で愛らしいペットを育てよう。
+                        成長段階と感情表現、ミニゲーム機能で、あなただけの特別なパートナーを育て上げよう！
                     </p>
-                    <a href="apps/digital-pet/index.html" class="app-link">育て始める</a>
+                    <a href="apps/digital-pet/index.html" class="app-link">ペット育成開始</a>
                 </div>
             </div>
 
-            <!-- TradeSocial -->
-            <div class="app-card">
+            <!-- 🎪 魔法陣召喚師 -->
+            <div class="app-card" data-category="entertainment" data-title="魔法陣召喚師">
                 <div class="app-image">
-                    <span>💹</span>
+                    <span>🎪</span>
                 </div>
                 <div class="app-content">
-                    <h2 class="app-title">TradeSocial</h2>
+                    <h2 class="app-title">魔法陣召喚師</h2>
                     <p class="app-description">
-                        ソーシャル投資プラットフォーム。仮想資金でリスクなしに投資を体験、ランキング競争、
-                        トップトレーダーのコピートレード、AIコーチングで投資スキルを向上させよう！
-                    </p>
-                    <a href="apps/trade-social/index.html" class="app-link">投資を始める</a>
-                </div>
-            </div>
-
-            <!-- Magic 8 Ball -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>🎱</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">Magic 8 Ball</h2>
-                    <p class="app-description">
-                        魔法の占いボール。質問を心に思い浮かべてボールをクリック！
-                        20種類の回答があなたの未来を予言します。占い履歴も記録されます。
-                    </p>
-                    <a href="apps/magic-8-ball/index.html" class="app-link">占う</a>
-                </div>
-            </div>
-
-            <!-- Virtual Drum Kit -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>🥁</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">Virtual Drum Kit</h2>
-                    <p class="app-description">
-                        バーチャルドラムキット。キーボードまたはクリックで演奏！
-                        録音・再生機能付きで、自分だけのビートを作成できます。
-                    </p>
-                    <a href="apps/drum-kit/index.html" class="app-link">演奏する</a>
-                </div>
-            </div>
-
-            <!-- AI Pet Battle -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>🎮</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">AI Pet Battle</h2>
-                    <p class="app-description">
-                        AIペットとバトル！攻撃、防御、必殺技、回復を駆使して勝利を目指そう。
-                        ランダムに選ばれるペットで戦略的なバトルを楽しめます。
-                    </p>
-                    <a href="apps/ai-pet-battle/index.html" class="app-link">バトル開始</a>
-                </div>
-            </div>
-
-            <!-- Color Memory -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>🌈</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">Color Memory</h2>
-                    <p class="app-description">
-                        色の順番を記憶するゲーム。レベルが上がるごとに難しくなる！
-                        3つの難易度から選べて、ハイスコアに挑戦できます。
-                    </p>
-                    <a href="apps/color-memory/index.html" class="app-link">プレイする</a>
-                </div>
-            </div>
-
-            <!-- 絵文字ストーリージェネレーター -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>🎭</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">絵文字ストーリージェネレーター</h2>
-                    <p class="app-description">
-                        絵文字を選んで楽しいストーリーを自動生成！6つのジャンルから選択し、
-                        最大5つの絵文字でユニークな物語を作成。作品は保存してシェアも可能です。
-                    </p>
-                    <a href="apps/emoji-story-generator/index.html" class="app-link">ストーリーを作る</a>
-                </div>
-            </div>
-
-            <!-- バーチャル万華鏡 -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>🔮</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">バーチャル万華鏡</h2>
-                    <p class="app-description">
-                        マウスを動かして美しいパターンを生成しよう！リアルタイム対称パターン、
-                        無限のカラーバリエーション、回転と変形エフェクトで幻想的な体験を。
-                    </p>
-                    <a href="apps/kaleidoscope-art/index.html" class="app-link">万華鏡を覗く</a>
-                </div>
-            </div>
-
-            <!-- ニューラルネットワーク可視化 -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>🧠</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">ニューラルネットワーク可視化</h2>
-                    <p class="app-description">
-                        AIの学習過程をリアルタイムで観察！ニューロンの活性化、重みの変化、
-                        データの流れを美しいビジュアルで体験できる教育的アプリ。
-                    </p>
-                    <a href="apps/neural-network-viz/index.html" class="app-link">AIを学ぶ</a>
-                </div>
-            </div>
-
-            <!-- 量子物理学シミュレーター -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>⚛️</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">量子物理学シミュレーター</h2>
-                    <p class="app-description">
-                        量子粒子の神秘的な振る舞いを体験しよう！重ね合わせ、量子もつれ、
-                        波動関数の崩壊など、量子力学の不思議な世界を視覚化。
-                    </p>
-                    <a href="apps/quantum-physics-sim/index.html" class="app-link">量子世界へ</a>
-                </div>
-            </div>
-
-            <!-- DNA配列パズル -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>🧬</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">DNA配列パズル</h2>
-                    <p class="app-description">
-                        遺伝子工学の世界へようこそ！DNAの塩基配列を正しく組み合わせて、
-                        完全な遺伝子を作成。A-T、G-Cの相補的結合を利用しよう。
-                    </p>
-                    <a href="apps/dna-sequence-puzzle/index.html" class="app-link">遺伝子を作る</a>
-                </div>
-            </div>
-
-            <!-- 宇宙物理演算ゲーム -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>🚀</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">宇宙物理演算ゲーム</h2>
-                    <p class="app-description">
-                        リアル物理演算で宇宙船を操縦！重力の影響、軌道力学、
-                        運動量保存、スリングショット効果を駆使して目標軌道に到達しよう。
-                    </p>
-                    <a href="apps/space-physics-game/index.html" class="app-link">宇宙へ飛び立つ</a>
-                </div>
-            </div>
-
-            <!-- フラクタル探索 -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>∞</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">フラクタル探索</h2>
-                    <p class="app-description">
-                        マンデルブロ集合やジュリア集合の美しいフラクタルを探索！
-                        無限にズームして、自己相似の神秘的なパターンを発見しよう。
-                    </p>
-                    <a href="apps/fractal-explorer/index.html" class="app-link">無限を探索</a>
-                </div>
-            </div>
-
-            <!-- AIダンスバトル -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>💃</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">AIダンスバトル</h2>
-                    <p class="app-description">
-                        AIキャラクターとダンスで対戦するリズムゲーム！リズムに合わせて踊って、
-                        AIに勝利しよう。4つの難易度で白熱のバトルが楽しめます。
-                    </p>
-                    <a href="apps/ai-dance-battle/index.html" class="app-link">ダンスバトル開始</a>
-                </div>
-            </div>
-
-            <!-- 音楽DNA分析 -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>🧬</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">音楽DNA分析</h2>
-                    <p class="app-description">
-                        音楽の周波数を分析して視覚的なDNAパターンを生成！
-                        リアルタイムデータ処理と美しい可視化エフェクトで音楽を新しい視点で体験。
-                    </p>
-                    <a href="apps/music-dna-analyzer/index.html" class="app-link">音楽を分析</a>
-                </div>
-            </div>
-
-            <!-- 夢日記AI解析 -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>🌙</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">夢日記AI解析</h2>
-                    <p class="app-description">
-                        あなたの夢を記録し、AIが深層心理と象徴的な意味を解析します。
-                        夢のシンボル検出、感情分析、パーソナルアドバイスを提供。
-                    </p>
-                    <a href="apps/dream-analyzer/index.html" class="app-link">夢を分析</a>
-                </div>
-            </div>
-
-            <!-- タイムスケール体験 -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>⏳</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">タイムスケール体験</h2>
-                    <p class="app-description">
-                        宇宙の時間スケールを体感できるインタラクティブな時間旅行！
-                        1秒から138億年まで、時間の壮大なスケールを視覚的に体験しよう。
-                    </p>
-                    <a href="apps/time-scale-experience/index.html" class="app-link">時間を旅する</a>
-                </div>
-            </div>
-
-            <!-- ミステリー脱出ゲーム -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>🔐</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">ミステリー脱出ゲーム</h2>
-                    <p class="app-description">
-                        部屋に閉じ込められた謎解きアドベンチャー！5分以内に手がかりを集めて脱出しよう。
-                        本、絵画、金庫...隠された秘密を解き明かして自由を手に入れろ！
-                    </p>
-                    <a href="apps/mystery-escape/index.html" class="app-link">脱出に挑戦</a>
-                </div>
-            </div>
-
-            <!-- タイムトラベル冒険記 -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>⏰</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">タイムトラベル冒険記</h2>
-                    <p class="app-description">
-                        時空装置で様々な時代を冒険！先史時代から未来世界まで旅して、
-                        歴史を変える選択をしながら特別なアイテムを集めよう。各時代で異なる体験が待っています。
-                    </p>
-                    <a href="apps/time-travel-adventure/index.html" class="app-link">冒険を始める</a>
-                </div>
-            </div>
-
-            <!-- 時空パラドックスパズル -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>🌀</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">時空パラドックスパズル</h2>
-                    <p class="app-description">
-                        時間を操作して謎を解く革新的パズルゲーム！過去・現在・未来を行き来し、
-                        時空の歪みを修復せよ。時間停止、パラドックス生成など特殊能力を駆使して挑戦！
-                    </p>
-                    <a href="apps/time-paradox-puzzle/index.html" class="app-link">パズルに挑戦</a>
-                </div>
-            </div>
-
-            <!-- 時間逆転パズル -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>⏰</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">時間逆転パズル</h2>
-                    <p class="app-description">
-                        時の流れを操り、パズルを解け！過去・現在・未来を切り替えながら、
-                        全てのセルを同じ数字に揃える頭脳ゲーム。戦略的思考と時間操作が勝利の鍵！
-                    </p>
-                    <a href="apps/time-reversal-puzzle/index.html" class="app-link">時を操る</a>
-                </div>
-            </div>
-
-            <!-- Neon Synth Music Studio -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>🎹</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">Neon Synth Music Studio</h2>
-                    <p class="app-description">
-                        未来的なシンセサイザーで電子音楽を創造！リアルタイムエフェクト、録音機能、
-                        波形ビジュアライザー搭載。キーボードやマウスで演奏し、オリジナル楽曲を制作しよう。
-                    </p>
-                    <a href="apps/neon-synth-music/index.html" class="app-link">音楽を創る</a>
-                </div>
-            </div>
-
-            <!-- 時空の狭間 - 4次元パズル -->
-            <div class="app-card">
-                <div class="app-image">
-                    <span>⚡</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">時空の狭間</h2>
-                    <p class="app-description">
-                        革命的な4次元パズルゲーム！時間と空間を操り、X・Y・Z・W次元を行き来してゴールを目指せ。
-                        ポータルでワープし、時間操作で過去に戻る。全次元制覇の快感を体感しよう！
-                    </p>
-                    <a href="apps/dimensional-puzzle/index.html" class="app-link">次元に挑戦</a>
-                </div>
-            </div>
-
-            <!-- 🎨 AI芸術家コラボスタジオ -->
-            <div class="app-card" data-category="ai" data-title="AI芸術家コラボスタジオ">
-                <div class="app-image">
-                    <span>🎨</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">AI芸術家コラボスタジオ</h2>
-                    <p class="app-description">
-                        AIと共創する次世代アートプラットフォーム！リアルタイム描画でAIが創作をサポート、
-                        6つの芸術スタイル、12色パレット、ブラシ設定でプロ級作品を制作。
-                        AI協力度調整、作品保存・共有機能で芸術の新境地を開拓しよう！
-                    </p>
-                    <a href="apps/ai-art-collab-studio/index.html" class="app-link">創作開始</a>
-                </div>
-            </div>
-
-            <!-- 🧙‍♂️ 魔法陣召喚シミュレーター -->
-            <div class="app-card" data-category="entertainment" data-title="魔法陣召喚シミュレーター">
-                <div class="app-image">
-                    <span>🧙‍♂️</span>
-                </div>
-                <div class="app-content">
-                    <h2 class="app-title">魔法陣召喚シミュレーター</h2>
-                    <p class="app-description">
-                        古代魔術の神秘を体験！8つのルーン文字、6種の呪文素材、5体の召喚エンティティで
-                        本格的な魔法陣を構築。回転魔法陣エフェクト、パラドックス警告システム、
-                        召喚成功率計算で臨場感抜群の魔術体験を！
+                        神秘的な魔法陣で幻想クリーチャーを召喚しよう！5つの異なる魔法陣で多様な召喚獣を呼び出し。
+                        美しいパーティクルエフェクトと幻想的な音響で、魔法の世界への没入体験をお届けします！
                     </p>
                     <a href="apps/magic-circle-summoner/index.html" class="app-link">召喚開始</a>
                 </div>
             </div>
 
-            <!-- 🚀 多次元タイムトラベル体験 -->
-            <div class="app-card" data-category="education" data-title="多次元タイムトラベル体験">
+            <!-- 🎯 フード救済アプリ -->
+            <div class="app-card" data-category="social" data-title="フード救済アプリ">
+                <div class="app-image">
+                    <span>🎯</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">フード救済アプリ</h2>
+                    <p class="app-description">
+                        食品ロス削減に貢献しよう！余った食材を登録・共有、近隣住民とのマッチング機能。
+                        環境保護とコミュニティ形成を同時に実現する、社会貢献型シェアリングアプリです！
+                    </p>
+                    <a href="apps/food-rescue/index.html" class="app-link">食材シェア開始</a>
+                </div>
+            </div>
+
+            <!-- 🚗 駐車場シェア -->
+            <div class="app-card" data-category="social" data-title="駐車場シェア">
+                <div class="app-image">
+                    <span>🚗</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">駐車場シェア</h2>
+                    <p class="app-description">
+                        空いている駐車場を有効活用！個人間の駐車場貸し借りマッチングサービス。
+                        時間制料金設定と予約システムで、都市部の駐車場不足問題解決に貢献するシェアアプリです！
+                    </p>
+                    <a href="apps/parking-share/index.html" class="app-link">駐車場登録開始</a>
+                </div>
+            </div>
+
+            <!-- 🛍️ トレードソーシャル -->
+            <div class="app-card" data-category="social" data-title="トレードソーシャル">
+                <div class="app-image">
+                    <span>🛍️</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">トレードソーシャル</h2>
+                    <p class="app-description">
+                        物々交換コミュニティプラットフォーム！不要品を価値のあるものと交換しよう。
+                        評価システムと安全な取引機能で、持続可能な消費とコミュニティ形成を促進します！
+                    </p>
+                    <a href="apps/trade-social/index.html" class="app-link">交換開始</a>
+                </div>
+            </div>
+
+            <!-- 🎨 スキル交換プラットフォーム -->
+            <div class="app-card" data-category="social" data-title="スキル交換プラットフォーム">
+                <div class="app-image">
+                    <span>🎨</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">スキル交換プラットフォーム</h2>
+                    <p class="app-description">
+                        スキルを教え合うコミュニティ！プログラミング、語学、音楽、アートなどの技能を物々交換。
+                        マッチング機能と評価システムで、互いに成長できる学習コミュニティを形成しよう！
+                    </p>
+                    <a href="apps/skill-exchange/index.html" class="app-link">スキル交換開始</a>
+                </div>
+            </div>
+
+            <!-- 🌈 性格色分析 -->
+            <div class="app-card" data-category="entertainment" data-title="性格色分析">
+                <div class="app-image">
+                    <span>🌈</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">性格色分析</h2>
+                    <p class="app-description">
+                        あなたの性格を色で表現！12の質問に答えて、あなたを象徴する色とその意味を発見しよう。
+                        色彩心理学に基づいた分析で、新しい自分の一面を知る楽しい自己発見ツールです！
+                    </p>
+                    <a href="apps/personality-color/index.html" class="app-link">性格診断開始</a>
+                </div>
+            </div>
+
+            <!-- 💫 フラクタル探検 -->
+            <div class="app-card" data-category="education" data-title="フラクタル探検">
+                <div class="app-image">
+                    <span>💫</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">フラクタル探検</h2>
+                    <p class="app-description">
+                        数学の美しさを視覚化！マンデルブロ集合、ジュリア集合など有名なフラクタル図形を探索。
+                        ズーム機能と色彩調整で無限に続く幾何学的美しさを堪能、数学の神秘を感じよう！
+                    </p>
+                    <a href="apps/fractal-explorer/index.html" class="app-link">フラクタル探索開始</a>
+                </div>
+            </div>
+
+            <!-- 🧠 マインドコントロールゲーム -->
+            <div class="app-card" data-category="education" data-title="マインドコントロールゲーム">
+                <div class="app-image">
+                    <span>🧠</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">マインドコントロールゲーム</h2>
+                    <p class="app-description">
+                        集中力でゲームをコントロール！瞑想とマインドフルネス技術を使ってボールを操作しよう。
+                        呼吸パターンと集中度を測定、心の力でバーチャル世界を動かす革新的体験をお楽しみください！
+                    </p>
+                    <a href="apps/mind-control-game/index.html" class="app-link">マインドゲーム開始</a>
+                </div>
+            </div>
+
+            <!-- 🎵 音楽DNA分析 -->
+            <div class="app-card" data-category="music" data-title="音楽DNA分析">
+                <div class="app-image">
+                    <span>🎵</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">音楽DNA分析</h2>
+                    <p class="app-description">
+                        あなたの音楽的遺伝子を解析！好きなジャンル、楽器、アーティストから音楽的性格を分析。
+                        美しいDNAビジュアルと詳細レポートで、あなただけの音楽プロファイルを発見しよう！
+                    </p>
+                    <a href="apps/music-dna-analyzer/index.html" class="app-link">音楽DNA分析開始</a>
+                </div>
+            </div>
+
+            <!-- 🔬 量子物理シミュレーター -->
+            <div class="app-card" data-category="education" data-title="量子物理シミュレーター">
+                <div class="app-image">
+                    <span>🔬</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">量子物理シミュレーター</h2>
+                    <p class="app-description">
+                        量子世界の不思議を体験！二重スリット実験、量子もつれ、波束の収縮を視覚的にシミュレーション。
+                        複雑な量子力学の概念を美しいアニメーションで理解する、革新的科学教育ツールです！
+                    </p>
+                    <a href="apps/quantum-physics-sim/index.html" class="app-link">量子実験開始</a>
+                </div>
+            </div>
+
+            <!-- 🌊 量子波動体験 -->
+            <div class="app-card" data-category="education" data-title="量子波動体験">
+                <div class="app-image">
+                    <span>🌊</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">量子波動体験</h2>
+                    <p class="app-description">
+                        量子の波動性を音と光で表現！シュレーディンガーの波動方程式を美しいビジュアルで体験。
+                        インタラクティブな波形操作と音響効果で、量子力学の神秘的な世界を感覚的に理解しよう！
+                    </p>
+                    <a href="apps/quantum-wave-experience/index.html" class="app-link">波動体験開始</a>
+                </div>
+            </div>
+
+            <!-- 🌌 宇宙創造シミュレーター -->
+            <div class="app-card" data-category="education" data-title="宇宙創造シミュレーター">
+                <div class="app-image">
+                    <span>🌌</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">宇宙創造シミュレーター</h2>
+                    <p class="app-description">
+                        あなた自身の宇宙を創造しよう！惑星、恒星、銀河を配置して独自の天体システムを構築。
+                        重力シミュレーションと美しい宇宙ビジュアルで、宇宙の創造主になる壮大な体験をお楽しみください！
+                    </p>
+                    <a href="apps/universe-creator/index.html" class="app-link">宇宙創造開始</a>
+                </div>
+            </div>
+
+            <!-- 🧩 4次元パズル -->
+            <div class="app-card" data-category="game" data-title="4次元パズル">
+                <div class="app-image">
+                    <span>🧩</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">4次元パズル</h2>
+                    <p class="app-description">
+                        空間認識の限界に挑戦！3次元を超えた4次元空間でのパズルゲーム。
+                        テッセラクト（4次元立方体）を操作して目標位置にキューブを移動させよう。未体験のパズル体験がここに！
+                    </p>
+                    <a href="apps/dimensional-puzzle/index.html" class="app-link">4次元に挑戦</a>
+                </div>
+            </div>
+
+            <!-- 📊 心の可視化シミュレーター -->
+            <div class="app-card" data-category="entertainment" data-title="心の可視化シミュレーター">
+                <div class="app-image">
+                    <span>📊</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">心の可視化シミュレーター</h2>
+                    <p class="app-description">
+                        感情を美しいビジュアルで表現！喜怒哀楽の感情をリアルタイムでグラフィック化。
+                        感情の動きを追跡し、心の状態を色彩豊かなパターンで可視化する革新的メンタルヘルスツールです！
+                    </p>
+                    <a href="apps/mind-visualization-simulator/index.html" class="app-link">心の可視化開始</a>
+                </div>
+            </div>
+
+            <!-- 🕰️ 時間記憶マップ -->
+            <div class="app-card" data-category="tool" data-title="時間記憶マップ">
+                <div class="app-image">
+                    <span>🕰️</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">時間記憶マップ</h2>
+                    <p class="app-description">
+                        人生の重要な瞬間を時系列で記録！思い出を時間軸上にマッピングして人生の軌跡を可視化。
+                        写真、メモ、感情を統合した個人史作成ツールで、あなたの人生ストーリーを美しく記録しよう！
+                    </p>
+                    <a href="apps/time-memory-map/index.html" class="app-link">記憶マップ作成</a>
+                </div>
+            </div>
+
+            <!-- 🚀 宇宙物理ゲーム -->
+            <div class="app-card" data-category="education" data-title="宇宙物理ゲーム">
                 <div class="app-image">
                     <span>🚀</span>
                 </div>
                 <div class="app-content">
-                    <h2 class="app-title">多次元タイムトラベル体験</h2>
+                    <h2 class="app-title">宇宙物理ゲーム</h2>
                     <p class="app-description">
-                        時空の迷宮を駆け抜ける究極体験！6つの並行次元、時間座標システム、
-                        タイムライン可視化でSF世界を現実に。エネルギー管理、パラドックス検出、
-                        ポータルアニメーションで本格的なタイムトラベルを体感しよう！
+                        宇宙の物理法則を体験しながら学習！重力、慣性、軌道力学をゲームで習得。
+                        惑星の重力を利用したスリングショット航行で、楽しみながら宇宙工学の基礎を身につけよう！
                     </p>
-                    <a href="apps/multidimensional-time-travel/index.html" class="app-link">時空旅行開始</a>
+                    <a href="apps/space-physics-game/index.html" class="app-link">宇宙物理学習開始</a>
                 </div>
             </div>
 
-            <!-- 🎮 メタバース建築ゲーム -->
-            <div class="app-card" data-category="game" data-title="メタバース建築ゲーム">
+            <!-- 🎮 Minecraftクローン -->
+            <div class="app-card" data-category="game" data-title="Minecraftクローン">
                 <div class="app-image">
                     <span>🎮</span>
                 </div>
                 <div class="app-content">
-                    <h2 class="app-title">メタバース建築ゲーム</h2>
+                    <h2 class="app-title">Minecraftクローン</h2>
                     <p class="app-description">
-                        仮想世界の創造主になろう！12種の建築ブロックでグリッド型3D都市を構築、
-                        人口・経済・環境値をリアルタイム管理。ワールド保存・自動都市生成・
-                        共有機能で無限の建築体験を楽しもう！
+                        ブロックで無限の世界を創造！3Dボクセル環境でブロックの設置・破壊、建築を楽しもう。
+                        シンプルながら創造性無限大の建築シミュレーションで、あなただけの世界を作り上げよう！
+                    </p>
+                    <a href="apps/minecraft-clone/index.html" class="app-link">世界構築開始</a>
+                </div>
+            </div>
+
+            <!-- 🕰️ 時間逆転パズル -->
+            <div class="app-card" data-category="game" data-title="時間逆転パズル">
+                <div class="app-image">
+                    <span>🕰️</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">時間逆転パズル</h2>
+                    <p class="app-description">
+                        時を巻き戻して謎を解け！プレイヤーの行動を録画・再生して過去の自分と協力。
+                        タイムパラドックスを回避しながらゴールを目指す革新的時間操作パズルゲームです！
+                    </p>
+                    <a href="apps/time-reversal-puzzle/index.html" class="app-link">時間操作開始</a>
+                </div>
+            </div>
+
+            <!-- 🌀 時間パラドックスパズル -->
+            <div class="app-card" data-category="game" data-title="時間パラドックスパズル">
+                <div class="app-image">
+                    <span>🌀</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">時間パラドックスパズル</h2>
+                    <p class="app-description">
+                        タイムトラベルの矛盾を解決せよ！因果関係を操作して時間線の破綻を修復しよう。
+                        複雑な時間ループと分岐する運命を管理する、SF的思考力が試される上級パズルゲーム！
+                    </p>
+                    <a href="apps/time-paradox-puzzle/index.html" class="app-link">パラドックス解決開始</a>
+                </div>
+            </div>
+
+            <!-- 📏 時間スケール体験 -->
+            <div class="app-card" data-category="education" data-title="時間スケール体験">
+                <div class="app-image">
+                    <span>📏</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">時間スケール体験</h2>
+                    <p class="app-description">
+                        宇宙の時間スケールを体感しよう！ナノ秒から宇宙年齢まで、様々な時間単位を可視化。
+                        インタラクティブなタイムライン操作で、時間の概念に対する新しい理解を深める教育ツールです！
+                    </p>
+                    <a href="apps/time-scale-experience/index.html" class="app-link">時間スケール探索</a>
+                </div>
+            </div>
+
+            <!-- 🚀 多次元時空間旅行 -->
+            <div class="app-card" data-category="game" data-title="多次元時空間旅行">
+                <div class="app-image">
+                    <span>🚀</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">多次元時空間旅行</h2>
+                    <p class="app-description">
+                        異次元を旅する壮大なアドベンチャー！3つの次元（時間、空間、感情）を行き来して謎を解明。
+                        各次元で異なるルールと美しいビジュアルエフェクトが、未知なる冒険へと誘います！
+                    </p>
+                    <a href="apps/multidimensional-time-travel/index.html" class="app-link">次元旅行開始</a>
+                </div>
+            </div>
+
+            <!-- 🕰️ 時間旅行アドベンチャー -->
+            <div class="app-card" data-category="game" data-title="時間旅行アドベンチャー">
+                <div class="app-image">
+                    <span>🕰️</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">時間旅行アドベンチャー</h2>
+                    <p class="app-description">
+                        過去と未来を巡る壮大な物語！古代文明から未来都市まで5つの時代を旅して歴史の謎を解明。
+                        選択による分岐ストーリーとタイムトラベル要素で、あなただけの歴史を創造しよう！
+                    </p>
+                    <a href="apps/time-travel-adventure/index.html" class="app-link">時間旅行開始</a>
+                </div>
+            </div>
+
+            <!-- 🎮 2048パズル -->
+            <div class="app-card" data-category="game" data-title="2048パズル">
+                <div class="app-image">
+                    <span>🎮</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">2048パズル</h2>
+                    <p class="app-description">
+                        数字を合体させて2048を目指せ！シンプルながら奥深い数学パズル。
+                        美しいアニメーションと心地よい効果音で、中毒性抜群のパズル体験をお楽しみください！
+                    </p>
+                    <a href="apps/2048-puzzle/index.html" class="app-link">2048に挑戦</a>
+                </div>
+            </div>
+
+            <!-- 🌐 リアルタイム翻訳 -->
+            <div class="app-card" data-category="tool" data-title="リアルタイム翻訳">
+                <div class="app-image">
+                    <span>🌐</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">リアルタイム翻訳</h2>
+                    <p class="app-description">
+                        瞬時に多言語翻訳！50以上の言語に対応したリアルタイム翻訳ツール。
+                        音声認識と音声合成機能で、言語の壁を超えたコミュニケーションを実現します！
+                    </p>
+                    <a href="apps/realtime-translator/index.html" class="app-link">翻訳開始</a>
+                </div>
+            </div>
+
+            <!-- 🎲 謎解き脱出ゲーム -->
+            <div class="app-card" data-category="game" data-title="謎解き脱出ゲーム">
+                <div class="app-image">
+                    <span>🎲</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">謎解き脱出ゲーム</h2>
+                    <p class="app-description">
+                        謎に満ちた部屋から脱出せよ！論理パズル、暗号解読、隠しアイテム探しが満載。
+                        5つの異なる部屋設定で、推理力と観察力を駆使した本格脱出ゲーム体験をお届けします！
+                    </p>
+                    <a href="apps/mystery-escape/index.html" class="app-link">脱出開始</a>
+                </div>
+            </div>
+
+            <!-- 🏗️ メタバース建築 -->
+            <div class="app-card" data-category="entertainment" data-title="メタバース建築">
+                <div class="app-image">
+                    <span>🏗️</span>
+                </div>
+                <div class="app-content">
+                    <h2 class="app-title">メタバース建築</h2>
+                    <p class="app-description">
+                        仮想世界で夢の建築を実現！3D建築ツールで未来都市から古代遺跡まで自由に創造。
+                        物理演算とリアルタイムレンダリングで、あなただけのバーチャル世界を構築しよう！
                     </p>
                     <a href="apps/metaverse-builder/index.html" class="app-link">建築開始</a>
                 </div>
             </div>
 
-            <!-- 🤯 思考可視化シミュレーター -->
-            <div class="app-card" data-category="ai" data-title="思考可視化シミュレーター">
+            <!-- 🎵 音楽プロデューサースタジオ -->
+            <div class="app-card" data-category="music" data-title="音楽プロデューサースタジオ">
                 <div class="app-image">
-                    <span>🤯</span>
+                    <span>🎵</span>
                 </div>
                 <div class="app-content">
-                    <h2 class="app-title">思考可視化シミュレーター</h2>
+                    <h2 class="app-title">音楽プロデューサースタジオ</h2>
                     <p class="app-description">
-                        脳内世界への扉を開く革新的体験！6つの感情状態、5つの思考タイプ、
-                        ニューラルネットワーク可視化で心の動きをリアルタイム表示。
-                        脳波モニター、思考ストリーム、AI分析で意識の深層を探求しよう！
+                        プロ級音楽制作スタジオがブラウザに！多トラック録音、エフェクト処理、ミキシング機能搭載。
+                        豊富な楽器音源とループ素材で、あなたの音楽アイデアを本格的な楽曲に仕上げよう！
                     </p>
-                    <a href="apps/mind-visualization-simulator/index.html" class="app-link">思考体験開始</a>
+                    <a href="apps/music-producer-studio/index.html" class="app-link">音楽制作開始</a>
                 </div>
             </div>
         </div>
+
+        <div class="github-link">
+            <a href="https://github.com/kt199671/claude_make_app" target="_blank">
+                📱 GitHubでソースコード公開中 - スター⭐をお願いします！
+            </a>
+        </div>
+
+        <footer>
+            <p>&copy; 2024 Claude Code Collection. Made with ❤️ by Claude AI</p>
+            <p>All applications are open source and free to use.</p>
+        </footer>
     </div>
 
-    <footer class="footer">
-        <p>&copy; 2025 Claude作品集. Created with Claude AI.</p>
-    </footer>
-
     <script>
-        // DOM要素の取得
-        const searchInput = document.getElementById('searchInput');
+        const searchInput = document.querySelector('.search-input');
         const filterButtons = document.querySelectorAll('.filter-btn');
         const appCards = document.querySelectorAll('.app-card');
-        const appCount = document.getElementById('appCount');
+        const appCount = document.querySelector('.app-count');
 
-        // カテゴリマッピング（data-category属性がないカードのための一時的な分類）
-        const categoryMapping = {
-            '量子波動エフェクト体験': 'education',
-            'AI感情読み取りゲーム': 'ai',
-            '宇宙創造シミュレーター': 'education',
-            'バーチャルサーカス体験': 'entertainment',
-            '遺伝子組み換えラボゲーム': 'education',
-            'AR未来占い師': 'entertainment',
-            'AI未来予知ゲーム': 'ai',
-            'AI映画監督': 'ai',
-            'レトロ宇宙探査ゲーム': 'game',
-            'AI音楽バトル': 'ai',
-            '性格カラー診断': 'ai',
-            'おみくじ': 'entertainment',
-            'キャンディクラッシュ風パズル': 'game',
-            '電卓': 'tool',
-            'TODOリスト': 'tool',
-            '天気予報': 'tool',
-            'メモ帳': 'tool',
-            'ポモドーロタイマー': 'tool',
-            'スネークゲーム': 'game',
-            'チェス': 'game',
-            'ブロック崩し': 'game',
-            'Minecraft Clone': 'game',
-            '2048パズル': 'game',
-            'タイピングゲーム': 'game',
-            'AI写真整理アプリ': 'ai',
-            'AI Finance Manager': 'ai',
-            'AI Habit Tracker': 'ai',
-            'Global Chat': 'social',
-            'Food Rescue': 'social',
-            'SkillConnect': 'social',
-            'MindWell': 'ai',
-            'ParkShare': 'social',
-            'デジタルペット': 'game',
-            'TradeSocial': 'social',
-            'Magic 8 Ball': 'entertainment',
-            'Virtual Drum Kit': 'music',
-            'AI Pet Battle': 'game',
-            'Color Memory': 'game',
-            '絵文字ストーリージェネレーター': 'entertainment',
-            'バーチャル万華鏡': 'music',
-            'ニューラルネットワーク可視化': 'education',
-            '量子物理学シミュレーター': 'education',
-            'DNA配列パズル': 'education',
-            '宇宙物理演算ゲーム': 'education',
-            'フラクタル探索': 'education',
-            'AIダンスバトル': 'game',
-            '音楽DNA分析': 'ai',
-            '夢日記AI解析': 'ai',
-            'タイムスケール体験': 'education',
-            'ミステリー脱出ゲーム': 'game',
-            'タイムトラベル冒険記': 'game',
-            '時空パラドックスパズル': 'game',
-            '時間逆転パズル': 'game',
-            'Neon Synth Music Studio': 'music',
-            '時空の狭間': 'game',
-            '時空メモリーマップ': 'ai',
-            'AI芸術家コラボスタジオ': 'ai',
-            '魔法陣召喚シミュレーター': 'entertainment',
-            '多次元タイムトラベル体験': 'education',
-            'メタバース建築ゲーム': 'game',
-            '思考可視化シミュレーター': 'ai'
-        };
-
-        // アプリカードにカテゴリを設定（data-category属性がない場合）
-        appCards.forEach(card => {
-            if (!card.dataset.category) {
-                const title = card.querySelector('.app-title')?.textContent.trim();
-                if (title && categoryMapping[title]) {
-                    card.dataset.category = categoryMapping[title];
-                    card.dataset.title = title;
+        // 初期化：カード表示順序を最適化
+        appCards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.05}s`;
+            
+            // カードホバー時の音声フィードバック（オプション）
+            card.addEventListener('mouseenter', function() {
+                if (this.style.transform) return; // 既にホバー中なら無視
+                
+                // ホバー時の軽微な振動効果
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
                 }
-            }
+            });
         });
 
         // 検索機能

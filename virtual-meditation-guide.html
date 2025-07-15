@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>バーチャル瞑想ガイド - Virtual Meditation Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 背景のグラデーション */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, #1a237e 0%, #0a0a0a 100%);
+            animation: breatheBackground 8s ease-in-out infinite;
+        }
+
+        @keyframes breatheBackground {
+            0%, 100% {
+                background: radial-gradient(ellipse at center, #1a237e 0%, #0a0a0a 100%);
+            }
+            50% {
+                background: radial-gradient(ellipse at center, #3949ab 0%, #1a237e 100%);
+            }
+        }
+
+        /* パーティクル効果 */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            from {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            to {
+                transform: translateY(-100vh) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 20px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            color: white;
+            font-size: 3em;
+            font-weight: 300;
+            margin-bottom: 30px;
+            opacity: 0;
+            animation: fadeIn 2s ease-out forwards;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* 呼吸ビジュアライザー */
+        .breathing-circle {
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 40px;
+            position: relative;
+            opacity: 0;
+            animation: fadeIn 2s ease-out 0.5s forwards;
+        }
+
+        .circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transition: all 4s ease-in-out;
+        }
+
+        .circle.breathing {
+            animation: breathe 8s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                border-color: rgba(255, 255, 255, 0.3);
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.3);
+                border-color: rgba(255, 255, 255, 0.8);
+                box-shadow: 0 0 40px rgba(255, 255, 255, 0.6);
+            }
+        }
+
+        .breath-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 1.5em;
+            font-weight: 300;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .breath-text.show {
+            opacity: 1;
+        }
+
+        /* セッション選択 */
+        .session-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: fadeIn 2s ease-out 1s forwards;
+        }
+
+        .session-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .session-card:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .session-card.active {
+            background: rgba(100, 126, 234, 0.3);
+            border-color: rgba(100, 126, 234, 0.8);
+        }
+
+        .session-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .session-title {
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+
+        .session-duration {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        /* コントロール */
+        .controls {
+            opacity: 0;
+            animation: fadeIn 2s ease-out 1.5s forwards;
+        }
+
+        .control-btn {
+            padding: 15px 40px;
+            margin: 0 10px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .control-btn.primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+        }
+
+        .control-btn.primary:hover {
+            box-shadow: 0 5px 30px rgba(102, 126, 234, 0.5);
+        }
+
+        /* タイマー */
+        .timer {
+            color: white;
+            font-size: 2em;
+            margin: 30px 0;
+            font-weight: 300;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .timer.show {
+            opacity: 1;
+        }
+
+        /* 音声コントロール */
+        .sound-controls {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 20;
+        }
+
+        .sound-toggle {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sound-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        /* ガイドテキスト */
+        .guide-text {
+            color: white;
+            font-size: 1.3em;
+            line-height: 1.8;
+            max-width: 600px;
+            margin: 30px auto;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .guide-text.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .breathing-circle {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .circle {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .session-selector {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .control-btn {
+                width: 100%;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+    <div class="particles" id="particles"></div>
+    
+    <div class="container">
+        <h1>🧘 バーチャル瞑想ガイド</h1>
+        
+        <div class="session-selector" id="sessionSelector">
+            <div class="session-card" data-session="breathing" data-duration="5">
+                <div class="session-icon">🌬️</div>
+                <div class="session-title">呼吸瞑想</div>
+                <div class="session-duration">5分</div>
+            </div>
+            
+            <div class="session-card" data-session="body-scan" data-duration="10">
+                <div class="session-icon">🧘</div>
+                <div class="session-title">ボディスキャン</div>
+                <div class="session-duration">10分</div>
+            </div>
+            
+            <div class="session-card" data-session="mindfulness" data-duration="15">
+                <div class="session-icon">🎯</div>
+                <div class="session-title">マインドフルネス</div>
+                <div class="session-duration">15分</div>
+            </div>
+            
+            <div class="session-card" data-session="sleep" data-duration="20">
+                <div class="session-icon">😴</div>
+                <div class="session-title">睡眠瞑想</div>
+                <div class="session-duration">20分</div>
+            </div>
+        </div>
+        
+        <div class="breathing-circle" id="breathingCircle" style="display: none;">
+            <div class="circle" id="circle"></div>
+            <div class="breath-text" id="breathText">吸って</div>
+        </div>
+        
+        <div class="guide-text" id="guideText"></div>
+        
+        <div class="timer" id="timer"></div>
+        
+        <div class="controls">
+            <button class="control-btn primary" id="startBtn">瞑想を始める</button>
+            <button class="control-btn" id="pauseBtn" style="display: none;">一時停止</button>
+            <button class="control-btn" id="stopBtn" style="display: none;">終了</button>
+        </div>
+    </div>
+    
+    <div class="sound-controls">
+        <button class="sound-toggle" id="soundToggle">🔊</button>
+    </div>
+
+    <script>
+        // パーティクル生成
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 20 + 20) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // セッション管理
+        let selectedSession = null;
+        let isPlaying = false;
+        let isPaused = false;
+        let currentTime = 0;
+        let totalTime = 0;
+        let timerInterval = null;
+        let breathInterval = null;
+        let soundEnabled = true;
+
+        // オーディオコンテキスト
+        let audioContext = null;
+        let oscillator = null;
+        let gainNode = null;
+
+        // セッション選択
+        document.querySelectorAll('.session-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.session-card').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                selectedSession = this.dataset.session;
+                totalTime = parseInt(this.dataset.duration) * 60;
+            });
+        });
+
+        // オーディオ初期化
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // 環境音の生成
+        function playAmbientSound() {
+            if (!soundEnabled || !audioContext) return;
+            
+            // ホワイトノイズジェネレーター
+            const bufferSize = 2 * audioContext.sampleRate;
+            const noiseBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+            const output = noiseBuffer.getChannelData(0);
+            
+            for (let i = 0; i < bufferSize; i++) {
+                output[i] = Math.random() * 2 - 1;
+            }
+            
+            const whiteNoise = audioContext.createBufferSource();
+            whiteNoise.buffer = noiseBuffer;
+            whiteNoise.loop = true;
+            
+            const filter = audioContext.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 1000;
+            
+            gainNode = audioContext.createGain();
+            gainNode.gain.value = 0.05;
+            
+            whiteNoise.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            whiteNoise.start();
+            
+            return whiteNoise;
+        }
+
+        // チャイムサウンド
+        function playChime() {
+            if (!soundEnabled || !audioContext) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.value = 528; // Love frequency
+            
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.1);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 2);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 2);
+        }
+
+        // 瞑想ガイドテキスト
+        const meditationGuides = {
+            breathing: [
+                "楽な姿勢で座り、目を閉じてください。",
+                "自然な呼吸に意識を向けましょう。",
+                "息を吸うとき、お腹が膨らむのを感じてください。",
+                "息を吐くとき、体の緊張が解けていきます。",
+                "呼吸のリズムに身を委ねましょう。"
+            ],
+            'body-scan': [
+                "体をリラックスさせ、深呼吸をしましょう。",
+                "足の先から意識を向けていきます。",
+                "ゆっくりと体の各部分に注意を向けてください。",
+                "緊張している箇所があれば、息を吐きながら緩めます。",
+                "全身がリラックスしていくのを感じてください。"
+            ],
+            mindfulness: [
+                "今この瞬間に意識を集中させましょう。",
+                "思考が浮かんできても、判断せずに観察します。",
+                "呼吸に意識を戻し、今ここにいることを感じてください。",
+                "周りの音、体の感覚に気づいていきます。",
+                "すべてをありのままに受け入れましょう。"
+            ],
+            sleep: [
+                "体を完全にリラックスさせてください。",
+                "深くゆっくりとした呼吸を続けます。",
+                "今日の出来事を手放していきましょう。",
+                "心地よい眠りへと導かれていきます。",
+                "安らかな眠りに包まれてください。"
+            ]
+        };
+
+        // タイマー更新
+        function updateTimer() {
+            const minutes = Math.floor((totalTime - currentTime) / 60);
+            const seconds = (totalTime - currentTime) % 60;
+            document.getElementById('timer').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (currentTime >= totalTime) {
+                stopMeditation();
+                playChime();
+                showGuideText("瞑想が完了しました。ゆっくりと目を開けてください。");
+            }
+        }
+
+        // ガイドテキスト表示
+        function showGuideText(text) {
+            const guideTextEl = document.getElementById('guideText');
+            guideTextEl.textContent = text;
+            guideTextEl.classList.add('show');
+        }
+
+        // 呼吸ガイド
+        function startBreathingGuide() {
+            const circle = document.getElementById('circle');
+            const breathText = document.getElementById('breathText');
+            const breathingCircle = document.getElementById('breathingCircle');
+            
+            breathingCircle.style.display = 'block';
+            circle.classList.add('breathing');
+            
+            let inhaling = true;
+            breathText.classList.add('show');
+            
+            breathInterval = setInterval(() => {
+                if (inhaling) {
+                    breathText.textContent = '吐いて';
+                } else {
+                    breathText.textContent = '吸って';
+                }
+                inhaling = !inhaling;
+            }, 4000);
+        }
+
+        // 瞑想開始
+        function startMeditation() {
+            if (!selectedSession) {
+                alert('瞑想セッションを選択してください');
+                return;
+            }
+            
+            initAudio();
+            isPlaying = true;
+            isPaused = false;
+            currentTime = 0;
+            
+            document.getElementById('sessionSelector').style.display = 'none';
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('pauseBtn').style.display = 'inline-block';
+            document.getElementById('stopBtn').style.display = 'inline-block';
+            document.getElementById('timer').classList.add('show');
+            
+            updateTimer();
+            
+            if (selectedSession === 'breathing') {
+                startBreathingGuide();
+            }
+            
+            // ガイドテキストの表示
+            const guides = meditationGuides[selectedSession];
+            let guideIndex = 0;
+            
+            showGuideText(guides[guideIndex]);
+            
+            const guideInterval = setInterval(() => {
+                if (!isPlaying || isPaused) return;
+                
+                guideIndex = (guideIndex + 1) % guides.length;
+                showGuideText(guides[guideIndex]);
+            }, totalTime * 1000 / guides.length);
+            
+            // 環境音の再生
+            const ambientSound = playAmbientSound();
+            
+            // タイマー開始
+            timerInterval = setInterval(() => {
+                if (!isPaused) {
+                    currentTime++;
+                    updateTimer();
+                }
+            }, 1000);
+            
+            // チャイム音
+            playChime();
+        }
+
+        // 瞑想一時停止
+        function pauseMeditation() {
+            isPaused = !isPaused;
+            document.getElementById('pauseBtn').textContent = isPaused ? '再開' : '一時停止';
+            
+            if (isPaused && breathInterval) {
+                clearInterval(breathInterval);
+                document.getElementById('circle').classList.remove('breathing');
+            } else if (!isPaused && selectedSession === 'breathing') {
+                startBreathingGuide();
+            }
+        }
+
+        // 瞑想停止
+        function stopMeditation() {
+            isPlaying = false;
+            isPaused = false;
+            
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            
+            if (breathInterval) {
+                clearInterval(breathInterval);
+            }
+            
+            document.getElementById('sessionSelector').style.display = 'grid';
+            document.getElementById('startBtn').style.display = 'inline-block';
+            document.getElementById('pauseBtn').style.display = 'none';
+            document.getElementById('stopBtn').style.display = 'none';
+            document.getElementById('timer').classList.remove('show');
+            document.getElementById('breathingCircle').style.display = 'none';
+            document.getElementById('circle').classList.remove('breathing');
+            document.getElementById('guideText').classList.remove('show');
+            
+            // オーディオ停止
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
+        }
+
+        // サウンドトグル
+        document.getElementById('soundToggle').addEventListener('click', function() {
+            soundEnabled = !soundEnabled;
+            this.textContent = soundEnabled ? '🔊' : '🔇';
+            
+            if (!soundEnabled && gainNode) {
+                gainNode.gain.value = 0;
+            } else if (soundEnabled && gainNode) {
+                gainNode.gain.value = 0.05;
+            }
+        });
+
+        // イベントリスナー
+        document.getElementById('startBtn').addEventListener('click', startMeditation);
+        document.getElementById('pauseBtn').addEventListener('click', pauseMeditation);
+        document.getElementById('stopBtn').addEventListener('click', stopMeditation);
+
+        // 初期化
+        createParticles();
+    </script>
+</body>
+</html>
