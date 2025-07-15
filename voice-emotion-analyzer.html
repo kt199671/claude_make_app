@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音声感情分析アプリ - Voice Emotion Analyzer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .visualizer {
+            height: 200px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .emotion-display {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .emotion-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .emotion-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.5));
+            transform: translateX(-100%);
+            transition: transform 0.5s ease;
+        }
+
+        .emotion-card.active::before {
+            transform: translateX(0);
+        }
+
+        .emotion-card.active {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .emotion-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .emotion-name {
+            font-size: 1.2em;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .emotion-level {
+            font-size: 0.9em;
+            color: #999;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .recording {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 20px rgba(102, 126, 234, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+            }
+        }
+
+        .status {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .emotion-display {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎤 音声感情分析</h1>
+        
+        <div class="visualizer">
+            <canvas id="waveform"></canvas>
+        </div>
+        
+        <div class="emotion-display">
+            <div class="emotion-card" data-emotion="happy">
+                <div class="emotion-icon">😊</div>
+                <div class="emotion-name">喜び</div>
+                <div class="emotion-level">0%</div>
+            </div>
+            
+            <div class="emotion-card" data-emotion="sad">
+                <div class="emotion-icon">😢</div>
+                <div class="emotion-name">悲しみ</div>
+                <div class="emotion-level">0%</div>
+            </div>
+            
+            <div class="emotion-card" data-emotion="angry">
+                <div class="emotion-icon">😠</div>
+                <div class="emotion-name">怒り</div>
+                <div class="emotion-level">0%</div>
+            </div>
+            
+            <div class="emotion-card" data-emotion="surprised">
+                <div class="emotion-icon">😲</div>
+                <div class="emotion-name">驚き</div>
+                <div class="emotion-level">0%</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="startBtn">録音開始</button>
+            <button id="stopBtn" disabled>録音停止</button>
+        </div>
+        
+        <div class="status" id="status">マイクの許可を求めてから録音を開始してください</div>
+    </div>
+
+    <script>
+        let audioContext;
+        let mediaStream;
+        let analyser;
+        let microphone;
+        let animationId;
+        let isRecording = false;
+        
+        const canvas = document.getElementById('waveform');
+        const ctx = canvas.getContext('2d');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const status = document.getElementById('status');
+        
+        // Canvasのサイズ設定
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+            canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        // 音声分析の初期化
+        async function initAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                microphone = audioContext.createMediaStreamSource(mediaStream);
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 2048;
+                analyser.smoothingTimeConstant = 0.8;
+                
+                microphone.connect(analyser);
+                
+                status.textContent = '録音準備完了';
+                startBtn.disabled = false;
+            } catch (error) {
+                status.textContent = 'マイクへのアクセスが拒否されました';
+                console.error('Audio initialization error:', error);
+            }
+        }
+        
+        // 波形の描画
+        function drawWaveform() {
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            analyser.getByteTimeDomainData(dataArray);
+            
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+            
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#667eea';
+            ctx.beginPath();
+            
+            const sliceWidth = canvas.offsetWidth / bufferLength;
+            let x = 0;
+            
+            for (let i = 0; i < bufferLength; i++) {
+                const v = dataArray[i] / 128.0;
+                const y = v * canvas.offsetHeight / 2;
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+                
+                x += sliceWidth;
+            }
+            
+            ctx.lineTo(canvas.offsetWidth, canvas.offsetHeight / 2);
+            ctx.stroke();
+            
+            if (isRecording) {
+                analyzeEmotion(dataArray);
+                animationId = requestAnimationFrame(drawWaveform);
+            }
+        }
+        
+        // 感情分析（シミュレーション）
+        function analyzeEmotion(dataArray) {
+            // 音声の特徴量を計算（簡易版）
+            let sum = 0;
+            let variance = 0;
+            const avg = dataArray.reduce((a, b) => a + b) / dataArray.length;
+            
+            for (let i = 0; i < dataArray.length; i++) {
+                sum += Math.abs(dataArray[i] - 128);
+                variance += Math.pow(dataArray[i] - avg, 2);
+            }
+            
+            const energy = sum / dataArray.length;
+            const std = Math.sqrt(variance / dataArray.length);
+            
+            // 感情の推定（シミュレーション）
+            const emotions = {
+                happy: Math.min(100, energy * 0.8 + std * 0.2 + Math.random() * 20),
+                sad: Math.min(100, (128 - energy) * 0.6 + Math.random() * 20),
+                angry: Math.min(100, std * 0.7 + energy * 0.3 + Math.random() * 15),
+                surprised: Math.min(100, Math.abs(std - 30) + Math.random() * 25)
+            };
+            
+            // 最も強い感情を特定
+            const maxEmotion = Object.entries(emotions).reduce((a, b) => 
+                emotions[a[0]] > emotions[b[0]] ? a : b
+            )[0];
+            
+            // UIを更新
+            Object.entries(emotions).forEach(([emotion, value]) => {
+                const card = document.querySelector(`[data-emotion="${emotion}"]`);
+                const level = card.querySelector('.emotion-level');
+                level.textContent = Math.round(value) + '%';
+                
+                if (emotion === maxEmotion && value > 50) {
+                    card.classList.add('active');
+                } else {
+                    card.classList.remove('active');
+                }
+            });
+        }
+        
+        // 録音開始
+        startBtn.addEventListener('click', async () => {
+            if (!audioContext) {
+                await initAudio();
+            }
+            
+            isRecording = true;
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            startBtn.classList.add('recording');
+            status.textContent = '録音中...話してください';
+            
+            drawWaveform();
+        });
+        
+        // 録音停止
+        stopBtn.addEventListener('click', () => {
+            isRecording = false;
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            startBtn.classList.remove('recording');
+            status.textContent = '録音停止';
+            
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            
+            // 感情カードをリセット
+            document.querySelectorAll('.emotion-card').forEach(card => {
+                card.classList.remove('active');
+            });
+        });
+        
+        // 初期化
+        initAudio();
+    </script>
+</body>
+</html>
