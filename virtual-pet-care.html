@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仮想ペット育成アプリ - Virtual Pet Care</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            animation: bounceIn 0.6s ease-out;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            60% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2.2em;
+        }
+
+        .pet-container {
+            position: relative;
+            height: 300px;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-radius: 20px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .pet {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 150px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pet:hover {
+            transform: translateX(-50%) scale(1.1);
+        }
+
+        .pet-body {
+            width: 100%;
+            height: 100%;
+            background: #ffccbc;
+            border-radius: 50% 50% 45% 45%;
+            position: relative;
+            animation: breathe 3s infinite ease-in-out;
+        }
+
+        @keyframes breathe {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .pet-eyes {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .eye {
+            width: 30px;
+            height: 30px;
+            background: #333;
+            border-radius: 50%;
+            position: relative;
+            animation: blink 5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 90%, 100% {
+                transform: scaleY(1);
+            }
+            95% {
+                transform: scaleY(0.1);
+            }
+        }
+
+        .eye::after {
+            content: '';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .pet-mouth {
+            position: absolute;
+            bottom: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 20px;
+            border: 3px solid #333;
+            border-top: none;
+            border-radius: 0 0 20px 20px;
+        }
+
+        .status-bars {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .status-item {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .status-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .status-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .status-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+
+        .hunger-fill {
+            background: linear-gradient(90deg, #ff6b6b, #ee5a6f);
+        }
+
+        .happiness-fill {
+            background: linear-gradient(90deg, #4ecdc4, #44a3aa);
+        }
+
+        .energy-fill {
+            background: linear-gradient(90deg, #ffe66d, #ffd93d);
+        }
+
+        .level-fill {
+            background: linear-gradient(90deg, #a8e6cf, #7fcdbb);
+        }
+
+        .status-value {
+            font-size: 0.8em;
+            color: #999;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .action-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-btn:active {
+            transform: translateY(0);
+        }
+
+        .action-icon {
+            font-size: 1.5em;
+        }
+
+        .pet-info {
+            text-align: center;
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 15px;
+        }
+
+        .pet-name {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .pet-level {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .floating-hearts {
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .heart {
+            position: absolute;
+            color: #ff6b6b;
+            font-size: 20px;
+            animation: floatUp 2s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) scale(1.5);
+            }
+        }
+
+        .speech-bubble {
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            animation: fadeInOut 3s ease-out;
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 10px 10px 0 10px;
+            border-color: white transparent transparent transparent;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% {
+                opacity: 0;
+            }
+            20%, 80% {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐾 バーチャルペット</h1>
+        
+        <div class="pet-container" id="petContainer">
+            <div class="pet" id="pet">
+                <div class="pet-body">
+                    <div class="pet-eyes">
+                        <div class="eye"></div>
+                        <div class="eye"></div>
+                    </div>
+                    <div class="pet-mouth"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="status-bars">
+            <div class="status-item">
+                <div class="status-label">
+                    <span>🍖</span>
+                    <span>空腹度</span>
+                </div>
+                <div class="status-bar">
+                    <div class="status-fill hunger-fill" id="hungerBar"></div>
+                </div>
+                <div class="status-value" id="hungerValue">80%</div>
+            </div>
+            
+            <div class="status-item">
+                <div class="status-label">
+                    <span>😊</span>
+                    <span>幸福度</span>
+                </div>
+                <div class="status-bar">
+                    <div class="status-fill happiness-fill" id="happinessBar"></div>
+                </div>
+                <div class="status-value" id="happinessValue">70%</div>
+            </div>
+            
+            <div class="status-item">
+                <div class="status-label">
+                    <span>⚡</span>
+                    <span>エネルギー</span>
+                </div>
+                <div class="status-bar">
+                    <div class="status-fill energy-fill" id="energyBar"></div>
+                </div>
+                <div class="status-value" id="energyValue">90%</div>
+            </div>
+            
+            <div class="status-item">
+                <div class="status-label">
+                    <span>⭐</span>
+                    <span>経験値</span>
+                </div>
+                <div class="status-bar">
+                    <div class="status-fill level-fill" id="levelBar"></div>
+                </div>
+                <div class="status-value" id="levelValue">30%</div>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <button class="action-btn" onclick="feedPet()">
+                <span class="action-icon">🍖</span>
+                <span>エサをあげる</span>
+            </button>
+            
+            <button class="action-btn" onclick="playWithPet()">
+                <span class="action-icon">🎾</span>
+                <span>遊ぶ</span>
+            </button>
+            
+            <button class="action-btn" onclick="petPet()">
+                <span class="action-icon">🤗</span>
+                <span>なでる</span>
+            </button>
+            
+            <button class="action-btn" onclick="sleepPet()">
+                <span class="action-icon">😴</span>
+                <span>寝かせる</span>
+            </button>
+            
+            <button class="action-btn" onclick="cleanPet()">
+                <span class="action-icon">🧼</span>
+                <span>お風呂</span>
+            </button>
+            
+            <button class="action-btn" onclick="treatPet()">
+                <span class="action-icon">🍬</span>
+                <span>おやつ</span>
+            </button>
+        </div>
+        
+        <div class="pet-info">
+            <div class="pet-name" id="petName">ポチ</div>
+            <div class="pet-level" id="petLevel">レベル 1</div>
+        </div>
+    </div>
+
+    <script>
+        // ペットの状態
+        let petState = {
+            name: 'ポチ',
+            level: 1,
+            experience: 30,
+            hunger: 80,
+            happiness: 70,
+            energy: 90,
+            lastUpdate: Date.now()
+        };
+
+        // ローカルストレージから状態を読み込み
+        function loadPetState() {
+            const saved = localStorage.getItem('virtualPet');
+            if (saved) {
+                petState = JSON.parse(saved);
+                updateDisplay();
+            }
+        }
+
+        // 状態を保存
+        function savePetState() {
+            localStorage.setItem('virtualPet', JSON.stringify(petState));
+        }
+
+        // 表示を更新
+        function updateDisplay() {
+            document.getElementById('petName').textContent = petState.name;
+            document.getElementById('petLevel').textContent = `レベル ${petState.level}`;
+            
+            document.getElementById('hungerBar').style.width = petState.hunger + '%';
+            document.getElementById('hungerValue').textContent = petState.hunger + '%';
+            
+            document.getElementById('happinessBar').style.width = petState.happiness + '%';
+            document.getElementById('happinessValue').textContent = petState.happiness + '%';
+            
+            document.getElementById('energyBar').style.width = petState.energy + '%';
+            document.getElementById('energyValue').textContent = petState.energy + '%';
+            
+            document.getElementById('levelBar').style.width = petState.experience + '%';
+            document.getElementById('levelValue').textContent = petState.experience + '%';
+        }
+
+        // 時間経過による状態変化
+        function updateStats() {
+            const now = Date.now();
+            const timeDiff = (now - petState.lastUpdate) / 1000 / 60; // 分単位
+            
+            petState.hunger = Math.max(0, petState.hunger - timeDiff * 2);
+            petState.happiness = Math.max(0, petState.happiness - timeDiff * 1);
+            petState.energy = Math.max(0, petState.energy - timeDiff * 0.5);
+            
+            petState.lastUpdate = now;
+            
+            // レベルアップチェック
+            if (petState.experience >= 100) {
+                petState.level++;
+                petState.experience = 0;
+                showMessage('レベルアップ！');
+                createHearts();
+            }
+            
+            updateDisplay();
+            savePetState();
+        }
+
+        // メッセージ表示
+        function showMessage(message) {
+            const pet = document.getElementById('pet');
+            const bubble = document.createElement('div');
+            bubble.className = 'speech-bubble';
+            bubble.textContent = message;
+            pet.appendChild(bubble);
+            
+            setTimeout(() => {
+                bubble.remove();
+            }, 3000);
+        }
+
+        // ハートエフェクト
+        function createHearts() {
+            const container = document.getElementById('petContainer');
+            const heartsContainer = document.createElement('div');
+            heartsContainer.className = 'floating-hearts';
+            
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.className = 'heart';
+                    heart.textContent = '❤';
+                    heart.style.left = Math.random() * 100 + '%';
+                    heart.style.bottom = '50px';
+                    heartsContainer.appendChild(heart);
+                    
+                    setTimeout(() => heart.remove(), 2000);
+                }, i * 200);
+            }
+            
+            container.appendChild(heartsContainer);
+            setTimeout(() => heartsContainer.remove(), 3000);
+        }
+
+        // アクション関数
+        function feedPet() {
+            if (petState.hunger < 100) {
+                petState.hunger = Math.min(100, petState.hunger + 20);
+                petState.experience = Math.min(100, petState.experience + 5);
+                showMessage('おいしい！');
+                animatePet('jump');
+            } else {
+                showMessage('おなかいっぱい...');
+            }
+            updateDisplay();
+            savePetState();
+        }
+
+        function playWithPet() {
+            if (petState.energy >= 20) {
+                petState.energy = Math.max(0, petState.energy - 20);
+                petState.happiness = Math.min(100, petState.happiness + 25);
+                petState.experience = Math.min(100, petState.experience + 10);
+                showMessage('楽しい！');
+                animatePet('spin');
+                createHearts();
+            } else {
+                showMessage('疲れちゃった...');
+            }
+            updateDisplay();
+            savePetState();
+        }
+
+        function petPet() {
+            petState.happiness = Math.min(100, petState.happiness + 15);
+            petState.experience = Math.min(100, petState.experience + 3);
+            showMessage('きもちいい～');
+            animatePet('wiggle');
+            updateDisplay();
+            savePetState();
+        }
+
+        function sleepPet() {
+            if (petState.energy < 80) {
+                petState.energy = Math.min(100, petState.energy + 30);
+                petState.experience = Math.min(100, petState.experience + 5);
+                showMessage('zzz...');
+                animatePet('sleep');
+            } else {
+                showMessage('まだ眠くない');
+            }
+            updateDisplay();
+            savePetState();
+        }
+
+        function cleanPet() {
+            petState.happiness = Math.min(100, petState.happiness + 20);
+            petState.experience = Math.min(100, petState.experience + 5);
+            showMessage('さっぱり！');
+            animatePet('shake');
+            updateDisplay();
+            savePetState();
+        }
+
+        function treatPet() {
+            petState.hunger = Math.min(100, petState.hunger + 10);
+            petState.happiness = Math.min(100, petState.happiness + 30);
+            petState.experience = Math.min(100, petState.experience + 7);
+            showMessage('わーい！');
+            animatePet('bounce');
+            createHearts();
+            updateDisplay();
+            savePetState();
+        }
+
+        // ペットのアニメーション
+        function animatePet(animation) {
+            const pet = document.getElementById('pet');
+            
+            switch(animation) {
+                case 'jump':
+                    pet.style.animation = 'jump 0.5s ease';
+                    break;
+                case 'spin':
+                    pet.style.animation = 'spin 0.8s ease';
+                    break;
+                case 'wiggle':
+                    pet.style.animation = 'wiggle 0.5s ease';
+                    break;
+                case 'sleep':
+                    pet.style.animation = 'sleep 2s ease';
+                    break;
+                case 'shake':
+                    pet.style.animation = 'shake 0.5s ease';
+                    break;
+                case 'bounce':
+                    pet.style.animation = 'bounce 0.6s ease';
+                    break;
+            }
+            
+            setTimeout(() => {
+                pet.style.animation = '';
+            }, 1000);
+        }
+
+        // アニメーション定義
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes jump {
+                0%, 100% { transform: translateX(-50%) translateY(0); }
+                50% { transform: translateX(-50%) translateY(-50px); }
+            }
+            
+            @keyframes spin {
+                0% { transform: translateX(-50%) rotate(0deg); }
+                100% { transform: translateX(-50%) rotate(360deg); }
+            }
+            
+            @keyframes wiggle {
+                0%, 100% { transform: translateX(-50%) rotate(0deg); }
+                25% { transform: translateX(-50%) rotate(-10deg); }
+                75% { transform: translateX(-50%) rotate(10deg); }
+            }
+            
+            @keyframes sleep {
+                0%, 100% { transform: translateX(-50%) scale(1); }
+                50% { transform: translateX(-50%) scale(0.9); }
+            }
+            
+            @keyframes shake {
+                0%, 100% { transform: translateX(-50%); }
+                25% { transform: translateX(-55%); }
+                75% { transform: translateX(-45%); }
+            }
+            
+            @keyframes bounce {
+                0%, 100% { transform: translateX(-50%) scale(1); }
+                50% { transform: translateX(-50%) scale(1.2); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // ペットをクリックしたときの反応
+        document.getElementById('pet').addEventListener('click', () => {
+            petPet();
+        });
+
+        // 初期化
+        loadPetState();
+        
+        // 定期的に状態を更新
+        setInterval(updateStats, 30000); // 30秒ごと
+    </script>
+</body>
+</html>
