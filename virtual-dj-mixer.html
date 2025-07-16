@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>バーチャルDJミキサー - リアルタイム音楽ミックス</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #000;
+            color: #fff;
+            overflow: hidden;
+            user-select: none;
+        }
+        .dj-booth {
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, #1a1a2e 0%, #0f0f1e 100%);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .visualizer {
+            height: 200px;
+            background: #000;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+        .visualizer canvas {
+            width: 100%;
+            height: 100%;
+        }
+        .mixer-container {
+            flex: 1;
+            display: flex;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .deck {
+            flex: 1;
+            background: linear-gradient(145deg, #1e1e1e, #2a2a2a);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        .turntable {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, #333 0%, #000 100%);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            position: relative;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            animation: spin 2s linear infinite paused;
+        }
+        .turntable.playing {
+            animation-play-state: running;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .vinyl-grooves {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: repeating-radial-gradient(circle, transparent 0, transparent 2px, rgba(255,255,255,0.1) 2px, rgba(255,255,255,0.1) 3px);
+        }
+        .center-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: #c00;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .slider-group label {
+            width: 80px;
+            font-size: 12px;
+            color: #0ff;
+        }
+        input[type="range"] {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #0ff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        button {
+            flex: 1;
+            padding: 12px;
+            background: #222;
+            border: 2px solid #0ff;
+            color: #0ff;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #0ff;
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+        button.active {
+            background: #0ff;
+            color: #000;
+        }
+        .crossfader-container {
+            background: linear-gradient(145deg, #1e1e1e, #2a2a2a);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        .crossfader {
+            width: 100%;
+            margin: 20px 0;
+        }
+        .fx-panel {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .fx-button {
+            padding: 20px;
+            background: #111;
+            border: 2px solid #f0f;
+            color: #f0f;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        .fx-button:hover {
+            background: #f0f;
+            color: #000;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.8);
+        }
+        .fx-button.active {
+            background: #f0f;
+            color: #000;
+        }
+        .bpm-display {
+            text-align: center;
+            font-size: 24px;
+            color: #0ff;
+            margin: 10px 0;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+        }
+        .track-info {
+            text-align: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+        }
+        .track-name {
+            font-size: 16px;
+            color: #0ff;
+            margin-bottom: 5px;
+        }
+        .track-time {
+            font-size: 14px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="dj-booth">
+        <div class="visualizer">
+            <canvas id="visualizer"></canvas>
+        </div>
+        
+        <div class="mixer-container">
+            <!-- デッキ A -->
+            <div class="deck" id="deckA">
+                <div class="track-info">
+                    <div class="track-name">トラック A</div>
+                    <div class="track-time">00:00 / 03:45</div>
+                </div>
+                
+                <div class="turntable" id="turntableA">
+                    <div class="vinyl-grooves"></div>
+                    <div class="center-label">DECK A</div>
+                </div>
+                
+                <div class="bpm-display">128 BPM</div>
+                
+                <div class="controls">
+                    <div class="slider-group">
+                        <label>VOLUME</label>
+                        <input type="range" id="volumeA" min="0" max="100" value="75">
+                    </div>
+                    <div class="slider-group">
+                        <label>HIGH</label>
+                        <input type="range" id="highA" min="-20" max="20" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>MID</label>
+                        <input type="range" id="midA" min="-20" max="20" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>LOW</label>
+                        <input type="range" id="lowA" min="-20" max="20" value="0">
+                    </div>
+                    <div class="buttons">
+                        <button onclick="togglePlay('A')">▶ PLAY</button>
+                        <button onclick="setCue('A')">CUE</button>
+                        <button onclick="toggleLoop('A')">LOOP</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- クロスフェーダー -->
+            <div class="crossfader-container">
+                <h3 style="text-align: center; margin-bottom: 20px; color: #0ff;">MIXER</h3>
+                <div class="slider-group">
+                    <label style="width: auto;">A</label>
+                    <input type="range" class="crossfader" id="crossfader" min="0" max="100" value="50">
+                    <label style="width: auto;">B</label>
+                </div>
+                
+                <div class="fx-panel">
+                    <button class="fx-button" onclick="toggleEffect('filter')">FILTER</button>
+                    <button class="fx-button" onclick="toggleEffect('reverb')">REVERB</button>
+                    <button class="fx-button" onclick="toggleEffect('delay')">DELAY</button>
+                    <button class="fx-button" onclick="toggleEffect('flanger')">FLANGER</button>
+                    <button class="fx-button" onclick="toggleEffect('gate')">GATE</button>
+                    <button class="fx-button" onclick="toggleEffect('crush')">CRUSH</button>
+                    <button class="fx-button" onclick="toggleEffect('pitch')">PITCH</button>
+                    <button class="fx-button" onclick="toggleEffect('scratch')">SCRATCH</button>
+                </div>
+                
+                <div class="buttons" style="margin-top: 20px;">
+                    <button onclick="syncBPM()">SYNC BPM</button>
+                    <button onclick="recordMix()">⏺ REC</button>
+                </div>
+            </div>
+            
+            <!-- デッキ B -->
+            <div class="deck" id="deckB">
+                <div class="track-info">
+                    <div class="track-name">トラック B</div>
+                    <div class="track-time">00:00 / 04:12</div>
+                </div>
+                
+                <div class="turntable" id="turntableB">
+                    <div class="vinyl-grooves"></div>
+                    <div class="center-label">DECK B</div>
+                </div>
+                
+                <div class="bpm-display">128 BPM</div>
+                
+                <div class="controls">
+                    <div class="slider-group">
+                        <label>VOLUME</label>
+                        <input type="range" id="volumeB" min="0" max="100" value="75">
+                    </div>
+                    <div class="slider-group">
+                        <label>HIGH</label>
+                        <input type="range" id="highB" min="-20" max="20" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>MID</label>
+                        <input type="range" id="midB" min="-20" max="20" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>LOW</label>
+                        <input type="range" id="lowB" min="-20" max="20" value="0">
+                    </div>
+                    <div class="buttons">
+                        <button onclick="togglePlay('B')">▶ PLAY</button>
+                        <button onclick="setCue('B')">CUE</button>
+                        <button onclick="toggleLoop('B')">LOOP</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Web Audio API セットアップ
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // ビジュアライザー
+        const canvas = document.getElementById('visualizer');
+        const ctx = canvas.getContext('2d');
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        
+        // デッキの状態管理
+        const decks = {
+            A: { playing: false, bpm: 128, cuePoint: 0 },
+            B: { playing: false, bpm: 128, cuePoint: 0 }
+        };
+        
+        // エフェクトの状態
+        const effects = new Set();
+        
+        // ビジュアライザー描画
+        function drawVisualizer() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 波形描画
+            const barWidth = canvas.width / 64;
+            for (let i = 0; i < 64; i++) {
+                const height = Math.random() * canvas.height * 0.8;
+                const hue = (i / 64) * 360;
+                
+                ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+                ctx.fillRect(i * barWidth, canvas.height - height, barWidth - 2, height);
+                
+                // 鏡像
+                ctx.fillStyle = `hsla(${hue}, 100%, 50%, 0.5)`;
+                ctx.fillRect(i * barWidth, 0, barWidth - 2, height * 0.3);
+            }
+            
+            requestAnimationFrame(drawVisualizer);
+        }
+        
+        // 再生/停止
+        function togglePlay(deck) {
+            decks[deck].playing = !decks[deck].playing;
+            const turntable = document.getElementById(`turntable${deck}`);
+            const button = event.target;
+            
+            if (decks[deck].playing) {
+                turntable.classList.add('playing');
+                button.textContent = '⏸ PAUSE';
+                button.classList.add('active');
+                
+                // 擬似的な音声再生フィードバック
+                createBeat(deck);
+            } else {
+                turntable.classList.remove('playing');
+                button.textContent = '▶ PLAY';
+                button.classList.remove('active');
+            }
+        }
+        
+        // ビート生成（デモ用）
+        function createBeat(deck) {
+            if (!decks[deck].playing) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = deck === 'A' ? 60 : 80;
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.1);
+            
+            // 次のビート
+            setTimeout(() => {
+                if (decks[deck].playing) createBeat(deck);
+            }, 60000 / decks[deck].bpm);
+        }
+        
+        // キューポイント設定
+        function setCue(deck) {
+            decks[deck].cuePoint = Date.now();
+            event.target.classList.add('active');
+            setTimeout(() => event.target.classList.remove('active'), 200);
+            
+            // フィードバック音
+            playSound(1000, 0.05, 0.05);
+        }
+        
+        // ループ切り替え
+        function toggleLoop(deck) {
+            event.target.classList.toggle('active');
+            playSound(800, 0.05, 0.05);
+        }
+        
+        // エフェクト切り替え
+        function toggleEffect(effect) {
+            const button = event.target;
+            if (effects.has(effect)) {
+                effects.delete(effect);
+                button.classList.remove('active');
+            } else {
+                effects.add(effect);
+                button.classList.add('active');
+            }
+            
+            // エフェクト音
+            playSound(effect === 'filter' ? 2000 : 1500, 0.05, 0.1);
+        }
+        
+        // BPM同期
+        function syncBPM() {
+            decks.B.bpm = decks.A.bpm;
+            document.querySelectorAll('.bpm-display')[1].textContent = `${decks.B.bpm} BPM`;
+            event.target.classList.add('active');
+            setTimeout(() => event.target.classList.remove('active'), 500);
+            
+            playSound(500, 0.1, 0.2);
+        }
+        
+        // 録音開始/停止
+        let recording = false;
+        function recordMix() {
+            recording = !recording;
+            const button = event.target;
+            
+            if (recording) {
+                button.textContent = '⏹ STOP';
+                button.classList.add('active');
+                button.style.background = '#f00';
+            } else {
+                button.textContent = '⏺ REC';
+                button.classList.remove('active');
+                button.style.background = '';
+            }
+        }
+        
+        // サウンド生成ヘルパー
+        function playSound(frequency, duration, volume) {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+        
+        // スライダーイベント
+        document.querySelectorAll('input[type="range"]').forEach(slider => {
+            slider.addEventListener('input', (e) => {
+                // クロスフェーダー
+                if (e.target.id === 'crossfader') {
+                    const value = e.target.value;
+                    // 実際のオーディオミキシングはここで行う
+                }
+                
+                // フィードバック音
+                playSound(200 + parseInt(e.target.value) * 5, 0.02, 0.02);
+            });
+        });
+        
+        // 初期化
+        drawVisualizer();
+        
+        // デモ用のランダムな動き
+        setInterval(() => {
+            if (Math.random() > 0.7) {
+                const randomSlider = document.querySelectorAll('input[type="range"]')[Math.floor(Math.random() * 8)];
+                randomSlider.value = parseInt(randomSlider.value) + (Math.random() - 0.5) * 10;
+            }
+        }, 2000);
+    </script>
+</body>
+</html>

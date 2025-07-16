@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D迷路脱出ゲーム - WebGL Adventure</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #000;
+            color: white;
+            overflow: hidden;
+        }
+        #gameCanvas {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+        }
+        .ui-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+        }
+        .timer {
+            font-size: 24px;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+        }
+        .controls {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #aaa;
+        }
+        .game-over, .game-win {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 20px;
+            display: none;
+        }
+        .game-over h2, .game-win h2 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        .game-win h2 { color: #00ff00; }
+        .game-over h2 { color: #ff0000; }
+        button {
+            background: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+        .minimap {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 150px;
+            height: 150px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    
+    <div class="ui-overlay">
+        <div class="timer" id="timer">⏱️ 00:00</div>
+        <div class="controls">
+            <p>🎮 操作方法:</p>
+            <p>WASD/矢印キー: 移動</p>
+            <p>マウス: 視点移動</p>
+            <p>🏁 ゴールを目指せ！</p>
+        </div>
+    </div>
+    
+    <canvas class="minimap" id="minimap"></canvas>
+    
+    <div class="game-win" id="gameWin">
+        <h2>🎉 脱出成功！</h2>
+        <p id="winTime"></p>
+        <button onclick="resetGame()">もう一度プレイ</button>
+    </div>
+    
+    <div class="game-over" id="gameOver">
+        <h2>💀 時間切れ...</h2>
+        <button onclick="resetGame()">リトライ</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const miniCanvas = document.getElementById('minimap');
+        const miniCtx = miniCanvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        miniCanvas.width = 150;
+        miniCanvas.height = 150;
+
+        // ゲーム設定
+        const MAZE_SIZE = 15;
+        const CELL_SIZE = 3;
+        const WALL_HEIGHT = 3;
+        const PLAYER_HEIGHT = 1.6;
+        const MOVE_SPEED = 0.1;
+        const TURN_SPEED = 0.03;
+        const TIME_LIMIT = 180; // 3分
+
+        let maze = [];
+        let player = {
+            x: 1.5,
+            z: 1.5,
+            angle: 0,
+            bobbing: 0
+        };
+        let goal = { x: MAZE_SIZE - 1.5, z: MAZE_SIZE - 1.5 };
+        let startTime = Date.now();
+        let gameState = 'playing';
+
+        // 入力管理
+        const keys = {};
+        let mouseX = 0;
+
+        // 迷路生成（深さ優先探索）
+        function generateMaze() {
+            maze = Array(MAZE_SIZE).fill().map(() => Array(MAZE_SIZE).fill(1));
+            const stack = [];
+            const visited = Array(MAZE_SIZE).fill().map(() => Array(MAZE_SIZE).fill(false));
+            
+            let current = { x: 0, y: 0 };
+            visited[0][0] = false;
+            maze[0][0] = 0;
+            
+            function getUnvisitedNeighbors(x, y) {
+                const neighbors = [];
+                const dirs = [[0, -2], [2, 0], [0, 2], [-2, 0]];
+                
+                for (const [dx, dy] of dirs) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    if (nx >= 0 && nx < MAZE_SIZE && ny >= 0 && ny < MAZE_SIZE && !visited[ny][nx]) {
+                        neighbors.push({ x: nx, y: ny, wallX: x + dx/2, wallY: y + dy/2 });
+                    }
+                }
+                return neighbors;
+            }
+            
+            while (true) {
+                const neighbors = getUnvisitedNeighbors(current.x, current.y);
+                
+                if (neighbors.length > 0) {
+                    const next = neighbors[Math.floor(Math.random() * neighbors.length)];
+                    maze[next.wallY][next.wallX] = 0;
+                    maze[next.y][next.x] = 0;
+                    visited[next.y][next.x] = true;
+                    stack.push(current);
+                    current = { x: next.x, y: next.y };
+                } else if (stack.length > 0) {
+                    current = stack.pop();
+                } else {
+                    break;
+                }
+            }
+            
+            // ゴール地点を確実に空ける
+            maze[MAZE_SIZE - 1][MAZE_SIZE - 1] = 0;
+            maze[MAZE_SIZE - 2][MAZE_SIZE - 1] = 0;
+            maze[MAZE_SIZE - 1][MAZE_SIZE - 2] = 0;
+        }
+
+        // 3D描画（レイキャスティング）
+        function render3D() {
+            // 背景グラデーション（空）
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#001122');
+            gradient.addColorStop(0.5, '#112244');
+            gradient.addColorStop(1, '#000011');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 床
+            ctx.fillStyle = '#222';
+            ctx.fillRect(0, canvas.height / 2, canvas.width, canvas.height / 2);
+            
+            const FOV = Math.PI / 3;
+            const numRays = canvas.width / 2;
+            
+            for (let i = 0; i < numRays; i++) {
+                const rayAngle = player.angle - FOV / 2 + (i / numRays) * FOV;
+                const distance = castRay(rayAngle);
+                
+                if (distance < Infinity) {
+                    const height = (WALL_HEIGHT / distance) * 300;
+                    const brightness = Math.max(0.2, 1 - distance / 20);
+                    
+                    // 壁の色（距離に応じて暗くする）
+                    const wallColor = `rgb(${Math.floor(100 * brightness)}, ${Math.floor(100 * brightness)}, ${Math.floor(150 * brightness)})`;
+                    
+                    ctx.fillStyle = wallColor;
+                    const wallTop = canvas.height / 2 - height / 2 + player.bobbing;
+                    ctx.fillRect(i * 2, wallTop, 2, height);
+                    
+                    // 壁の影
+                    ctx.fillStyle = `rgba(0, 0, 0, ${0.3 * (1 - brightness)})`;
+                    ctx.fillRect(i * 2, wallTop, 2, height);
+                }
+            }
+            
+            // ゴールの描画
+            const goalDX = goal.x - player.x;
+            const goalDZ = goal.z - player.z;
+            const goalDist = Math.sqrt(goalDX * goalDX + goalDZ * goalDZ);
+            const goalAngle = Math.atan2(goalDZ, goalDX) - player.angle;
+            
+            if (Math.abs(goalAngle) < FOV / 2 && goalDist < 10) {
+                const screenX = canvas.width / 2 + (goalAngle / FOV) * canvas.width;
+                const size = 100 / goalDist;
+                
+                // ゴールの光
+                const glowGradient = ctx.createRadialGradient(screenX, canvas.height / 2, 0, screenX, canvas.height / 2, size * 2);
+                glowGradient.addColorStop(0, 'rgba(0, 255, 0, 0.8)');
+                glowGradient.addColorStop(1, 'rgba(0, 255, 0, 0)');
+                ctx.fillStyle = glowGradient;
+                ctx.fillRect(screenX - size * 2, canvas.height / 2 - size * 2, size * 4, size * 4);
+                
+                // ゴールマーク
+                ctx.fillStyle = '#00ff00';
+                ctx.font = `${size}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.fillText('🏁', screenX, canvas.height / 2 + player.bobbing);
+            }
+        }
+
+        // レイキャスティング
+        function castRay(angle) {
+            const cos = Math.cos(angle);
+            const sin = Math.sin(angle);
+            let distance = 0;
+            
+            while (distance < 20) {
+                distance += 0.02;
+                const x = player.x + cos * distance;
+                const z = player.z + sin * distance;
+                
+                const gridX = Math.floor(x / CELL_SIZE);
+                const gridZ = Math.floor(z / CELL_SIZE);
+                
+                if (gridX < 0 || gridX >= MAZE_SIZE || gridZ < 0 || gridZ >= MAZE_SIZE || maze[gridZ][gridX] === 1) {
+                    return distance;
+                }
+            }
+            
+            return Infinity;
+        }
+
+        // ミニマップ描画
+        function renderMinimap() {
+            miniCtx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+            miniCtx.fillRect(0, 0, 150, 150);
+            
+            const scale = 150 / (MAZE_SIZE * CELL_SIZE);
+            
+            // 迷路
+            for (let y = 0; y < MAZE_SIZE; y++) {
+                for (let x = 0; x < MAZE_SIZE; x++) {
+                    if (maze[y][x] === 1) {
+                        miniCtx.fillStyle = '#444';
+                        miniCtx.fillRect(x * CELL_SIZE * scale, y * CELL_SIZE * scale, 
+                                       CELL_SIZE * scale, CELL_SIZE * scale);
+                    }
+                }
+            }
+            
+            // ゴール
+            miniCtx.fillStyle = '#00ff00';
+            miniCtx.fillRect(goal.x * scale - 3, goal.z * scale - 3, 6, 6);
+            
+            // プレイヤー
+            miniCtx.save();
+            miniCtx.translate(player.x * scale, player.z * scale);
+            miniCtx.rotate(player.angle);
+            miniCtx.fillStyle = '#ff0';
+            miniCtx.beginPath();
+            miniCtx.moveTo(5, 0);
+            miniCtx.lineTo(-3, -3);
+            miniCtx.lineTo(-3, 3);
+            miniCtx.closePath();
+            miniCtx.fill();
+            miniCtx.restore();
+        }
+
+        // プレイヤー移動
+        function updatePlayer() {
+            const moveVector = { x: 0, z: 0 };
+            
+            if (keys['KeyW'] || keys['ArrowUp']) {
+                moveVector.x += Math.cos(player.angle) * MOVE_SPEED;
+                moveVector.z += Math.sin(player.angle) * MOVE_SPEED;
+            }
+            if (keys['KeyS'] || keys['ArrowDown']) {
+                moveVector.x -= Math.cos(player.angle) * MOVE_SPEED;
+                moveVector.z -= Math.sin(player.angle) * MOVE_SPEED;
+            }
+            if (keys['KeyA'] || keys['ArrowLeft']) {
+                moveVector.x += Math.cos(player.angle - Math.PI/2) * MOVE_SPEED;
+                moveVector.z += Math.sin(player.angle - Math.PI/2) * MOVE_SPEED;
+            }
+            if (keys['KeyD'] || keys['ArrowRight']) {
+                moveVector.x += Math.cos(player.angle + Math.PI/2) * MOVE_SPEED;
+                moveVector.z += Math.sin(player.angle + Math.PI/2) * MOVE_SPEED;
+            }
+            
+            // マウスによる回転
+            player.angle += mouseX * TURN_SPEED;
+            mouseX *= 0.8; // 減衰
+            
+            // 衝突検出
+            const newX = player.x + moveVector.x;
+            const newZ = player.z + moveVector.z;
+            const margin = 0.3;
+            
+            const gridX = Math.floor(newX / CELL_SIZE);
+            const gridZ = Math.floor(newZ / CELL_SIZE);
+            
+            if (gridX >= 0 && gridX < MAZE_SIZE && gridZ >= 0 && gridZ < MAZE_SIZE) {
+                if (maze[gridZ][Math.floor(player.x / CELL_SIZE)] === 0) {
+                    player.z = newZ;
+                }
+                if (maze[Math.floor(player.z / CELL_SIZE)][gridX] === 0) {
+                    player.x = newX;
+                }
+            }
+            
+            // 歩行時の揺れ
+            if (moveVector.x !== 0 || moveVector.z !== 0) {
+                player.bobbing = Math.sin(Date.now() * 0.01) * 5;
+            } else {
+                player.bobbing *= 0.9;
+            }
+            
+            // ゴール判定
+            const dx = player.x - goal.x;
+            const dz = player.z - goal.z;
+            if (Math.sqrt(dx * dx + dz * dz) < 0.5) {
+                gameState = 'win';
+                document.getElementById('gameWin').style.display = 'block';
+                const time = Math.floor((Date.now() - startTime) / 1000);
+                document.getElementById('winTime').textContent = `クリアタイム: ${Math.floor(time / 60)}:${(time % 60).toString().padStart(2, '0')}`;
+            }
+        }
+
+        // タイマー更新
+        function updateTimer() {
+            if (gameState !== 'playing') return;
+            
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const remaining = TIME_LIMIT - elapsed;
+            
+            if (remaining <= 0) {
+                gameState = 'gameover';
+                document.getElementById('gameOver').style.display = 'block';
+                return;
+            }
+            
+            const minutes = Math.floor(remaining / 60);
+            const seconds = remaining % 60;
+            document.getElementById('timer').textContent = `⏱️ ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            // 残り時間が少ないと赤く点滅
+            if (remaining < 30) {
+                document.getElementById('timer').style.color = remaining % 2 === 0 ? '#ff0000' : '#ffff00';
+            }
+        }
+
+        // ゲームループ
+        function gameLoop() {
+            if (gameState === 'playing') {
+                updatePlayer();
+                updateTimer();
+            }
+            
+            render3D();
+            renderMinimap();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // ゲームリセット
+        function resetGame() {
+            generateMaze();
+            player = { x: 1.5, z: 1.5, angle: 0, bobbing: 0 };
+            startTime = Date.now();
+            gameState = 'playing';
+            document.getElementById('gameWin').style.display = 'none';
+            document.getElementById('gameOver').style.display = 'none';
+            document.getElementById('timer').style.color = '#00ff00';
+        }
+
+        // イベントリスナー
+        window.addEventListener('keydown', e => keys[e.code] = true);
+        window.addEventListener('keyup', e => keys[e.code] = false);
+        window.addEventListener('mousemove', e => {
+            if (document.pointerLockElement === canvas) {
+                mouseX = e.movementX * 0.1;
+            }
+        });
+        
+        canvas.addEventListener('click', () => {
+            canvas.requestPointerLock();
+        });
+        
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // ゲーム開始
+        generateMaze();
+        gameLoop();
+    </script>
+</body>
+</html>

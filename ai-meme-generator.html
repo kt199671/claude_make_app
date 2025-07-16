@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIミームジェネレーター - 自動ミーム生成</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #f7dc6f);
+            background-size: 400% 400%;
+            animation: gradientShift 10s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .meme-container {
+            position: relative;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        #memeCanvas {
+            width: 100%;
+            display: block;
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .style-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+        .style-btn {
+            padding: 10px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        .style-btn:hover, .style-btn.active {
+            border-color: #4ecdc4;
+            background: #4ecdc4;
+            color: white;
+            transform: scale(1.05);
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #4ecdc4;
+        }
+        .generate-btn {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4ecdc4;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .download-btn {
+            background: #45b7d1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 1rem;
+            width: 100%;
+            font-size: 16px;
+            display: none;
+        }
+        .download-btn:hover {
+            background: #3a9bc0;
+        }
+        .template-preview {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+        .template-thumb {
+            width: 100%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        .template-thumb:hover {
+            border-color: #4ecdc4;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 AIミームジェネレーター</h1>
+        
+        <div class="meme-container">
+            <canvas id="memeCanvas" width="600" height="600"></canvas>
+        </div>
+        
+        <div class="controls">
+            <div class="style-selector">
+                <button class="style-btn active" onclick="selectStyle('classic')">クラシック</button>
+                <button class="style-btn" onclick="selectStyle('modern')">モダン</button>
+                <button class="style-btn" onclick="selectStyle('anime')">アニメ</button>
+                <button class="style-btn" onclick="selectStyle('surreal')">シュール</button>
+                <button class="style-btn" onclick="selectStyle('deepfried')">ディープフライ</button>
+                <button class="style-btn" onclick="selectStyle('vintage')">ヴィンテージ</button>
+            </div>
+            
+            <input type="text" id="topText" placeholder="上部テキスト（例：友達「今日暇？」）" />
+            <input type="text" id="bottomText" placeholder="下部テキスト（例：俺「ゲームで忙しい」）" />
+            
+            <button class="generate-btn" onclick="generateMeme()">🎨 ミーム生成！</button>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>AIが面白いミームを生成中...</p>
+            </div>
+            
+            <button class="download-btn" id="downloadBtn" onclick="downloadMeme()">
+                📥 ミームをダウンロード
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('memeCanvas');
+        const ctx = canvas.getContext('2d');
+        let currentStyle = 'classic';
+        let currentMeme = null;
+
+        // ミームテンプレート
+        const memeTemplates = {
+            classic: [
+                { bg: '#ff6b6b', pattern: 'impact' },
+                { bg: '#4ecdc4', pattern: 'bold' },
+                { bg: '#45b7d1', pattern: 'retro' }
+            ],
+            modern: [
+                { bg: 'gradient1', pattern: 'minimal' },
+                { bg: 'gradient2', pattern: 'clean' },
+                { bg: 'gradient3', pattern: 'fresh' }
+            ],
+            anime: [
+                { bg: '#ffb3ba', pattern: 'kawaii' },
+                { bg: '#bae1ff', pattern: 'manga' },
+                { bg: '#ffffba', pattern: 'chibi' }
+            ],
+            surreal: [
+                { bg: 'psychedelic', pattern: 'weird' },
+                { bg: 'vaporwave', pattern: 'glitch' },
+                { bg: 'abstract', pattern: 'chaos' }
+            ],
+            deepfried: [
+                { bg: '#ff0000', pattern: 'crispy', filter: 'saturate(200%) contrast(150%)' },
+                { bg: '#ff6600', pattern: 'burnt', filter: 'saturate(300%) brightness(120%)' }
+            ],
+            vintage: [
+                { bg: '#f4e4c1', pattern: 'old', filter: 'sepia(50%)' },
+                { bg: '#d4a574', pattern: 'retro', filter: 'sepia(30%) contrast(120%)' }
+            ]
+        };
+
+        // AI風のランダムテキスト生成
+        const aiPhrases = {
+            top: [
+                "友達「今日暇？」",
+                "母「部屋片付けなさい」",
+                "先生「宿題は？」",
+                "上司「締切は今日だぞ」",
+                "彼女「話があるの」",
+                "面接官「志望動機は？」",
+                "医者「運動してますか？」"
+            ],
+            bottom: [
+                "俺「ゲームで忙しい」",
+                "私「5分後にやる（やらない）」",
+                "僕「犬が食べました」",
+                "私「時間は相対的です」",
+                "俺「既読スルー」",
+                "私「御社のビジョンに共感して（給料）」",
+                "僕「歩いてます（家から冷蔵庫まで）」"
+            ]
+        };
+
+        function selectStyle(style) {
+            currentStyle = style;
+            document.querySelectorAll('.style-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function generateMeme() {
+            const topText = document.getElementById('topText').value || getRandomPhrase('top');
+            const bottomText = document.getElementById('bottomText').value || getRandomPhrase('bottom');
+            
+            document.getElementById('loading').style.display = 'block';
+            
+            // AIっぽい遅延を演出
+            setTimeout(() => {
+                drawMeme(topText, bottomText);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('downloadBtn').style.display = 'block';
+            }, 1500);
+        }
+
+        function getRandomPhrase(position) {
+            const phrases = aiPhrases[position];
+            return phrases[Math.floor(Math.random() * phrases.length)];
+        }
+
+        function drawMeme(topText, bottomText) {
+            const template = memeTemplates[currentStyle][Math.floor(Math.random() * memeTemplates[currentStyle].length)];
+            
+            // 背景描画
+            if (template.bg.includes('gradient')) {
+                const gradient = createGradient(template.bg);
+                ctx.fillStyle = gradient;
+            } else if (template.bg === 'psychedelic') {
+                drawPsychedelicBackground();
+            } else if (template.bg === 'vaporwave') {
+                drawVaporwaveBackground();
+            } else if (template.bg === 'abstract') {
+                drawAbstractBackground();
+            } else {
+                ctx.fillStyle = template.bg;
+            }
+            
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // パターン追加
+            addPattern(template.pattern);
+            
+            // テキスト描画
+            drawMemeText(topText, bottomText, template.pattern);
+            
+            // フィルター適用
+            if (template.filter) {
+                ctx.filter = template.filter;
+                ctx.drawImage(canvas, 0, 0);
+                ctx.filter = 'none';
+            }
+            
+            currentMeme = { topText, bottomText, style: currentStyle };
+        }
+
+        function createGradient(type) {
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            switch(type) {
+                case 'gradient1':
+                    gradient.addColorStop(0, '#667eea');
+                    gradient.addColorStop(1, '#764ba2');
+                    break;
+                case 'gradient2':
+                    gradient.addColorStop(0, '#f093fb');
+                    gradient.addColorStop(1, '#f5576c');
+                    break;
+                case 'gradient3':
+                    gradient.addColorStop(0, '#4facfe');
+                    gradient.addColorStop(1, '#00f2fe');
+                    break;
+            }
+            return gradient;
+        }
+
+        function drawPsychedelicBackground() {
+            for (let i = 0; i < 50; i++) {
+                ctx.fillStyle = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                ctx.beginPath();
+                ctx.arc(
+                    Math.random() * canvas.width,
+                    Math.random() * canvas.height,
+                    Math.random() * 100,
+                    0,
+                    Math.PI * 2
+                );
+                ctx.fill();
+            }
+        }
+
+        function drawVaporwaveBackground() {
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#ff006e');
+            gradient.addColorStop(0.5, '#8338ec');
+            gradient.addColorStop(1, '#3a86ff');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // グリッド
+            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < canvas.width; i += 30) {
+                ctx.beginPath();
+                ctx.moveTo(i, canvas.height / 2);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+        }
+
+        function drawAbstractBackground() {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            for (let i = 0; i < 20; i++) {
+                ctx.strokeStyle = `hsl(${Math.random() * 360}, 70%, 50%)`;
+                ctx.lineWidth = Math.random() * 10;
+                ctx.beginPath();
+                ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+                ctx.bezierCurveTo(
+                    Math.random() * canvas.width, Math.random() * canvas.height,
+                    Math.random() * canvas.width, Math.random() * canvas.height,
+                    Math.random() * canvas.width, Math.random() * canvas.height
+                );
+                ctx.stroke();
+            }
+        }
+
+        function addPattern(pattern) {
+            switch(pattern) {
+                case 'impact':
+                    // インパクトのある放射線
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                    ctx.lineWidth = 3;
+                    for (let i = 0; i < 12; i++) {
+                        ctx.beginPath();
+                        ctx.moveTo(canvas.width / 2, canvas.height / 2);
+                        const angle = (i / 12) * Math.PI * 2;
+                        ctx.lineTo(
+                            canvas.width / 2 + Math.cos(angle) * canvas.width,
+                            canvas.height / 2 + Math.sin(angle) * canvas.height
+                        );
+                        ctx.stroke();
+                    }
+                    break;
+                case 'kawaii':
+                    // かわいいハート
+                    ctx.fillStyle = 'rgba(255, 182, 193, 0.5)';
+                    for (let i = 0; i < 10; i++) {
+                        drawHeart(
+                            Math.random() * canvas.width,
+                            Math.random() * canvas.height,
+                            20 + Math.random() * 30
+                        );
+                    }
+                    break;
+            }
+        }
+
+        function drawHeart(x, y, size) {
+            ctx.beginPath();
+            ctx.moveTo(x, y + size / 4);
+            ctx.bezierCurveTo(x, y, x - size / 2, y, x - size / 2, y + size / 4);
+            ctx.bezierCurveTo(x - size / 2, y + size / 2, x, y + size * 3/4, x, y + size);
+            ctx.bezierCurveTo(x, y + size * 3/4, x + size / 2, y + size / 2, x + size / 2, y + size / 4);
+            ctx.bezierCurveTo(x + size / 2, y, x, y, x, y + size / 4);
+            ctx.fill();
+        }
+
+        function drawMemeText(topText, bottomText, style) {
+            ctx.textAlign = 'center';
+            ctx.fillStyle = 'white';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 4;
+            
+            let fontSize = 48;
+            if (style === 'minimal') fontSize = 36;
+            if (style === 'impact') fontSize = 60;
+            
+            ctx.font = `bold ${fontSize}px Impact, Arial`;
+            
+            // 上部テキスト
+            const topLines = wrapText(topText, canvas.width - 40);
+            topLines.forEach((line, i) => {
+                const y = 60 + i * (fontSize + 10);
+                ctx.strokeText(line, canvas.width / 2, y);
+                ctx.fillText(line, canvas.width / 2, y);
+            });
+            
+            // 下部テキスト
+            const bottomLines = wrapText(bottomText, canvas.width - 40);
+            bottomLines.forEach((line, i) => {
+                const y = canvas.height - 40 - (bottomLines.length - i - 1) * (fontSize + 10);
+                ctx.strokeText(line, canvas.width / 2, y);
+                ctx.fillText(line, canvas.width / 2, y);
+            });
+        }
+
+        function wrapText(text, maxWidth) {
+            const words = text.split(' ');
+            const lines = [];
+            let currentLine = '';
+            
+            words.forEach(word => {
+                const testLine = currentLine + (currentLine ? ' ' : '') + word;
+                const metrics = ctx.measureText(testLine);
+                
+                if (metrics.width > maxWidth && currentLine) {
+                    lines.push(currentLine);
+                    currentLine = word;
+                } else {
+                    currentLine = testLine;
+                }
+            });
+            
+            if (currentLine) lines.push(currentLine);
+            return lines;
+        }
+
+        function downloadMeme() {
+            const link = document.createElement('a');
+            link.download = `meme_${Date.now()}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        // 初期描画
+        window.onload = () => {
+            drawMeme('AIが生成したミーム', 'めちゃくちゃ面白い');
+        };
+    </script>
+</body>
+</html>
