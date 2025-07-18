@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>感情分析カラオケバトル - AI vs 人間の歌声対決！</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 3em;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .battle-arena {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .player-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            width: 400px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .player-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .player-name {
+            font-size: 2em;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .emotion-meter {
+            width: 100%;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .emotion-fill {
+            height: 100%;
+            transition: width 0.5s ease, background-color 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            position: relative;
+        }
+
+        .joy { background: linear-gradient(90deg, #FFD700, #FFA500); }
+        .sadness { background: linear-gradient(90deg, #4169E1, #1E90FF); }
+        .anger { background: linear-gradient(90deg, #DC143C, #FF6347); }
+        .surprise { background: linear-gradient(90deg, #FF1493, #FF69B4); }
+        .fear { background: linear-gradient(90deg, #8B008B, #9400D3); }
+        .love { background: linear-gradient(90deg, #FF69B4, #FFB6C1); }
+
+        .score {
+            font-size: 3em;
+            margin: 20px 0;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .lyrics-display {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            min-height: 150px;
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+
+        .current-line {
+            color: #FFD700;
+            font-weight: bold;
+            font-size: 1.3em;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .song-selector {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            font-size: 1.1em;
+            border-radius: 10px;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        .visualizer {
+            width: 100%;
+            height: 100px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            margin: 20px 0;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            padding: 10px;
+        }
+
+        .bar {
+            width: 8px;
+            background: linear-gradient(to top, #FFD700, #FF6347);
+            border-radius: 4px;
+            transition: height 0.1s ease;
+        }
+
+        .emoji-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .emoji {
+            position: absolute;
+            font-size: 2em;
+            animation: fall linear;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        .battle-result {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: linear-gradient(135deg, #FFD700, #FF6347);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            z-index: 1001;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+            animation: resultPop 0.5s ease forwards;
+        }
+
+        @keyframes resultPop {
+            to {
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎤 感情分析カラオケバトル 🎤</h1>
+        
+        <div class="song-selector">
+            <h3>曲を選択：</h3>
+            <select id="songSelect">
+                <option value="rainbow">虹の彼方に</option>
+                <option value="farewell">さよならの朝</option>
+                <option value="love">永遠の愛</option>
+                <option value="dream">夢追い人</option>
+                <option value="courage">勇気の翼</option>
+            </select>
+        </div>
+
+        <div class="battle-arena">
+            <div class="player-section" id="humanPlayer">
+                <div class="player-name">👤 あなた</div>
+                <div class="score" id="humanScore">0</div>
+                <div class="visualizer" id="humanVisualizer"></div>
+                <div class="emotions">
+                    <div class="emotion-meter">
+                        <div class="emotion-fill joy" id="humanJoy" style="width: 0%">喜び</div>
+                    </div>
+                    <div class="emotion-meter">
+                        <div class="emotion-fill sadness" id="humanSadness" style="width: 0%">悲しみ</div>
+                    </div>
+                    <div class="emotion-meter">
+                        <div class="emotion-fill love" id="humanLove" style="width: 0%">愛</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="player-section" id="aiPlayer">
+                <div class="player-name">🤖 AI歌手</div>
+                <div class="score" id="aiScore">0</div>
+                <div class="visualizer" id="aiVisualizer"></div>
+                <div class="emotions">
+                    <div class="emotion-meter">
+                        <div class="emotion-fill joy" id="aiJoy" style="width: 0%">喜び</div>
+                    </div>
+                    <div class="emotion-meter">
+                        <div class="emotion-fill sadness" id="aiSadness" style="width: 0%">悲しみ</div>
+                    </div>
+                    <div class="emotion-meter">
+                        <div class="emotion-fill love" id="aiLove" style="width: 0%">愛</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lyrics-display" id="lyricsDisplay">
+            <p>曲を選んでバトルを開始しましょう！</p>
+        </div>
+
+        <div class="controls">
+            <button id="startBtn">バトル開始！</button>
+            <button id="singBtn" disabled>歌う！</button>
+            <button id="resetBtn">リセット</button>
+        </div>
+    </div>
+
+    <div class="emoji-rain" id="emojiRain"></div>
+    <div class="overlay" id="overlay"></div>
+    <div class="battle-result" id="battleResult"></div>
+
+    <script>
+        const songs = {
+            rainbow: {
+                title: "虹の彼方に",
+                lyrics: [
+                    "雨上がりの空に かかる七色の橋",
+                    "涙を拭いて 前を向いて歩こう",
+                    "明日はきっと 晴れるから",
+                    "虹の彼方に 夢がある"
+                ],
+                emotions: { joy: 0.8, sadness: 0.1, love: 0.1 }
+            },
+            farewell: {
+                title: "さよならの朝",
+                lyrics: [
+                    "別れの朝が来た 涙は見せない",
+                    "思い出だけを胸に しまって旅立とう",
+                    "いつかまた会える その日まで",
+                    "さよなら ありがとう"
+                ],
+                emotions: { joy: 0.1, sadness: 0.7, love: 0.2 }
+            },
+            love: {
+                title: "永遠の愛",
+                lyrics: [
+                    "君と出会えた奇跡 感謝している",
+                    "この愛は永遠に 変わることはない",
+                    "手を繋いで歩こう どこまでも",
+                    "愛してる ずっと一緒に"
+                ],
+                emotions: { joy: 0.3, sadness: 0.0, love: 0.7 }
+            },
+            dream: {
+                title: "夢追い人",
+                lyrics: [
+                    "大きな夢を抱いて 走り続ける",
+                    "転んでも立ち上がる 諦めはしない",
+                    "信じる心があれば きっと叶う",
+                    "夢を追いかけて 未来へ"
+                ],
+                emotions: { joy: 0.6, sadness: 0.1, love: 0.3 }
+            },
+            courage: {
+                title: "勇気の翼",
+                lyrics: [
+                    "恐れずに進もう 新しい世界へ",
+                    "勇気の翼を広げて 空高く飛ぼう",
+                    "困難も乗り越えて 強くなれる",
+                    "信じて飛び立とう 明日へ"
+                ],
+                emotions: { joy: 0.7, sadness: 0.0, love: 0.3 }
+            }
+        };
+
+        let currentSong = null;
+        let currentLine = 0;
+        let humanScore = 0;
+        let aiScore = 0;
+        let isPlaying = false;
+
+        const startBtn = document.getElementById('startBtn');
+        const singBtn = document.getElementById('singBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const songSelect = document.getElementById('songSelect');
+        const lyricsDisplay = document.getElementById('lyricsDisplay');
+
+        // Visualizer setup
+        function setupVisualizer(containerId) {
+            const container = document.getElementById(containerId);
+            for (let i = 0; i < 20; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = '10px';
+                container.appendChild(bar);
+            }
+        }
+
+        setupVisualizer('humanVisualizer');
+        setupVisualizer('aiVisualizer');
+
+        function animateVisualizer(containerId) {
+            const bars = document.querySelectorAll(`#${containerId} .bar`);
+            bars.forEach(bar => {
+                const height = Math.random() * 80 + 10;
+                bar.style.height = `${height}px`;
+            });
+        }
+
+        function updateEmotions(player, emotions) {
+            Object.entries(emotions).forEach(([emotion, value]) => {
+                const element = document.getElementById(`${player}${emotion.charAt(0).toUpperCase() + emotion.slice(1)}`);
+                if (element) {
+                    element.style.width = `${value * 100}%`;
+                }
+            });
+        }
+
+        function calculateScore(emotions) {
+            return Math.floor(
+                (emotions.joy * 100 + emotions.love * 80 + (1 - emotions.sadness) * 60) / 2.4
+            );
+        }
+
+        function createEmoji() {
+            const emojis = ['🎵', '🎶', '🎤', '✨', '⭐', '💫', '🌟'];
+            const emoji = document.createElement('div');
+            emoji.className = 'emoji';
+            emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            emoji.style.left = Math.random() * 100 + '%';
+            emoji.style.animationDuration = Math.random() * 3 + 2 + 's';
+            return emoji;
+        }
+
+        function startEmojiRain() {
+            const emojiRain = document.getElementById('emojiRain');
+            const interval = setInterval(() => {
+                if (!isPlaying) {
+                    clearInterval(interval);
+                    return;
+                }
+                emojiRain.appendChild(createEmoji());
+                setTimeout(() => {
+                    if (emojiRain.firstChild) {
+                        emojiRain.removeChild(emojiRain.firstChild);
+                    }
+                }, 5000);
+            }, 300);
+        }
+
+        function displayLyrics() {
+            if (!currentSong) return;
+            
+            let html = '';
+            currentSong.lyrics.forEach((line, index) => {
+                if (index === currentLine) {
+                    html += `<p class="current-line">${line}</p>`;
+                } else if (index < currentLine) {
+                    html += `<p style="opacity: 0.5">${line}</p>`;
+                } else {
+                    html += `<p>${line}</p>`;
+                }
+            });
+            lyricsDisplay.innerHTML = html;
+        }
+
+        function performAI() {
+            // AI performance with randomization
+            const baseEmotions = currentSong.emotions;
+            const aiEmotions = {
+                joy: Math.max(0, Math.min(1, baseEmotions.joy + (Math.random() - 0.5) * 0.3)),
+                sadness: Math.max(0, Math.min(1, baseEmotions.sadness + (Math.random() - 0.5) * 0.3)),
+                love: Math.max(0, Math.min(1, baseEmotions.love + (Math.random() - 0.5) * 0.3))
+            };
+            
+            updateEmotions('ai', aiEmotions);
+            const score = calculateScore(aiEmotions);
+            aiScore += score;
+            document.getElementById('aiScore').textContent = aiScore;
+            
+            // Animate AI visualizer
+            let visuInterval = setInterval(() => {
+                animateVisualizer('aiVisualizer');
+            }, 100);
+            
+            setTimeout(() => {
+                clearInterval(visuInterval);
+                document.querySelectorAll('#aiVisualizer .bar').forEach(bar => {
+                    bar.style.height = '10px';
+                });
+            }, 2000);
+        }
+
+        function showResult() {
+            const overlay = document.getElementById('overlay');
+            const result = document.getElementById('battleResult');
+            
+            overlay.style.display = 'block';
+            
+            let resultText = '';
+            if (humanScore > aiScore) {
+                resultText = `
+                    <h2>🎉 勝利！ 🎉</h2>
+                    <p>あなたの勝ち！</p>
+                    <p>スコア: ${humanScore} vs ${aiScore}</p>
+                    <p>素晴らしい感情表現でした！</p>
+                `;
+            } else if (aiScore > humanScore) {
+                resultText = `
+                    <h2>😢 敗北... 😢</h2>
+                    <p>AIの勝ち...</p>
+                    <p>スコア: ${humanScore} vs ${aiScore}</p>
+                    <p>次は頑張りましょう！</p>
+                `;
+            } else {
+                resultText = `
+                    <h2>🤝 引き分け！ 🤝</h2>
+                    <p>同点です！</p>
+                    <p>スコア: ${humanScore} vs ${aiScore}</p>
+                    <p>素晴らしい戦いでした！</p>
+                `;
+            }
+            
+            result.innerHTML = resultText;
+            result.style.display = 'block';
+        }
+
+        startBtn.addEventListener('click', () => {
+            const selectedSong = songSelect.value;
+            currentSong = songs[selectedSong];
+            currentLine = 0;
+            humanScore = 0;
+            aiScore = 0;
+            isPlaying = true;
+            
+            document.getElementById('humanScore').textContent = '0';
+            document.getElementById('aiScore').textContent = '0';
+            
+            updateEmotions('human', { joy: 0, sadness: 0, love: 0 });
+            updateEmotions('ai', { joy: 0, sadness: 0, love: 0 });
+            
+            displayLyrics();
+            startEmojiRain();
+            
+            startBtn.disabled = true;
+            singBtn.disabled = false;
+        });
+
+        singBtn.addEventListener('click', () => {
+            if (!isPlaying || currentLine >= currentSong.lyrics.length) return;
+            
+            // Human performance
+            const humanEmotions = {
+                joy: Math.random(),
+                sadness: Math.random(),
+                love: Math.random()
+            };
+            
+            updateEmotions('human', humanEmotions);
+            const score = calculateScore(humanEmotions);
+            humanScore += score;
+            document.getElementById('humanScore').textContent = humanScore;
+            
+            // Animate human visualizer
+            let visuInterval = setInterval(() => {
+                animateVisualizer('humanVisualizer');
+            }, 100);
+            
+            setTimeout(() => {
+                clearInterval(visuInterval);
+                document.querySelectorAll('#humanVisualizer .bar').forEach(bar => {
+                    bar.style.height = '10px';
+                });
+                
+                // AI turn
+                performAI();
+                
+                currentLine++;
+                displayLyrics();
+                
+                if (currentLine >= currentSong.lyrics.length) {
+                    isPlaying = false;
+                    singBtn.disabled = true;
+                    setTimeout(showResult, 1000);
+                }
+            }, 2000);
+        });
+
+        resetBtn.addEventListener('click', () => {
+            location.reload();
+        });
+
+        document.getElementById('overlay').addEventListener('click', () => {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('battleResult').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
