@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIバイラル動画クリエイター - 1000万再生を目指せ！</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        .background-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+            animation: float 20s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-20px) rotate(1deg); }
+            66% { transform: translateY(10px) rotate(-1deg); }
+        }
+        
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 300%;
+            animation: gradient 3s ease infinite;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .section h2 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .trend-analysis {
+            grid-column: 1 / -1;
+        }
+        
+        .trending-topics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .trend-card {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .trend-card:hover {
+            transform: translateY(-5px) scale(1.05);
+        }
+        
+        .trend-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .trend-stats {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .video-preview {
+            background: #000;
+            border-radius: 15px;
+            aspect-ratio: 9/16;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .preview-content {
+            text-align: center;
+            color: #fff;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .control-group {
+            text-align: center;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        
+        select, input[type="range"], button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        select option {
+            background: #333;
+            color: #fff;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .generate-btn {
+            grid-column: 1 / -1;
+            padding: 20px;
+            font-size: 1.2em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            margin-top: 20px;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .feature-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .status-bar {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 15px 25px;
+            margin: 20px 0;
+            text-align: center;
+            display: none;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            width: 0%;
+            transition: width 0.3s ease;
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200px 0; }
+            100% { background-position: 200px 0; }
+        }
+        
+        .viral-score {
+            text-align: center;
+            margin: 30px 0;
+            padding: 25px;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            border-radius: 20px;
+            display: none;
+        }
+        
+        .score-number {
+            font-size: 4em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .score-label {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .trending-topics {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .demo-video {
+            position: relative;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.1em;
+            line-height: 1.6;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-pattern"></div>
+    
+    <div class="container">
+        <header>
+            <h1>🎬 AIバイラル動画クリエイター</h1>
+            <p class="subtitle">AIが分析した最新トレンドで1000万再生を狙う革命的動画制作ツール</p>
+            <p style="opacity: 0.8; margin-top: 10px;">
+                TikTok・YouTube・Instagram対応 | 自動編集 | トレンド分析 | 音楽同期
+            </p>
+        </header>
+
+        <div class="section trend-analysis">
+            <h2>🔥 リアルタイムトレンド分析</h2>
+            <p style="margin-bottom: 20px; opacity: 0.9;">
+                AIが24時間365日、全世界のSNSトレンドを分析。今最もバイラルになりやすいコンテンツを提案します。
+            </p>
+            <div class="trending-topics">
+                <div class="trend-card" onclick="selectTrend('dance')">
+                    <div class="trend-title">💃 ダンスチャレンジ</div>
+                    <div class="trend-stats">バイラル率: 89% | 予想再生数: 850万</div>
+                </div>
+                <div class="trend-card" onclick="selectTrend('cooking')">
+                    <div class="trend-title">🍳 料理ハック</div>
+                    <div class="trend-stats">バイラル率: 76% | 予想再生数: 520万</div>
+                </div>
+                <div class="trend-card" onclick="selectTrend('pet')">
+                    <div class="trend-title">🐕 ペット動画</div>
+                    <div class="trend-stats">バイラル率: 92% | 予想再生数: 1200万</div>
+                </div>
+                <div class="trend-card" onclick="selectTrend('comedy')">
+                    <div class="trend-title">😂 コメディスキット</div>
+                    <div class="trend-stats">バイラル率: 84% | 予想再生数: 680万</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="section">
+                <h2>📱 動画プレビュー</h2>
+                <div class="video-preview">
+                    <div class="demo-video" id="videoPreview">
+                        <div style="font-size: 2em; margin-bottom: 15px;">🎥</div>
+                        <div>AIが最適化した動画がここに表示されます</div>
+                        <div style="font-size: 0.9em; margin-top: 10px; opacity: 0.8;">
+                            トレンドを選択して「動画生成」ボタンを押してください
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="viral-score" id="viralScore">
+                    <div class="score-number" id="scoreNumber">85</div>
+                    <div class="score-label">バイラル予測スコア</div>
+                    <div style="font-size: 0.9em; margin-top: 10px; opacity: 0.8;">
+                        予想再生数: <span id="expectedViews">340万回</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>⚙️ AI設定</h2>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>動画スタイル</label>
+                        <select id="videoStyle">
+                            <option value="trendy">トレンディ</option>
+                            <option value="funny">コメディ</option>
+                            <option value="aesthetic">美的</option>
+                            <option value="dramatic">ドラマチック</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>音楽ジャンル</label>
+                        <select id="musicGenre">
+                            <option value="pop">ポップ</option>
+                            <option value="hiphop">ヒップホップ</option>
+                            <option value="electronic">エレクトロニック</option>
+                            <option value="acoustic">アコースティック</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>動画長さ</label>
+                        <select id="videoDuration">
+                            <option value="15">15秒 (TikTok最適)</option>
+                            <option value="30">30秒 (Instagram最適)</option>
+                            <option value="60">60秒 (YouTube最適)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>AI創造性: <span id="creativityValue">70</span>%</label>
+                        <input type="range" id="creativity" min="0" max="100" value="70" oninput="updateCreativity(this.value)">
+                    </div>
+                </div>
+                
+                <button class="generate-btn" onclick="generateVideo()">
+                    🚀 AIバイラル動画を生成
+                </button>
+            </div>
+        </div>
+
+        <div class="status-bar" id="statusBar">
+            <div id="statusText">AI分析中...</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <span class="feature-icon">🧠</span>
+                <div class="feature-title">AI トレンド分析</div>
+                <div>リアルタイムで世界中のSNSトレンドを分析し、バイラルになりやすいコンテンツを予測</div>
+            </div>
+            
+            <div class="feature-card">
+                <span class="feature-icon">🎵</span>
+                <div class="feature-title">自動音楽同期</div>
+                <div>AIが動画の内容に最適な音楽を選択し、ビートに合わせて自動編集</div>
+            </div>
+            
+            <div class="feature-card">
+                <span class="feature-icon">🎨</span>
+                <div class="feature-title">インスタントエフェクト</div>
+                <div>顔認識、背景除去、カラーグレーディングなど50種類以上のエフェクトを自動適用</div>
+            </div>
+            
+            <div class="feature-card">
+                <span class="feature-icon">📊</span>
+                <div class="feature-title">バイラル予測</div>
+                <div>機械学習アルゴリズムで動画のバイラル可能性を0-100%で数値化</div>
+            </div>
+            
+            <div class="feature-card">
+                <span class="feature-icon">🌍</span>
+                <div class="feature-title">マルチプラットフォーム</div>
+                <div>TikTok、Instagram、YouTube向けに最適化された動画を同時生成</div>
+            </div>
+            
+            <div class="feature-card">
+                <span class="feature-icon">⚡</span>
+                <div class="feature-title">高速処理</div>
+                <div>GPU加速処理により30秒でプロ品質の動画を生成</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedTrend = null;
+        
+        function selectTrend(trend) {
+            selectedTrend = trend;
+            document.querySelectorAll('.trend-card').forEach(card => {
+                card.style.transform = '';
+                card.style.boxShadow = '';
+            });
+            
+            event.target.closest('.trend-card').style.transform = 'scale(1.05)';
+            event.target.closest('.trend-card').style.boxShadow = '0 10px 30px rgba(255, 255, 255, 0.3)';
+            
+            updatePreview(trend);
+        }
+        
+        function updatePreview(trend) {
+            const preview = document.getElementById('videoPreview');
+            const trendInfo = {
+                dance: { emoji: '💃', title: 'ダンスチャレンジ動画', description: 'AIが最新ダンストレンドを分析して最適な振り付けを提案' },
+                cooking: { emoji: '🍳', title: '料理ハック動画', description: '簡単で映える料理テクニックをスタイリッシュに演出' },
+                pet: { emoji: '🐕', title: 'ペット動画', description: '可愛いペットの魅力を最大限に引き出すカメラアングルとエフェクト' },
+                comedy: { emoji: '😂', title: 'コメディスキット', description: 'AIが分析したコメディパターンで確実に笑いを取る構成' }
+            };
+            
+            const info = trendInfo[trend];
+            preview.innerHTML = `
+                <div style="font-size: 3em; margin-bottom: 15px;">${info.emoji}</div>
+                <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px;">${info.title}</div>
+                <div style="opacity: 0.8;">${info.description}</div>
+                <div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 10px; font-size: 0.9em;">
+                    ✨ AI最適化済み | 🎵 音楽同期完了 | 📱 全プラットフォーム対応
+                </div>
+            `;
+        }
+        
+        function updateCreativity(value) {
+            document.getElementById('creativityValue').textContent = value;
+        }
+        
+        function generateVideo() {
+            if (!selectedTrend) {
+                alert('まずトレンドを選択してください！');
+                return;
+            }
+            
+            const statusBar = document.getElementById('statusBar');
+            const progressFill = document.getElementById('progressFill');
+            const statusText = document.getElementById('statusText');
+            const viralScore = document.getElementById('viralScore');
+            
+            statusBar.style.display = 'block';
+            viralScore.style.display = 'none';
+            
+            const steps = [
+                'トレンド分析中...',
+                'AI動画生成中...',
+                '音楽同期処理中...',
+                'エフェクト適用中...',
+                'バイラル予測計算中...',
+                '最終調整中...'
+            ];
+            
+            let currentStep = 0;
+            const interval = setInterval(() => {
+                if (currentStep < steps.length) {
+                    statusText.textContent = steps[currentStep];
+                    progressFill.style.width = ((currentStep + 1) / steps.length * 100) + '%';
+                    currentStep++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        statusBar.style.display = 'none';
+                        showResult();
+                    }, 1000);
+                }
+            }, 800);
+        }
+        
+        function showResult() {
+            const viralScore = document.getElementById('viralScore');
+            const scoreNumber = document.getElementById('scoreNumber');
+            const expectedViews = document.getElementById('expectedViews');
+            
+            // ランダムなスコアを生成（デモ用）
+            const score = Math.floor(Math.random() * 30) + 70; // 70-100
+            const views = Math.floor(Math.random() * 800 + 200); // 200-1000万
+            
+            scoreNumber.textContent = score;
+            expectedViews.textContent = views + '万回';
+            
+            viralScore.style.display = 'block';
+            
+            // 成功メッセージ
+            setTimeout(() => {
+                if (score >= 85) {
+                    alert('🎉 バイラル確率95%！この動画は大ヒット間違いなしです！\n\n📱 TikTok、Instagram、YouTubeに同時投稿して最大のインパクトを狙いましょう！');
+                } else {
+                    alert('✨ 良いスコアです！もう少し調整すればさらにバイラルになる可能性があります。\n\n💡 ヒント: 音楽ジャンルや動画スタイルを変更してみてください。');
+                }
+            }, 1500);
+        }
+        
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 動的なトレンド更新（デモ用）
+            const trendCards = document.querySelectorAll('.trend-card');
+            setInterval(() => {
+                trendCards.forEach(card => {
+                    const stats = card.querySelector('.trend-stats');
+                    const currentRate = parseInt(stats.textContent.match(/\d+/)[0]);
+                    const newRate = Math.max(50, Math.min(98, currentRate + Math.floor(Math.random() * 6) - 3));
+                    const newViews = Math.floor(Math.random() * 1000 + 200);
+                    stats.textContent = `バイラル率: ${newRate}% | 予想再生数: ${newViews}万`;
+                });
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
